@@ -1,4 +1,37 @@
-# Getting Started with Create React App
+# AXLPL Web Application
+
+This is the web application for AXLPL, a logistics and shipping platform.
+
+## Environment Variables
+
+The application uses the following environment variables:
+
+| Variable | Description |
+|----------|-------------|
+| `REACT_APP_FCM_TOKEN` | Firebase Cloud Messaging token for push notifications |
+
+Create a `.env` file in the root directory with these variables before running the application.
+
+## Configuration
+
+The application configuration is centralized in `src/config/index.ts`. This file exports:
+
+- `FCM_TOKEN`: The Firebase Cloud Messaging token from environment variables
+- `API_BASE_URL`: The base URL for API requests
+- `APP_CONFIG`: Other configuration settings like toast notification options
+
+You can access these configuration values throughout the app using the `useConfig` hook:
+
+```jsx
+import { useConfig } from '../hooks';
+
+function MyComponent() {
+  const { fcmToken, apiBaseUrl } = useConfig();
+  // Use the configuration values
+}
+```
+
+## Getting Started
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
