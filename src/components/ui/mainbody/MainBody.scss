@@ -2,7 +2,7 @@
   flex: 1;
   transition: all 0.3s ease-in-out;
   background-color: #f5f7fa;
-  padding: 2rem 0;
+  // padding: 2rem 0;
   width: 100%; /* Adjust width based on sidebar width */
   margin-left: auto;
 
@@ -13,18 +13,18 @@
   @media (max-width: 768px) {
     width: calc(100% - 250px);
 
-    .sidebar-collapsed & {
-      width: calc(100% - 70px);
-    }
+    // .sidebar-collapsed & {
+    //   width: calc(100% - 70px);
+    // }
   }
 
   @media (max-width: 576px) {
     width: calc(100% - 220px);
     padding: 1.5rem 0;
 
-    .sidebar-collapsed & {
-      width: calc(100% - 60px);
-    }
+    // .sidebar-collapsed & {
+    //   width: calc(100% - 60px);
+    // }
   }
   .dashboardGrid {
     display: grid;

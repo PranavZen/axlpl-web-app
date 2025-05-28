@@ -6,6 +6,7 @@ interface StepFieldWrapperProps {
   name: string;
   label: string;
   type?: string;
+  placeholder?: string;
   as?: any;
   component?: any;
   children?: React.ReactNode;
@@ -15,6 +16,7 @@ const StepFieldWrapper = ({
   name,
   label,
   type = "text",
+  placeholder,
   as = Input,
   children,
 }: StepFieldWrapperProps) => (
@@ -25,6 +27,7 @@ const StepFieldWrapper = ({
         name={name}
         as={as}
         type={type}
+        placeholder={placeholder}
         className="form-control innerFormControll"
       />
     )}

@@ -179,20 +179,32 @@ body {
   margin-left: 0.5rem;
   font-weight: 500;
   color: #ff0000;
+  @media (max-width: 1200px) {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 992px) {
+    font-size: 0.825rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 0.775rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+  }
 }
 
 .bodyWrap {
   display: flex;
-  padding-top: 2%;
   transition: all 0.3s ease-in-out;
-
-  @media (max-width: 768px) {
-    padding-top: 1.5%;
-  }
-
-  @media (max-width: 576px) {
-    padding-top: 1%;
-  }
+  height: 100vh;
+  overflow-y: scroll;
 }
 .tableWraper {
   background-color: #fff;

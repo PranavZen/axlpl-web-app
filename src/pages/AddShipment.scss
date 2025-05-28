@@ -1,0 +1,1134 @@
+// Multi-Step Form Enhanced Styling
+
+// CSS Custom Properties for theming
+:root {
+  --form-primary: #123458;
+  --form-secondary: #0a2848;
+  --form-accent: #ed6723;
+  --form-accent-hover: #d55b1d;
+  --form-success: #10b981;
+  --form-warning: #f59e0b;
+  --form-danger: #ef4444;
+  --form-info: #3b82f6;
+
+  --form-bg: #ffffff;
+  --form-bg-secondary: #f8fafc;
+  --form-bg-tertiary: #f1f5f9;
+  --form-border: #e2e8f0;
+  --form-border-light: #f1f5f9;
+  --form-text: #1e293b;
+  --form-text-secondary: #64748b;
+  --form-text-muted: #94a3b8;
+
+  --form-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --form-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --form-shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+  --form-shadow-accent: 0 4px 16px rgba(237, 103, 35, 0.2);
+
+  --form-radius: 1rem;
+  --form-radius-sm: 0.75rem;
+  --form-radius-lg: 1.25rem;
+
+  --form-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --form-transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.multi-step-form-container {
+  // max-width: 1200px;
+  // margin: 0 auto;
+  padding: 2rem;
+  background: var(--form-bg);
+  height: 100vh;
+  overflow-y: auto;
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+// Enhanced Header
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+  border-bottom: 2px solid var(--form-border-light);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .header-content {
+    .form-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--form-primary);
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--form-primary) 0%, var(--form-accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
+
+    .form-subtitle {
+      font-size: 1.1rem;
+      color: var(--form-text-secondary);
+      margin: 0;
+      font-weight: 400;
+    }
+  }
+
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--form-accent) 0%, var(--form-accent-hover) 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--form-radius);
+    box-shadow: var(--form-shadow-accent);
+
+    .current-step {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .total-steps {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+  }
+}
+
+// Progress Indicator Styles
+.multi-step-progress {
+  margin-bottom: 3rem;
+
+  .progress-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    margin-bottom: 2rem;
+
+    // Progress line
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--form-border);
+      border-radius: 2px;
+      z-index: 1;
+    }
+
+    // Active progress line
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--form-accent) 0%, var(--form-accent-hover) 100%);
+      border-radius: 2px;
+      z-index: 2;
+      transition: var(--form-transition);
+    }
+  }
+
+  .progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 3;
+    background: var(--form-bg);
+    padding: 0.5rem;
+
+    .step-circle {
+      width: 4rem;
+      height: 4rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+      border: 3px solid var(--form-border);
+      background: var(--form-bg);
+      color: var(--form-text-muted);
+      transition: var(--form-transition);
+      margin-bottom: 1rem;
+
+      &.completed {
+        background: linear-gradient(135deg, var(--form-success) 0%, #059669 100%);
+        border-color: var(--form-success);
+        color: white;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      }
+
+      &.active {
+        background: linear-gradient(135deg, var(--form-accent) 0%, var(--form-accent-hover) 100%);
+        border-color: var(--form-accent);
+        color: white;
+        box-shadow: var(--form-shadow-accent);
+        transform: scale(1.1);
+      }
+    }
+
+    .step-label {
+      text-align: center;
+
+      .step-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--form-text);
+        margin-bottom: 0.25rem;
+
+        &.active {
+          color: var(--form-accent);
+        }
+
+        &.completed {
+          color: var(--form-success);
+        }
+      }
+
+      .step-subtitle {
+        font-size: 0.75rem;
+        color: var(--form-text-muted);
+        margin: 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .step-circle {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.2rem;
+      }
+
+      .step-label {
+        .step-title {
+          font-size: 0.8rem;
+        }
+
+        .step-subtitle {
+          font-size: 0.7rem;
+        }
+      }
+    }
+  }
+}
+
+// Form Content
+.form-content {
+  background: var(--form-bg);
+  border-radius: var(--form-radius-lg);
+  box-shadow: var(--form-shadow-lg);
+  overflow: hidden;
+  border: 1px solid var(--form-border);
+}
+
+.multi-step-form {
+  .step-content {
+    padding: 3rem;
+
+    @media (max-width: 768px) {
+      padding: 2rem 1.5rem;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 2px solid var(--form-border-light);
+
+      .step-icon {
+        font-size: 3rem;
+        width: 5rem;
+        height: 5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--form-bg-secondary) 0%, var(--form-bg-tertiary) 100%);
+        border-radius: var(--form-radius);
+        border: 2px solid var(--form-border);
+
+        @media (max-width: 768px) {
+          font-size: 2rem;
+          width: 4rem;
+          height: 4rem;
+        }
+      }
+
+      .step-info {
+        .step-title {
+          font-size: 2rem;
+          font-weight: 700;
+          color: var(--form-primary);
+          margin-bottom: 0.5rem;
+
+          @media (max-width: 768px) {
+            font-size: 1.5rem;
+          }
+        }
+
+        .step-subtitle {
+          font-size: 1.1rem;
+          color: var(--form-text-secondary);
+          margin: 0;
+
+          @media (max-width: 768px) {
+            font-size: 1rem;
+          }
+        }
+      }
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+    }
+
+    .step-fields {
+      .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+      }
+
+      .form-group {
+        margin-bottom: 2rem;
+
+        .form-label {
+          font-weight: 600;
+          color: var(--form-text);
+          margin-bottom: 0.75rem;
+          display: block;
+          font-size: 0.95rem;
+        }
+
+        .form-control {
+          width: 100%;
+          padding: 1rem 1.25rem;
+          border: 2px solid var(--form-border);
+          border-radius: var(--form-radius-sm);
+          font-size: 1rem;
+          transition: var(--form-transition);
+          background: var(--form-bg);
+
+          &:focus {
+            outline: none;
+            border-color: var(--form-accent);
+            box-shadow: 0 0 0 3px rgba(237, 103, 35, 0.1);
+          }
+
+          &.error {
+            border-color: var(--form-danger);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+          }
+        }
+
+        .error-message {
+          color: var(--form-danger);
+          font-size: 0.875rem;
+          margin-top: 0.5rem;
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+// Form Navigation Styles
+.form-navigation {
+  background: var(--form-bg-secondary);
+  border-top: 2px solid var(--form-border);
+  padding: 2rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .navigation-buttons {
+    display: flex;
+    gap: 1rem;
+
+    .btn {
+      padding: 1rem 2rem;
+      border-radius: var(--form-radius-sm);
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--form-transition);
+      border: 2px solid transparent;
+
+      &.btn-back {
+        background: transparent;
+        color: var(--form-text-secondary);
+        border-color: var(--form-border);
+
+        &:hover {
+          background: var(--form-bg-tertiary);
+          border-color: var(--form-text-secondary);
+          transform: translateX(-0.2rem);
+        }
+      }
+
+      &.btn-next {
+        background: linear-gradient(135deg, var(--form-accent) 0%, var(--form-accent-hover) 100%);
+        color: white;
+        border-color: var(--form-accent);
+
+        &:hover {
+          background: linear-gradient(135deg, var(--form-accent-hover) 0%, #c44d15 100%);
+          transform: translateX(0.2rem);
+          box-shadow: var(--form-shadow-accent);
+        }
+      }
+
+      &.btn-submit {
+        background: linear-gradient(135deg, var(--form-success) 0%, #059669 100%);
+        color: white;
+        border-color: var(--form-success);
+
+        &:hover {
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+        }
+      }
+
+      svg {
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+    }
+  }
+
+  .step-info {
+    .step-counter {
+      font-size: 0.9rem;
+      color: var(--form-text-muted);
+      font-weight: 500;
+    }
+  }
+}
+
+// Progress Bar Animation
+.multi-step-progress .progress-container::after {
+  width: var(--progress-width, 0%);
+}
+
+// Step-specific styles
+.step-one-fields,
+.step-two-fields,
+.step-three-fields,
+.step-four-fields {
+  .form-section,
+  .address-section,
+  .package-section,
+  .summary-section,
+  .payment-section,
+  .cost-section {
+    background: var(--form-bg-secondary);
+    border-radius: var(--form-radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--form-border);
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+
+      .section-icon {
+        font-size: 2rem;
+        width: 3rem;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--form-bg);
+        border-radius: var(--form-radius-sm);
+        border: 2px solid var(--form-border);
+      }
+
+      .section-info {
+        .section-title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--form-primary);
+          margin-bottom: 0.25rem;
+        }
+
+        .section-description {
+          font-size: 1rem;
+          color: var(--form-text-secondary);
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+// Service Cards (Step 1)
+.service-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+
+  .service-card {
+    background: var(--form-bg);
+    border: 2px solid var(--form-border);
+    border-radius: var(--form-radius-sm);
+    padding: 1.5rem;
+    text-align: center;
+    transition: var(--form-transition);
+
+    &:hover {
+      border-color: var(--form-accent);
+      transform: translateY(-0.2rem);
+      box-shadow: var(--form-shadow-md);
+    }
+
+    .service-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--form-text);
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: var(--form-text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .service-price {
+      font-weight: 700;
+      color: var(--form-accent);
+      font-size: 1rem;
+    }
+  }
+}
+
+// Same Address Checkbox (Step 2)
+.same-address-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--form-info) 0%, #2563eb 100%);
+  border-radius: var(--form-radius);
+
+  .checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .same-address-checkbox {
+      display: none;
+    }
+
+    .same-address-label {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1.1rem;
+
+      .checkbox-icon {
+        width: 2rem;
+        height: 2rem;
+        border: 2px solid white;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        transition: var(--form-transition);
+        font-weight: 700;
+      }
+    }
+
+    .same-address-checkbox:checked + .same-address-label .checkbox-icon {
+      background: white;
+      color: var(--form-info);
+    }
+  }
+}
+
+// Address Tips (Step 2)
+.address-tips {
+  background: var(--form-bg-tertiary);
+  border-radius: var(--form-radius);
+  padding: 1.5rem;
+  border-left: 4px solid var(--form-info);
+
+  .tips-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--form-text);
+    margin-bottom: 1rem;
+  }
+
+  .tips-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      padding: 0.5rem 0;
+      color: var(--form-text-secondary);
+      position: relative;
+      padding-left: 1.5rem;
+
+      &:before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: var(--form-success);
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+// Toggle Switches (Step 3)
+.toggle-section,
+.insurance-toggle {
+  margin: 2rem 0;
+
+  .toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+
+    .toggle-checkbox {
+      display: none;
+    }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--form-text);
+
+      .toggle-switch {
+        width: 3rem;
+        height: 1.5rem;
+        background: var(--form-border);
+        border-radius: 1rem;
+        position: relative;
+        transition: var(--form-transition);
+
+        &:after {
+          content: '';
+          position: absolute;
+          top: 0.125rem;
+          left: 0.125rem;
+          width: 1.25rem;
+          height: 1.25rem;
+          background: white;
+          border-radius: 50%;
+          transition: var(--form-transition);
+        }
+      }
+
+      .toggle-text {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .toggle-icon {
+          font-size: 1.2rem;
+        }
+      }
+    }
+
+    .toggle-checkbox:checked + .toggle-label .toggle-switch {
+      background: var(--form-accent);
+
+      &:after {
+        transform: translateX(1.5rem);
+      }
+    }
+  }
+
+  .toggle-description {
+    color: var(--form-text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+    padding-left: 4rem;
+  }
+}
+
+// Volume Display (Step 3)
+.volume-display {
+  background: var(--form-bg-tertiary);
+  border-radius: var(--form-radius-sm);
+  padding: 1rem;
+  margin: 1rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 4px solid var(--form-info);
+
+  .volume-label {
+    font-weight: 600;
+    color: var(--form-text);
+  }
+
+  .volume-value {
+    font-weight: 700;
+    color: var(--form-info);
+    font-size: 1.1rem;
+  }
+}
+
+// Insurance Details (Step 3)
+.insurance-details {
+  background: var(--form-bg);
+  border-radius: var(--form-radius-sm);
+  padding: 1.5rem;
+  margin-top: 1rem;
+  border: 2px solid rgba(16, 185, 129, 0.2);
+
+  .insurance-info {
+    margin-top: 1rem;
+
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--form-text);
+      margin-bottom: 0.75rem;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        padding: 0.25rem 0;
+        color: var(--form-text-secondary);
+        position: relative;
+        padding-left: 1.5rem;
+
+        &:before {
+          content: '🛡️';
+          position: absolute;
+          left: 0;
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+}
+
+// Summary Grid (Step 4)
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  .summary-card {
+    background: var(--form-bg);
+    border: 2px solid var(--form-border);
+    border-radius: var(--form-radius-sm);
+    padding: 1.5rem;
+    transition: var(--form-transition);
+
+    &:hover {
+      border-color: var(--form-accent);
+      box-shadow: var(--form-shadow-md);
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--form-primary);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--form-border-light);
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--form-border-light);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .label {
+        font-weight: 500;
+        color: var(--form-text-secondary);
+      }
+
+      .value {
+        font-weight: 600;
+        color: var(--form-text);
+
+        &.priority-badge {
+          padding: 0.25rem 0.75rem;
+          border-radius: 1rem;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+
+          &.priority-standard {
+            background: var(--form-bg-tertiary);
+            color: var(--form-text-secondary);
+          }
+
+          &.priority-high {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--form-warning);
+          }
+
+          &.priority-urgent {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--form-danger);
+          }
+        }
+
+        &.fragile-badge,
+        &.insurance-badge {
+          padding: 0.25rem 0.75rem;
+          border-radius: 1rem;
+          font-size: 0.8rem;
+          background: rgba(16, 185, 129, 0.2);
+          color: var(--form-success);
+        }
+      }
+    }
+
+    .address-summary {
+      .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 0.75rem;
+
+        strong {
+          color: var(--form-text);
+          font-size: 1.1rem;
+        }
+
+        span {
+          color: var(--form-text-secondary);
+          font-size: 0.9rem;
+        }
+      }
+
+      .address-info {
+        color: var(--form-text-secondary);
+        line-height: 1.5;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Cost Breakdown (Step 4)
+.cost-breakdown {
+  background: var(--form-bg);
+  border: 2px solid var(--form-border);
+  border-radius: var(--form-radius-sm);
+  padding: 1.5rem;
+
+  .cost-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--form-border-light);
+
+    .cost-label {
+      color: var(--form-text-secondary);
+      font-weight: 500;
+    }
+
+    .cost-value {
+      color: var(--form-text);
+      font-weight: 600;
+    }
+  }
+
+  .cost-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0 0;
+    margin-top: 1rem;
+    border-top: 2px solid var(--form-accent);
+
+    .total-label {
+      color: var(--form-text);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .total-value {
+      color: var(--form-accent);
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+  }
+}
+
+.cost-note {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--form-bg-tertiary);
+  border-radius: var(--form-radius-sm);
+  border-left: 4px solid var(--form-warning);
+
+  p {
+    margin: 0;
+    color: var(--form-text-secondary);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+}
+
+// Terms Section (Step 4)
+.terms-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--form-bg-secondary);
+  border-radius: var(--form-radius);
+  border: 2px solid var(--form-border);
+
+  .terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+
+    .terms-checkbox-input {
+      margin-top: 0.25rem;
+      width: 1.2rem;
+      height: 1.2rem;
+      accent-color: var(--form-accent);
+    }
+
+    .terms-label {
+      color: var(--form-text-secondary);
+      line-height: 1.5;
+
+      a {
+        color: var(--form-accent);
+        text-decoration: none;
+        font-weight: 600;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+// Package Guidelines (Step 3)
+.package-guidelines {
+  background: var(--form-bg-secondary);
+  border-radius: var(--form-radius);
+  padding: 2rem;
+  margin-top: 2rem;
+  border: 1px solid var(--form-border);
+
+  .guidelines-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--form-text);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .guidelines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+
+    .guideline-item {
+      background: var(--form-bg);
+      border: 2px solid var(--form-border);
+      border-radius: var(--form-radius-sm);
+      padding: 1.5rem;
+      text-align: center;
+      transition: var(--form-transition);
+
+      &:hover {
+        border-color: var(--form-accent);
+        transform: translateY(-0.2rem);
+        box-shadow: var(--form-shadow-md);
+      }
+
+      .guideline-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      h5 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--form-text);
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+        color: var(--form-text-secondary);
+        margin: 0;
+        line-height: 1.4;
+      }
+    }
+  }
+}
+
+// Responsive Font Sizes for Form Elements
+.innerLabel {
+  font-size: 1rem;
+
+  @media (max-width: 1200px) {
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 992px) {
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+  }
+}
+
+.errorText {
+  font-size: 0.875rem;
+}
+
+.innerFormControll {
+  font-size: 1rem;
+
+  @media (max-width: 1200px) {
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 992px) {
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .multi-step-form-container {
+    padding: 1rem;
+  }
+
+  .form-header {
+    .header-content .form-title {
+      font-size: 1.8rem;
+    }
+
+    .step-indicator {
+      padding: 0.75rem 1rem;
+
+      .current-step {
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  .multi-step-form .step-content {
+    padding: 1.5rem;
+
+    .step-header {
+      .step-icon {
+        font-size: 1.5rem;
+        width: 3rem;
+        height: 3rem;
+      }
+
+      .step-info .step-title {
+        font-size: 1.3rem;
+      }
+    }
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-info-grid,
+  .guidelines-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-navigation .navigation-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
