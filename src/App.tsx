@@ -1,26 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Suspense, lazy } from "react";
+import { SidebarProvider } from "./contexts/SidebarContext";
+import { ToastContainer } from "react-toastify";
+import { APP_CONFIG } from "./config";
+import "react-toastify/dist/ReactToastify.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./assets/style/Global.scss";
+import ShipmentsPage from "../src/pages/ShipmentsPage";
+import Addresses from "./pages/Addresses";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+// Lazy load pages
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const SignIn = lazy(() => import("./pages/SignIn"));
+const AddShipment = lazy(() => import("./pages/AddShipement"));
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <SidebarProvider>
+        <Suspense fallback={<div className="text-center mt-5">Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<SignIn />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/add-shipment" element={<ProtectedRoute><AddShipment /></ProtectedRoute>} />
+            <Route path="/shipments/:shipment_status" element={<ProtectedRoute><ShipmentsPage /></ProtectedRoute>} />
+            <Route path="/customer/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
+          </Routes>
+        </Suspense>
+        <ToastContainer
+          {...APP_CONFIG.toast}
+          newestOnTop
+          rtl={false}
+          pauseOnFocusLoss
+        />
+    </SidebarProvider>
+    </Router>
   );
-}
+};
 
 export default App;

@@ -1,0 +1,228 @@
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap");
+@import "../style/mixin";
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Work Sans", sans-serif;
+}
+html {
+  font-size: 62.5%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+body {
+  position: relative;
+  height: 100vh;
+  overflow-y: scroll;
+}
+
+#p_newLoginFormSection {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background-image: url(https://beta.axlpl.com/admin/template/assets/images/login-bg.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  .p_newFormRow {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    .p_newLeftSide {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      .p_loginInnerFormWrap {
+        position: relative;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 32px;
+        width: 60%;
+        .p_formTitle {
+          font-weight: 500;
+          font-size: 48px;
+          color: #123458;
+          text-align: center;
+        }
+        .p_formPara {
+          text-align: center;
+          font-size: 16px;
+          color: #47464a;
+          margin-bottom: 10px;
+        }
+        .p_loginMainForm {
+          margin-top: 30px;
+          @include floatingInput;
+          .p_frgtPswdWrap {
+            display: flex;
+            justify-content: flex-end;
+            a {
+              margin-bottom: 0;
+              font-size: 1.6rem;
+              font-weight: 500;
+              color: #47464a;
+              text-decoration: none;
+              &:hover {
+                color: #47464a;
+              }
+            }
+          }
+          .myCheckbox {
+            margin-top: 20px;
+            .form-check-input {
+              width: 1.5rem;
+              height: 1.5rem;
+              background-color: #fff;
+              border: 2px solid #113459;
+              &:checked {
+                background-color: #113459;
+                border-color: #113459;
+                &::after {
+                  content: "";
+                  position: absolute;
+                  top: 0.3rem;
+                  left: 0.3rem;
+                  width: 0.9rem;
+                  height: 0.9rem;
+                  background-color: #fff;
+                }
+              }
+            }
+            label {
+              font-size: 1.6rem;
+              color: #7e7e7e;
+              font-weight: 500;
+              margin-left: 1rem;
+              margin-bottom: 0;
+              cursor: pointer;
+              line-height: 1.2;
+              &:hover {
+                color: #47464a;
+              }
+              a {
+                color: #ec6623;
+                text-decoration: none;
+              }
+            }
+          }
+          .p_loginFormBtnsWrap {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            .btn {
+              font-weight: 600;
+              margin-bottom: 0;
+              font-size: 1.8rem;
+              color: #fff;
+              text-transform: uppercase;
+              border-radius: 1.2rem;
+              cursor: pointer;
+              height: 5.1rem;
+              &:nth-child(1) {
+                background-color: #123458;
+                width: 100%;
+              }
+              &:nth-child(3) {
+                width: 100%;
+                border: 0.1rem solid #dcdbdd;
+                color: #ec6623;
+                border-radius: 1.2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+            }
+            .dividerLine {
+              position: relative;
+              display: flex;
+              justify-content: center;
+              padding: 1.2rem 0;
+              text-transform: uppercase;
+              font-size: 1.6rem;
+              font-weight: 600;
+              &:before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 50%;
+                width: 45%;
+                height: 1px;
+                background: #dcdbdd;
+              }
+              &:after {
+                content: "";
+                position: absolute;
+                right: 0;
+                top: 50%;
+                width: 45%;
+                height: 1px;
+                background: #dcdbdd;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.errorText {
+  font-size: 1.4rem;
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  font-weight: 500;
+  color: #ff0000;
+}
+
+.bodyWrap {
+  display: flex;
+  padding-top: 2%;
+  transition: all 0.3s ease-in-out;
+
+  @media (max-width: 768px) {
+    padding-top: 1.5%;
+  }
+
+  @media (max-width: 576px) {
+    padding-top: 1%;
+  }
+}
+.tableWraper {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 2rem;
+  margin: 0 1.5rem;
+  box-shadow: 0rem 0rem 10rem -0.3rem #d4d3d3;
+  .topSecWrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    h1{
+      margin-bottom: 0;
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: #1A1A1A;
+    }
+  }
+}
+.loader {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 0.8s linear infinite;
+  margin: 40px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

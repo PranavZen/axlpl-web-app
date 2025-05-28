@@ -1,0 +1,64 @@
+.innerFormControll {
+  height: 4.5rem;
+  border: 0.1rem solid #b5ccf9;
+  background-color: #edf3ff;
+  border-radius: 0.5rem;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #7e7e7e;
+  &:focus {
+    border: 0.2rem solid #ed6723;
+    box-shadow: none;
+  }
+}
+.css-13cymwt-control {
+  min-height: 4.5rem !important;
+  border: 0.1rem solid #b5ccf9 !important;
+  background-color: #edf3ff !important;
+  border-radius: 0.5rem !important    ;
+}
+.css-t3ipsp-control {
+  border-color: #ed6723 !important;
+  box-shadow: none !important;
+  border: 0.2rem solid #ed6723 !important;
+}
+.css-1p3m7a8-multiValue {
+  background-color: #ed6723 !important;
+  border-radius: 5rem !important;
+  padding: 0.5rem 1rem !important;
+}
+.css-9jq23d {
+  font-size: 1.4rem !important;
+  font-weight: 500 !important;
+  color: #fff !important;
+}
+.css-v7duua {
+  svg {
+    height: 2rem !important;
+    width: 2rem !important;
+    path {
+      fill: #fff !important;
+    }
+  }
+}
+.css-d7l1ni-option, .css-10wo9uf-option{
+    font-size: 1.4rem !important;
+    font-weight: 500 !important;
+    color: #47464a !important;
+}
+.css-9x5mqu{
+    font-size: 1.4rem !important;
+    font-weight: 500 !important;
+    color: #47464a !important;
+}
+.css-1dimb5e-singleValue{
+    font-size: 1.4rem !important;
+    font-weight: 500 !important;
+    color: #47464a !important;
+}
+.css-tr4s17-option{
+    font-size: 1.4rem !important;
+    font-weight: 500 !important;
+    color: #47464a !important;
+    background-color: #edf3ff !important;
+}

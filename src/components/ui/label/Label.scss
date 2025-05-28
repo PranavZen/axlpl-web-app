@@ -1,0 +1,12 @@
+.form-label {
+  font-size: 16px;
+  font-weight: 400;
+  color: #47464a;
+  margin-bottom: 0 !important;
+  line-height: 2;
+  &.innerLabel{
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: #1A1A1A;
+  }
+}

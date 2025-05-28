@@ -1,0 +1,14 @@
+.searchBoxWrap {
+  display: flex;
+  justify-content: flex-end;
+  padding: 2rem 0;
+  width: 25%;
+  .form-control {
+    width: 100%;
+    height: 4.5rem;
+    font-size: 1.6rem;
+    color: #333;
+    border-radius: 0.5rem;
+    border-color: #e1e7f2;
+  }
+}

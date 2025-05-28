@@ -1,0 +1,52 @@
+.table-responsive {
+  display: block;
+  width: 100%;
+  .table {
+    width: 100%;
+    .thead-dark {
+      tr {
+        border-color: #dcefff;
+        th {
+          background-color: #cfdfff;
+          padding: 1.2rem 0;
+          text-align: center;
+          color: #123458;
+          font-size: 1.6rem;
+          font-weight: 600;
+          border-color: #dcefff;
+        }
+      }
+    }
+    tbody {
+      tr {
+        border-color: #dcefff;
+        td {
+          background-color: #edf3ff;
+          padding: 1.2rem;
+          text-align: center;
+          color: #4e4e4e;
+          font-size: 1.4rem;
+          font-weight: 400;
+          border-color: #dcefff;
+          &.status-approved {
+            background-color: #d4edda; // light green
+            color: #155724;
+            font-weight: 600;
+          }
+
+          &.status-pending {
+            background-color: #fff3cd; // light yellow
+            color: #856404;
+            font-weight: 600;
+          }
+
+          &.status-rejected {
+            background-color: #f8d7da; // light red
+            color: #721c24;
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+}

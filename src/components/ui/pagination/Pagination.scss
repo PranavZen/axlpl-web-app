@@ -1,0 +1,33 @@
+.pagination {
+    gap: 1rem;
+    .entries-info{
+      margin-bottom: 0;
+      font-size: 1.4rem;
+      color: #4e4e4e;
+      font-weight: 500;
+    }
+    .page-item {
+      &.active {
+        .page-link {
+          background-color: #13375d;
+          color: #fff;
+        }
+      }
+      &.disabled {
+        .page-link {
+          background-color: #b2b2b2;
+          color: #686868;
+        }
+      }
+      .page-link {
+        height: 3.2rem;
+        background-color: #edf3ff;
+        border-radius: 0.5rem;
+        border: 0;
+        color: #94a2bc;
+        font-size: 1.4rem;
+        font-weight: 500;
+        padding: 0 1.5rem;
+      }
+    }
+  }
