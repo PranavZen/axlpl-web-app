@@ -172,7 +172,9 @@ body {
     }
   }
 }
-
+.css-1jqq78o-placeholder{
+  font-size: 1.4rem !important;
+}
 .errorText {
   font-size: 1.4rem;
   margin-top: 0.5rem;
@@ -204,7 +206,128 @@ body {
   display: flex;
   transition: all 0.3s ease-in-out;
   height: 100vh;
-  overflow-y: scroll;
+  overflow: hidden;
+
+  // Responsive layout adjustments
+  @media (max-width: 1200px) {
+    flex-direction: row;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+    overflow-x: hidden;
+  }
+
+  @media (max-width: 576px) {
+    flex-direction: row;
+    overflow-x: hidden;
+  }
+
+  // Sidebar (aside) responsive widths
+  .sidebar {
+    flex-shrink: 0;
+    transition: all 0.3s ease-in-out;
+
+    // Default desktop width: 30rem (480px)
+    min-width: 30rem;
+    width: 30rem;
+
+    @media (max-width: 1200px) {
+      min-width: 28rem;
+      width: 28rem;
+    }
+
+    @media (max-width: 992px) {
+      min-width: 26rem;
+      width: 26rem;
+    }
+
+    @media (max-width: 768px) {
+      min-width: 24rem;
+      width: 24rem;
+    }
+
+    @media (max-width: 576px) {
+      min-width: 22rem;
+      width: 22rem;
+    }
+
+    @media (max-width: 480px) {
+      min-width: 20rem;
+      width: 20rem;
+    }
+  }
+
+  // Collapsed sidebar widths
+  &.sidebar-collapsed .sidebar {
+    min-width: 8rem;
+    width: 8rem;
+
+    @media (max-width: 768px) {
+      min-width: 7rem;
+      width: 7rem;
+    }
+
+    @media (max-width: 576px) {
+      min-width: 6rem;
+      width: 6rem;
+    }
+
+    @media (max-width: 480px) {
+      min-width: 5.5rem;
+      width: 5.5rem;
+    }
+  }
+
+  // Main content area responsive widths
+  #mainBodySection {
+    flex: 1;
+    min-width: 0; // Prevents flex item from overflowing
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: all 0.3s ease-in-out;
+    background-color: #f5f7fa;
+
+    // Calculate width based on sidebar width
+    width: calc(100% - 30rem); // Default: 100% - 480px
+
+    @media (max-width: 1200px) {
+      width: calc(100% - 28rem); // 100% - 448px
+    }
+
+    @media (max-width: 992px) {
+      width: calc(100% - 26rem); // 100% - 416px
+    }
+
+    @media (max-width: 768px) {
+      width: calc(100% - 24rem); // 100% - 384px
+    }
+
+    @media (max-width: 576px) {
+      width: calc(100% - 22rem); // 100% - 352px
+    }
+
+    @media (max-width: 480px) {
+      width: calc(100% - 20rem); // 100% - 320px
+    }
+  }
+
+  // Main content when sidebar is collapsed
+  &.sidebar-collapsed #mainBodySection {
+    width: calc(100% - 8rem); // 100% - 128px
+
+    @media (max-width: 768px) {
+      width: calc(100% - 7rem); // 100% - 112px
+    }
+
+    @media (max-width: 576px) {
+      width: calc(100% - 6rem); // 100% - 96px
+    }
+
+    @media (max-width: 480px) {
+      width: calc(100% - 5.5rem); // 100% - 88px
+    }
+  }
 }
 .tableWraper {
   background-color: #fff;

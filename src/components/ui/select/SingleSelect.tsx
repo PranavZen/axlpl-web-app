@@ -1,16 +1,18 @@
 import React from "react";
 import Select, { SingleValue, Options } from "react-select";
 
-type OptionType = {
+export type OptionType = {
   value: string;
   label: string;
 };
 
-type SingleSelectProps = {
+export type SingleSelectProps = {
   options: Options<OptionType>; // Array of options
   value: SingleValue<OptionType>; // Single selected value
   onChange: (selected: SingleValue<OptionType>) => void; // Change handler
   placeholder?: string; // Optional placeholder
+  isLoading?: boolean; // Optional loading state
+  id?: string; // Optional id for accessibility
 };
 
 const SingleSelect: React.FC<SingleSelectProps> = ({
@@ -18,6 +20,8 @@ const SingleSelect: React.FC<SingleSelectProps> = ({
   value,
   onChange,
   placeholder = "",
+  isLoading = false,
+  id,
 }) => {
   return (
     <Select
@@ -25,6 +29,8 @@ const SingleSelect: React.FC<SingleSelectProps> = ({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
+      isLoading={isLoading}
+      inputId={id}
       className="basic-single-select"
       classNamePrefix="select"
       isMulti={false} // <-- Important: Disable multi-select

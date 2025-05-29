@@ -11,6 +11,8 @@ type MultiSelectProps = {
   value: MultiValue<OptionType>; // Selected values
   onChange: (selected: MultiValue<OptionType>) => void; // Change handler
   placeholder?: string; // Optional placeholder
+  isLoading?: boolean; // Optional loading state
+  id?: string; // Optional id for accessibility
 };
 
 const MultiSelect: React.FC<MultiSelectProps> = ({
@@ -18,6 +20,8 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   value,
   onChange,
   placeholder = "",
+  isLoading = false,
+  id,
 }) => {
   return (
     <Select
@@ -26,6 +30,8 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
       onChange={onChange}
       isMulti
       placeholder={placeholder}
+      isLoading={isLoading}
+      inputId={id}
       className="basic-multi-select"
       classNamePrefix="select"
     />

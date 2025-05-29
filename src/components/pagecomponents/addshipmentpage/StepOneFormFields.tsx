@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import SingleSelect from "../../ui/select/SingleSelect";
 import MultiSelect from "../../ui/select/MultiSelect";
 import SwitchButton from "../../ui/switch/SwitchButton";
 import StepFieldWrapper from "./StepFieldWrapper";
 import { MultiValue } from "react-select";
+import { RootState, AppDispatch } from "../../../redux/store";
+import { fetchCategories } from "../../../redux/slices/categorySlice";
+import { fetchCommodities, clearCommodities } from "../../../redux/slices/commoditySlice";
+import { fetchPaymentModes } from "../../../redux/slices/paymentModeSlice";
+import { fetchServiceTypes } from "../../../redux/slices/serviceTypeSlice";
+import { getUserData } from "../../../utils/authUtils";
 
 interface StepOneFormFieldsProps {
   values: any;
@@ -16,62 +23,125 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
   values,
   setFieldValue
 }) => {
-  const categoryOptions = [
-    { value: "document", label: "Document" },
-    { value: "parcel", label: "Parcel" },
-    { value: "cargo", label: "Cargo" },
-    { value: "express", label: "Express" },
-    { value: "fragile", label: "Fragile Items" },
-  ];
+  const dispatch = useDispatch<AppDispatch>();
+  const { categories, loading: categoriesLoading } = useSelector((state: RootState) => state.category);
+  const { commodities, loading: commoditiesLoading } = useSelector((state: RootState) => state.commodity);
+  const { paymentModes, loading: paymentModesLoading } = useSelector((state: RootState) => state.paymentMode);
+  const { serviceTypes, loading: serviceTypesLoading } = useSelector((state: RootState) => state.serviceType);
 
-  const commodityOptions = [
-    { value: "electronics", label: "Electronics" },
-    { value: "clothing", label: "Clothing" },
-    { value: "books", label: "Books" },
-    { value: "food", label: "Food Items" },
-    { value: "medicine", label: "Medicine" },
-    { value: "documents", label: "Documents" },
-    { value: "jewelry", label: "Jewelry" },
-    { value: "other", label: "Other" },
-  ];
+  // Get logged-in user data
+  const userData = getUserData();
+  const loggedInUserName = userData?.Customerdetail?.full_name || userData?.Customerdetail?.name || "User";
 
-  const paymentModeOptions = [
-    { value: "card", label: "Card" },
-    { value: "cash", label: "Cash" },
-    { value: "upi", label: "UPI" },
-    { value: "netbanking", label: "Net Banking" },
-    { value: "cod", label: "Cash on Delivery" },
-  ];
+  // Track previous category to detect changes
+  const prevCategoryRef = useRef<string | null>(null);
 
-  const serviceTypeOptions = [
-    { value: "standard", label: "Standard" },
-    { value: "express", label: "Express" },
-    { value: "overnight", label: "Overnight" },
-    { value: "same-day", label: "Same Day" },
-  ];
+  // Fetch categories, payment modes, and service types on component mount
+  useEffect(() => {
+    dispatch(fetchCategories());
+    dispatch(fetchPaymentModes());
+    dispatch(fetchServiceTypes());
+  }, [dispatch]);
+
+  // Set the logged-in user's name when component mounts
+  useEffect(() => {
+    if (loggedInUserName && !values.name) {
+      setFieldValue("name", loggedInUserName);
+    }
+  }, [loggedInUserName, values.name, setFieldValue]);
+
+  // Fetch commodities when category changes and clear selected commodities
+  useEffect(() => {
+    const currentCategoryId = values.category?.value;
+    const previousCategoryId = prevCategoryRef.current;
+
+    if (currentCategoryId) {
+      // Clear previously selected commodities only when category actually changes
+      if (previousCategoryId && previousCategoryId !== currentCategoryId) {
+        setFieldValue("commodity", []);
+      }
+      // Fetch new commodities for the selected category
+      dispatch(fetchCommodities(currentCategoryId));
+    } else {
+      // Clear commodities and selected options when no category is selected
+      dispatch(clearCommodities());
+      setFieldValue("commodity", []);
+    }
+
+    // Update the ref with current category
+    prevCategoryRef.current = currentCategoryId || null;
+  }, [values.category, dispatch, setFieldValue]);
+
+  // Transform categories for react-select format
+  const categoryOptions = categories.map(category => ({
+    value: category.id,
+    label: category.name
+  }));
+
+  // Transform commodities for react-select format
+  const commodityOptions = commodities.map(commodity => ({
+    value: commodity.id,
+    label: commodity.name
+  }));
+
+  // Transform payment modes for react-select format
+  const paymentModeOptions = paymentModes.map(paymentMode => ({
+    value: paymentMode.id,
+    label: paymentMode.name
+  }));
+
+  // Transform service types for react-select format
+  const serviceTypeOptions = serviceTypes.map(serviceType => ({
+    value: serviceType.id,
+    label: serviceType.name
+  }));
+
+  // Handle insurance switch change
+  const handleInsuranceChange = (checked: boolean) => {
+    setFieldValue("insurance", checked);
+
+    // If insurance is disabled (not using AXLPL insurance), clear the manual insurance fields
+    if (!checked) {
+      setFieldValue("policyNumber", "");
+      setFieldValue("expiryDate", "");
+      setFieldValue("insuranceValue", "");
+    }
+  };
 
   return (
     <>
       <div className="col-md-4">
-        <StepFieldWrapper name="name" label="Name" />
+        <StepFieldWrapper name="name" label="Name" disabled={true} />
       </div>
       <div className="col-md-4">
         <StepFieldWrapper name="category" label="Category">
           <SingleSelect
+            id="category"
             options={categoryOptions}
             value={values.category}
             onChange={(option) => setFieldValue("category", option)}
-            placeholder="Select category"
+            placeholder={categoriesLoading ? "Loading categories..." : "Select category"}
+            isLoading={categoriesLoading}
           />
         </StepFieldWrapper>
       </div>
       <div className="col-md-4">
         <StepFieldWrapper name="commodity" label="Commodity">
           <MultiSelect
+            id="commodity"
             options={commodityOptions}
             value={values.commodity}
             onChange={(option: MultiValue<any>) => setFieldValue("commodity", option)}
-            placeholder="Select commodities"
+            placeholder={
+              !values.category
+                ? "Select category first"
+                : commoditiesLoading
+                  ? "Loading commodities..."
+                  : commodityOptions.length === 0
+                    ? "No commodities found for this category"
+                    : "Select commodities (will clear when category changes)"
+            }
+            isLoading={commoditiesLoading}
           />
         </StepFieldWrapper>
       </div>
@@ -83,11 +153,13 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
       </div>
       <div className="col-md-2">
         <StepFieldWrapper name="paymentMode" label="Payment Mode">
-          <MultiSelect
+          <SingleSelect
+            id="paymentMode"
             options={paymentModeOptions}
             value={values.paymentMode}
-            onChange={(option: MultiValue<any>) => setFieldValue("paymentMode", option)}
-            placeholder="Select payment modes"
+            onChange={(option) => setFieldValue("paymentMode", option)}
+            placeholder={paymentModesLoading ? "Loading payment modes..." : "Select payment mode"}
+            isLoading={paymentModesLoading}
           />
         </StepFieldWrapper>
       </div>
@@ -96,11 +168,13 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
       </div>
       <div className="col-md-4">
         <StepFieldWrapper name="serviceType" label="Service Type">
-          <MultiSelect
+          <SingleSelect
+            id="serviceType"
             options={serviceTypeOptions}
             value={values.serviceType}
-            onChange={(option: MultiValue<any>) => setFieldValue("serviceType", option)}
-            placeholder="Select service types"
+            onChange={(option) => setFieldValue("serviceType", option)}
+            placeholder={serviceTypesLoading ? "Loading service types..." : "Select service type"}
+            isLoading={serviceTypesLoading}
           />
           <p className="errorText">
             Note: Express Delivery will incur extra charges*
@@ -115,19 +189,19 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
               name="insurance"
               label=""
               checked={values.insurance}
-              onChange={(e) => setFieldValue("insurance", e.target.checked)}
+              onChange={(e) => handleInsuranceChange(e.target.checked)}
             />
           </div>
         </StepFieldWrapper>
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="expiryDate" label="Expiry Date" type="date" />
+        <StepFieldWrapper name="expiryDate" label="Expiry Date" type="date" disabled={!values.insurance} />
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="policyNumber" label="Policy Number" />
+        <StepFieldWrapper name="policyNumber" label="Policy Number" disabled={!values.insurance} />
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="insuranceValue" label="Insurance Value (₹)" />
+        <StepFieldWrapper name="insuranceValue" label="Insurance Value (₹)" disabled={!values.insurance} />
       </div>
       <div className="col-md-2">
         <StepFieldWrapper name="invoiceValue" label="Invoice Value (₹)" />

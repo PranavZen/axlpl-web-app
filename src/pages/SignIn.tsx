@@ -96,7 +96,7 @@ const SignIn = () => {
                   />
                   <Label
                     className="form-label"
-                    htmlFor="floatingInput"
+                    htmlFor="mobile"
                     text="User Name / Email address"
                   />
                 </div>
@@ -115,7 +115,7 @@ const SignIn = () => {
                     className="form-control"
                   />
                   <Label
-                    className="form-label" htmlFor="floatingPassword" text="Password" />
+                    className="form-label" htmlFor="password" text="Password" />
                 </div>
                 <div className="p_frgtPswdWrap">
                   <Link

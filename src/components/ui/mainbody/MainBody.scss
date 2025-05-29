@@ -1,31 +1,5 @@
+// Main body section styles are now handled in Global.scss for better responsive layout
 #mainBodySection {
-  flex: 1;
-  transition: all 0.3s ease-in-out;
-  background-color: #f5f7fa;
-  // padding: 2rem 0;
-  width: 100%; /* Adjust width based on sidebar width */
-  margin-left: auto;
-
-  .sidebar-collapsed & {
-    width: 100%; /* Adjust width when sidebar is collapsed */
-  }
-
-  @media (max-width: 768px) {
-    width: calc(100% - 250px);
-
-    // .sidebar-collapsed & {
-    //   width: calc(100% - 70px);
-    // }
-  }
-
-  @media (max-width: 576px) {
-    width: calc(100% - 220px);
-    padding: 1.5rem 0;
-
-    // .sidebar-collapsed & {
-    //   width: calc(100% - 60px);
-    // }
-  }
   .dashboardGrid {
     display: grid;
     grid-template-columns: 64% 33.9%;
@@ -308,3 +282,4 @@
     }
   }
 }
+

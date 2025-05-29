@@ -10,10 +10,9 @@ const MainBody: React.FC<MainBodyProps> = ({ children }) => {
   const { isSidebarCollapsed } = useContext(SidebarContext);
 
   return (
-    <section className={`${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-      {/* <Header /> */}
-      <main id="mainBodySection">{children}</main>
-    </section>
+    <main id="mainBodySection" className={`${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      {children}
+    </main>
   );
 };
 

@@ -1,17 +1,15 @@
 import { Formik, Form } from "formik";
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 import MainBody from "../components/ui/mainbody/MainBody";
 import Sidebar from "../components/ui/sidebar/Sidebar";
 import { RootState } from "../redux/store";
 import { resetFormData, setFormData } from "../redux/slices/shipmentSlice";
 import * as Yup from "yup";
 import StepOneFormFields from "../components/pagecomponents/addshipmentpage/StepOneFormFields";
-// import StepTwoFormFields from "../components/pagecomponents/addshipmentpage/StepTwoFormFields";
-// import StepThreeFormFields from "../components/pagecomponents/addshipmentpage/StepThreeFormFields";
-// import StepFourFormFields from "../components/pagecomponents/addshipmentpage/StepFourFormFields";
+import StepTwoFormFields from "../components/pagecomponents/addshipmentpage/StepTwoFormFields";
 import FormNavigation from "../components/pagecomponents/addshipmentpage/FormNavigation";
-// import MultiStepProgress from "../components/pagecomponents/addshipmentpage/MultiStepProgress";
+import { SidebarContext } from "../contexts/SidebarContext";
 import "./AddShipment.scss";
 
 const steps = [
@@ -41,6 +39,12 @@ const AddShipment = () => {
   const [step, setStep] = useState(0);
   const dispatch = useDispatch();
   const { formData } = useSelector((state: RootState) => state.shipment);
+  const { isSidebarCollapsed } = useContext(SidebarContext);
+
+  // Reset form data on component mount to ensure clean state
+  useEffect(() => {
+    dispatch(resetFormData());
+  }, [dispatch]);
 
   const initialValues = {
     // Step 1: Shipment Details (Original Fields)
@@ -49,9 +53,9 @@ const AddShipment = () => {
     commodity: [],
     netWeight: "",
     grossWeight: "",
-    paymentMode: [],
+    paymentMode: null,
     numberOfParcel: "",
-    serviceType: [],
+    serviceType: null,
     insurance: false,
     expiryDate: "",
     policyNumber: "",
@@ -60,26 +64,33 @@ const AddShipment = () => {
     remark: "",
 
     // Step 2: Address Information
-    pickupAddress: {
-      name: "",
-      phone: "",
-      email: "",
-      address: "",
-      city: "",
-      state: "",
-      pincode: "",
-      landmark: ""
-    },
-    deliveryAddress: {
-      name: "",
-      phone: "",
-      email: "",
-      address: "",
-      city: "",
-      state: "",
-      pincode: "",
-      landmark: ""
-    },
+    senderAddressType: "new",
+    senderName: "",
+    senderCompanyName: "",
+    senderZipCode: "",
+    senderState: null,
+    senderCity: "",
+    senderArea: null,
+    senderGstNo: "",
+    senderAddressLine1: "",
+    senderAddressLine2: "",
+    senderMobile: "",
+    senderEmail: "",
+
+    billTo: "sender",
+
+    receiverAddressType: "new",
+    receiverName: "",
+    receiverCompanyName: "",
+    receiverZipCode: "",
+    receiverState: null,
+    receiverCity: "",
+    receiverArea: null,
+    receiverGstNo: "",
+    receiverAddressLine1: "",
+    receiverAddressLine2: "",
+    receiverMobile: "",
+    receiverEmail: "",
 
     // Step 3: Package Details
     packageDetails: {
@@ -99,8 +110,6 @@ const AddShipment = () => {
     specialInstructions: "",
     pickupDate: "",
     deliveryDate: "",
-
-    ...formData,
   };
 
   const validationSchemas = [
@@ -111,32 +120,31 @@ const AddShipment = () => {
       commodity: Yup.array().min(1, "Please select at least one commodity"),
       netWeight: Yup.number().positive("Net weight must be positive").required("Net weight is required"),
       grossWeight: Yup.number().positive("Gross weight must be positive").required("Gross weight is required"),
-      paymentMode: Yup.array().min(1, "Please select at least one payment mode"),
+      paymentMode: Yup.object().nullable().required("Please select payment mode"),
       numberOfParcel: Yup.number().positive("Number of parcels must be positive").required("Number of parcels is required"),
-      serviceType: Yup.array().min(1, "Please select at least one service type"),
+      serviceType: Yup.object().nullable().required("Please select service type"),
       invoiceValue: Yup.number().positive("Invoice value must be positive").required("Invoice value is required"),
     }),
 
     // Step 2: Address Information
     Yup.object({
-      pickupAddress: Yup.object({
-        name: Yup.string().required("Pickup contact name is required"),
-        phone: Yup.string().required("Phone number is required"),
-        email: Yup.string().email("Invalid email").required("Email is required"),
-        address: Yup.string().required("Address is required"),
-        city: Yup.string().required("City is required"),
-        state: Yup.string().required("State is required"),
-        pincode: Yup.string().required("Pincode is required"),
-      }),
-      deliveryAddress: Yup.object({
-        name: Yup.string().required("Delivery contact name is required"),
-        phone: Yup.string().required("Phone number is required"),
-        email: Yup.string().email("Invalid email").required("Email is required"),
-        address: Yup.string().required("Address is required"),
-        city: Yup.string().required("City is required"),
-        state: Yup.string().required("State is required"),
-        pincode: Yup.string().required("Pincode is required"),
-      }),
+      senderName: Yup.string().required("Sender name is required"),
+      senderCompanyName: Yup.string().required("Company name is required"),
+      senderZipCode: Yup.string().required("Zip code is required"),
+      senderState: Yup.object().nullable().required("Please select state"),
+      senderCity: Yup.string().required("City is required"),
+      senderAddressLine1: Yup.string().required("Address line 1 is required"),
+      senderMobile: Yup.string().required("Mobile number is required"),
+      senderEmail: Yup.string().email("Invalid email").required("Email is required"),
+
+      receiverName: Yup.string().required("Receiver name is required"),
+      receiverCompanyName: Yup.string().required("Company name is required"),
+      receiverZipCode: Yup.string().required("Zip code is required"),
+      receiverState: Yup.object().nullable().required("Please select state"),
+      receiverCity: Yup.string().required("City is required"),
+      receiverAddressLine1: Yup.string().required("Address line 1 is required"),
+      receiverMobile: Yup.string().required("Mobile number is required"),
+      receiverEmail: Yup.string().email("Invalid email").required("Email is required"),
     }),
 
     // Step 3: Package Details
@@ -154,7 +162,6 @@ const AddShipment = () => {
 
     // Step 4: Review & Confirmation
     Yup.object({
-      paymentMode: Yup.object().nullable().required("Please select payment mode"),
       pickupDate: Yup.date().required("Pickup date is required"),
     }),
   ];
@@ -166,9 +173,8 @@ const AddShipment = () => {
   };
 
   return (
-   
       <div className="container-fluid p-0">
-        <section className="bodyWrap">
+        <section className={`bodyWrap ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
           <Sidebar />
           <MainBody>
             <div className="multi-step-form-container">
@@ -252,18 +258,12 @@ const AddShipment = () => {
                             />
                           )}
                           {step === 1 && (
-                            <div className="step-two-fields">
-                              <div className="address-section">
-                                <div className="section-header">
-                                  <div className="section-icon">📍</div>
-                                  <div className="section-info">
-                                    <h3 className="section-title">Address Information</h3>
-                                    <p className="section-description">Enter pickup and delivery addresses</p>
-                                  </div>
-                                </div>
-                                <p>Step 2 content will be implemented here...</p>
-                              </div>
-                            </div>
+                            <StepTwoFormFields
+                              values={values}
+                              setFieldValue={setFieldValue}
+                              errors={errors}
+                              touched={touched}
+                            />
                           )}
                           {step === 2 && (
                             <div className="step-three-fields">
@@ -310,7 +310,7 @@ const AddShipment = () => {
           </MainBody>
         </section>
       </div>
-   
+
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SingleSelect from "../../ui/select/SingleSelect";
 import StepFieldWrapper from "./StepFieldWrapper";
 
 interface StepTwoFormFieldsProps {
@@ -14,226 +15,323 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 }) => {
   const [sameAsPickup, setSameAsPickup] = useState(false);
 
+  const stateOptions = [
+    { value: "andhra-pradesh", label: "Andhra Pradesh" },
+    { value: "arunachal-pradesh", label: "Arunachal Pradesh" },
+    { value: "assam", label: "Assam" },
+    { value: "bihar", label: "Bihar" },
+    { value: "chhattisgarh", label: "Chhattisgarh" },
+    { value: "goa", label: "Goa" },
+    { value: "gujarat", label: "Gujarat" },
+    { value: "haryana", label: "Haryana" },
+    { value: "himachal-pradesh", label: "Himachal Pradesh" },
+    { value: "jharkhand", label: "Jharkhand" },
+    { value: "karnataka", label: "Karnataka" },
+    { value: "kerala", label: "Kerala" },
+    { value: "madhya-pradesh", label: "Madhya Pradesh" },
+    { value: "maharashtra", label: "Maharashtra" },
+    { value: "manipur", label: "Manipur" },
+    { value: "meghalaya", label: "Meghalaya" },
+    { value: "mizoram", label: "Mizoram" },
+    { value: "nagaland", label: "Nagaland" },
+    { value: "odisha", label: "Odisha" },
+    { value: "punjab", label: "Punjab" },
+    { value: "rajasthan", label: "Rajasthan" },
+    { value: "sikkim", label: "Sikkim" },
+    { value: "tamil-nadu", label: "Tamil Nadu" },
+    { value: "telangana", label: "Telangana" },
+    { value: "tripura", label: "Tripura" },
+    { value: "uttar-pradesh", label: "Uttar Pradesh" },
+    { value: "uttarakhand", label: "Uttarakhand" },
+    { value: "west-bengal", label: "West Bengal" },
+    { value: "delhi", label: "Delhi" },
+  ];
+
   const handleSameAsPickup = (checked: boolean) => {
     setSameAsPickup(checked);
     if (checked) {
-      setFieldValue('deliveryAddress', { ...values.pickupAddress });
+      setFieldValue('receiverName', values.senderName);
+      setFieldValue('receiverCompanyName', values.senderCompanyName);
+      setFieldValue('receiverZipCode', values.senderZipCode);
+      setFieldValue('receiverState', values.senderState);
+      setFieldValue('receiverCity', values.senderCity);
+      setFieldValue('receiverArea', values.senderArea);
+      setFieldValue('receiverGstNo', values.senderGstNo);
+      setFieldValue('receiverAddressLine1', values.senderAddressLine1);
+      setFieldValue('receiverAddressLine2', values.senderAddressLine2);
+      setFieldValue('receiverMobile', values.senderMobile);
+      setFieldValue('receiverEmail', values.senderEmail);
     } else {
-      setFieldValue('deliveryAddress', {
-        name: "",
-        phone: "",
-        email: "",
-        address: "",
-        city: "",
-        state: "",
-        pincode: "",
-        landmark: ""
-      });
+      setFieldValue('receiverName', '');
+      setFieldValue('receiverCompanyName', '');
+      setFieldValue('receiverZipCode', '');
+      setFieldValue('receiverState', null);
+      setFieldValue('receiverCity', '');
+      setFieldValue('receiverArea', null);
+      setFieldValue('receiverGstNo', '');
+      setFieldValue('receiverAddressLine1', '');
+      setFieldValue('receiverAddressLine2', '');
+      setFieldValue('receiverMobile', '');
+      setFieldValue('receiverEmail', '');
     }
   };
 
   return (
-    <div className="step-two-fields">
-      {/* Pickup Address Section */}
-      <div className="address-section">
-        <div className="section-header">
-          <div className="section-icon">📍</div>
-          <div className="section-info">
-            <h3 className="section-title">Pickup Address</h3>
-            <p className="section-description">Enter the address where the package will be collected from</p>
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <StepFieldWrapper
-              name="pickupAddress.name"
-              label="Contact Person Name"
-              placeholder="Enter contact person name"
-            />
-          </div>
-
-          <div className="form-group">
-            <StepFieldWrapper
-              name="pickupAddress.phone"
-              label="Phone Number"
-              placeholder="Enter phone number"
-              type="tel"
-            />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <StepFieldWrapper
-              name="pickupAddress.email"
-              label="Email Address"
-              placeholder="Enter email address"
-              type="email"
-            />
-          </div>
-
-          <div className="form-group">
-            <StepFieldWrapper
-              name="pickupAddress.landmark"
-              label="Landmark (Optional)"
-              placeholder="Enter nearby landmark"
-            />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group full-width">
-            <StepFieldWrapper
-              name="pickupAddress.address"
-              label="Complete Address"
-              placeholder="Enter complete address with building/house number"
-            />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <StepFieldWrapper
-              name="pickupAddress.city"
-              label="City"
-              placeholder="Enter city"
-            />
-          </div>
-
-          <div className="form-group">
-            <StepFieldWrapper
-              name="pickupAddress.state"
-              label="State"
-              placeholder="Enter state"
-            />
-          </div>
-
-          <div className="form-group">
-            <StepFieldWrapper
-              name="pickupAddress.pincode"
-              label="Pincode"
-              placeholder="Enter pincode"
-            />
-          </div>
-        </div>
+    <>
+      {/* Sender Info Section */}
+      <div className="col-md-12">
+        <h4 className="section-title">Sender Info</h4>
       </div>
 
-      {/* Same as Pickup Checkbox */}
-      <div className="same-address-section">
-        <div className="checkbox-wrapper">
+      <div className="col-md-2">
+        <div className="form-check">
           <input
-            type="checkbox"
-            id="sameAsPickup"
-            checked={sameAsPickup}
-            onChange={(e) => handleSameAsPickup(e.target.checked)}
-            className="same-address-checkbox"
+            className="form-check-input"
+            type="radio"
+            name="senderAddressType"
+            id="newSenderAddress"
+            value="new"
+            checked={values.senderAddressType === 'new'}
+            onChange={(e) => setFieldValue('senderAddressType', e.target.value)}
           />
-          <label htmlFor="sameAsPickup" className="same-address-label">
-            <span className="checkbox-icon">
-              {sameAsPickup ? '✓' : ''}
-            </span>
-            Delivery address is same as pickup address
+          <label className="form-check-label" htmlFor="newSenderAddress">
+            New Address
           </label>
         </div>
       </div>
 
-      {/* Delivery Address Section */}
-      <div className="address-section">
-        <div className="section-header">
-          <div className="section-icon">🏠</div>
-          <div className="section-info">
-            <h3 className="section-title">Delivery Address</h3>
-            <p className="section-description">Enter the address where the package will be delivered</p>
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <StepFieldWrapper
-              name="deliveryAddress.name"
-              label="Contact Person Name"
-              placeholder="Enter contact person name"
-            />
-          </div>
-
-          <div className="form-group">
-            <StepFieldWrapper
-              name="deliveryAddress.phone"
-              label="Phone Number"
-              placeholder="Enter phone number"
-              type="tel"
-            />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <StepFieldWrapper
-              name="deliveryAddress.email"
-              label="Email Address"
-              placeholder="Enter email address"
-              type="email"
-            />
-          </div>
-
-          <div className="form-group">
-            <StepFieldWrapper
-              name="deliveryAddress.landmark"
-              label="Landmark (Optional)"
-              placeholder="Enter nearby landmark"
-            />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group full-width">
-            <StepFieldWrapper
-              name="deliveryAddress.address"
-              label="Complete Address"
-              placeholder="Enter complete address with building/house number"
-            />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <StepFieldWrapper
-              name="deliveryAddress.city"
-              label="City"
-              placeholder="Enter city"
-            />
-          </div>
-
-          <div className="form-group">
-            <StepFieldWrapper
-              name="deliveryAddress.state"
-              label="State"
-              placeholder="Enter state"
-            />
-          </div>
-
-          <div className="form-group">
-            <StepFieldWrapper
-              name="deliveryAddress.pincode"
-              label="Pincode"
-              placeholder="Enter pincode"
-            />
-          </div>
+      <div className="col-md-2">
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="senderAddressType"
+            id="existingSenderAddress"
+            value="existing"
+            checked={values.senderAddressType === 'existing'}
+            onChange={(e) => setFieldValue('senderAddressType', e.target.value)}
+          />
+          <label className="form-check-label" htmlFor="existingSenderAddress">
+            Existing Address
+          </label>
         </div>
       </div>
 
-      {/* Address Tips */}
-      <div className="address-tips">
-        <h4 className="tips-title">📋 Address Guidelines</h4>
-        <ul className="tips-list">
-          <li>Ensure all contact details are accurate for smooth delivery</li>
-          <li>Include building/house number and floor details</li>
-          <li>Provide a landmark for easy location identification</li>
-          <li>Double-check pincode for correct routing</li>
-        </ul>
+      <div className="col-md-2">
+        <StepFieldWrapper name="senderName" label="Name" />
       </div>
-    </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="senderCompanyName" label="Company Name" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="senderZipCode" label="Zip Code" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="senderState" label="State">
+          <SingleSelect
+            options={stateOptions}
+            value={values.senderState}
+            onChange={(option) => setFieldValue('senderState', option)}
+            placeholder="Select State"
+          />
+        </StepFieldWrapper>
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="senderCity" label="City" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="senderArea" label="Area">
+          <SingleSelect
+            options={[]} // Will be populated based on city selection
+            value={values.senderArea}
+            onChange={(option) => setFieldValue('senderArea', option)}
+            placeholder="Select Area"
+          />
+          <button type="button" className="btn btn-sm btn-outline-primary mt-1">
+            Add Area
+          </button>
+        </StepFieldWrapper>
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="senderGstNo" label="GST No." />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="senderAddressLine1" label="Address Line 1" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="senderAddressLine2" label="Address Line 2" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="senderMobile" label="Mobile" type="tel" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="senderEmail" label="Email" type="email" />
+      </div>
+
+      {/* Bill To Section */}
+      <div className="col-md-12 mt-4">
+        <h4 className="section-title">Bill To</h4>
+      </div>
+
+      <div className="col-md-2">
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="billTo"
+            id="billToSender"
+            value="sender"
+            checked={values.billTo === 'sender'}
+            onChange={(e) => setFieldValue('billTo', e.target.value)}
+          />
+          <label className="form-check-label" htmlFor="billToSender">
+            Sender
+          </label>
+        </div>
+      </div>
+
+      <div className="col-md-2">
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="billTo"
+            id="billToReceiver"
+            value="receiver"
+            checked={values.billTo === 'receiver'}
+            onChange={(e) => setFieldValue('billTo', e.target.value)}
+          />
+          <label className="form-check-label" htmlFor="billToReceiver">
+            Receiver
+          </label>
+        </div>
+      </div>
+
+      {/* Receiver Info Section */}
+      <div className="col-md-12 mt-4">
+        <h4 className="section-title">Receiver Info</h4>
+      </div>
+
+      <div className="col-md-2">
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="receiverAddressType"
+            id="newReceiverAddress"
+            value="new"
+            checked={values.receiverAddressType === 'new'}
+            onChange={(e) => setFieldValue('receiverAddressType', e.target.value)}
+          />
+          <label className="form-check-label" htmlFor="newReceiverAddress">
+            New Address
+          </label>
+        </div>
+      </div>
+
+      <div className="col-md-2">
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="receiverAddressType"
+            id="existingReceiverAddress"
+            value="existing"
+            checked={values.receiverAddressType === 'existing'}
+            onChange={(e) => setFieldValue('receiverAddressType', e.target.value)}
+          />
+          <label className="form-check-label" htmlFor="existingReceiverAddress">
+            Existing Address
+          </label>
+        </div>
+      </div>
+
+      <div className="col-md-2">
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="sameAsPickup"
+            checked={sameAsPickup}
+            onChange={(e) => handleSameAsPickup(e.target.checked)}
+          />
+          <label className="form-check-label" htmlFor="sameAsPickup">
+            Same as Sender
+          </label>
+        </div>
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="receiverName" label="Name" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="receiverCompanyName" label="Company Name" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="receiverZipCode" label="Zip Code" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="receiverState" label="State">
+          <SingleSelect
+            options={stateOptions}
+            value={values.receiverState}
+            onChange={(option) => setFieldValue('receiverState', option)}
+            placeholder="Select State"
+          />
+        </StepFieldWrapper>
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="receiverCity" label="City" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="receiverArea" label="Area">
+          <SingleSelect
+            options={[]} // Will be populated based on city selection
+            value={values.receiverArea}
+            onChange={(option) => setFieldValue('receiverArea', option)}
+            placeholder="Select Area"
+          />
+          <button type="button" className="btn btn-sm btn-outline-primary mt-1">
+            Add Area
+          </button>
+        </StepFieldWrapper>
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="receiverGstNo" label="GST No." />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="receiverAddressLine1" label="Address Line 1" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="receiverAddressLine2" label="Address Line 2" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="receiverMobile" label="Mobile" type="tel" />
+      </div>
+
+      <div className="col-md-2">
+        <StepFieldWrapper name="receiverEmail" label="Email" type="email" />
+      </div>
+    </>
   );
 };
 
