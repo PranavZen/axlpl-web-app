@@ -64,7 +64,7 @@ const AddShipment = () => {
     remark: "",
 
     // Step 2: Address Information
-    senderAddressType: "new",
+    senderAddressType: "existing",
     senderName: "",
     senderCompanyName: "",
     senderZipCode: "",
@@ -128,6 +128,7 @@ const AddShipment = () => {
 
     // Step 2: Address Information
     Yup.object({
+      senderAddressType: Yup.string().oneOf(["new", "existing"], "Invalid address type"),
       senderName: Yup.string().required("Sender name is required"),
       senderCompanyName: Yup.string().required("Company name is required"),
       senderZipCode: Yup.string().required("Zip code is required"),
@@ -137,6 +138,7 @@ const AddShipment = () => {
       senderMobile: Yup.string().required("Mobile number is required"),
       senderEmail: Yup.string().email("Invalid email").required("Email is required"),
 
+      receiverAddressType: Yup.string().oneOf(["new", "existing"], "Invalid address type"),
       receiverName: Yup.string().required("Receiver name is required"),
       receiverCompanyName: Yup.string().required("Company name is required"),
       receiverZipCode: Yup.string().required("Zip code is required"),
@@ -237,7 +239,7 @@ const AddShipment = () => {
                   }}
                   enableReinitialize
                 >
-                  {({ values, setFieldValue, errors, touched }) => (
+                  {({ values, setFieldValue, setFieldTouched, setFieldError, errors, touched }) => (
                     <Form className="multi-step-form" noValidate>
                       <div className="step-content">
                         <div className="step-header">
@@ -261,6 +263,8 @@ const AddShipment = () => {
                             <StepTwoFormFields
                               values={values}
                               setFieldValue={setFieldValue}
+                              setFieldTouched={setFieldTouched}
+                              setFieldError={setFieldError}
                               errors={errors}
                               touched={touched}
                             />

@@ -7,6 +7,8 @@ import categoryReducer from "./slices/categorySlice";
 import commodityReducer from "./slices/commoditySlice";
 import paymentModeReducer from "./slices/paymentModeSlice";
 import serviceTypeReducer from "./slices/serviceTypeSlice";
+import customerReducer from "./slices/customerSlice";
+import pincodeReducer from "./slices/pincodeSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +20,8 @@ export const store = configureStore({
     commodity: commodityReducer,
     paymentMode: paymentModeReducer,
     serviceType: serviceTypeReducer,
+    customer: customerReducer,
+    pincode: pincodeReducer,
   },
 });
 
