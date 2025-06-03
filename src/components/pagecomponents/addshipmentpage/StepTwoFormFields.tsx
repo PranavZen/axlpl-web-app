@@ -2,12 +2,13 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SingleSelect from "../../ui/select/SingleSelect";
 import StepFieldWrapper from "./StepFieldWrapper";
-import RadioButton from "../../ui/radio/RadioButton";
-import FormikRadioButton from "../../ui/radio/FormikRadioButton";
+import RadioGroup from "../../ui/radio/RadioGroup";
 import Checkbox from "../../ui/checkbox/Checkbox";
+import AddAreaButton from "../../ui/button/AddAreaButton";
+import AddAreaModal from "../../ui/modal/AddAreaModal";
 import { RootState, AppDispatch } from "../../../redux/store";
 import { fetchCustomers } from "../../../redux/slices/customerSlice";
-import { fetchPincodeDetail, fetchAreasByPincode } from "../../../redux/slices/pincodeSlice";
+import { fetchPincodeDetail, fetchAreasByPincode, addAreaToList } from "../../../redux/slices/pincodeSlice";
 import {
   findCustomerByName,
   mapCustomerToSenderFields,
@@ -57,20 +58,30 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     useState<any>(null);
   const [selectedReceiverCustomer, setSelectedReceiverCustomer] =
     useState<any>(null);
-  const [isAutoPopulating, setIsAutoPopulating] = useState(false);
+  // Section-specific auto-populating states
+  const [isSenderAutoPopulating, setIsSenderAutoPopulating] = useState(false);
+  const [isReceiverAutoPopulating, setIsReceiverAutoPopulating] = useState(false);
+
+  // State to track when address type is being changed to suppress validation errors
+  const [isSenderAddressTypeChanging, setIsSenderAddressTypeChanging] = useState(false);
+  const [isReceiverAddressTypeChanging, setIsReceiverAddressTypeChanging] = useState(false);
+
+  // Modal state for Add Area functionality
+  const [isAddAreaModalOpen, setIsAddAreaModalOpen] = useState(false);
+  const [modalContext, setModalContext] = useState<'sender' | 'receiver' | null>(null);
 
   // Refs for debouncing pincode API calls
   const senderPincodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const receiverPincodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Helper functions to determine if errors should be suppressed
-  const shouldSuppressSenderErrors = isAutoPopulating || values.senderAddressType === "existing";
-  const shouldSuppressReceiverErrors = isAutoPopulating || values.receiverAddressType === "existing";
+  // Helper functions to determine if errors should be suppressed (section-specific)
+  const shouldSuppressSenderErrors = isSenderAutoPopulating || values.senderAddressType === "existing" || isSenderAddressTypeChanging;
+  const shouldSuppressReceiverErrors = isReceiverAutoPopulating || values.receiverAddressType === "existing" || isReceiverAddressTypeChanging;
 
-  // Enhanced helper function to populate fields and aggressively clear validation errors
-  const populateFieldsAndClearErrors = useCallback(
+  // Section-specific helper functions to populate fields and clear validation errors
+  const populateSenderFieldsAndClearErrors = useCallback(
     (fieldsObject: Record<string, any>) => {
-      setIsAutoPopulating(true);
+      setIsSenderAutoPopulating(true);
 
       // First pass: Set all values and mark as touched
       Object.keys(fieldsObject).forEach((key) => {
@@ -88,10 +99,36 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         Object.keys(fieldsObject).forEach((key) => {
           setFieldError(key, undefined);
         });
-        setIsAutoPopulating(false);
+        setIsSenderAutoPopulating(false);
       }, 50);
     },
-    [setFieldValue, setFieldTouched, setFieldError, setIsAutoPopulating]
+    [setFieldValue, setFieldTouched, setFieldError]
+  );
+
+  const populateReceiverFieldsAndClearErrors = useCallback(
+    (fieldsObject: Record<string, any>) => {
+      setIsReceiverAutoPopulating(true);
+
+      // First pass: Set all values and mark as touched
+      Object.keys(fieldsObject).forEach((key) => {
+        setFieldValue(key, fieldsObject[key]);
+        setFieldTouched(key, true);
+      });
+
+      // Second pass: Clear all validation errors immediately
+      Object.keys(fieldsObject).forEach((key) => {
+        setFieldError(key, undefined);
+      });
+
+      // Third pass: Use setTimeout to ensure errors are cleared after any validation runs
+      setTimeout(() => {
+        Object.keys(fieldsObject).forEach((key) => {
+          setFieldError(key, undefined);
+        });
+        setIsReceiverAutoPopulating(false);
+      }, 50);
+    },
+    [setFieldValue, setFieldTouched, setFieldError]
   );
 
   // Core pincode fetch function for sender
@@ -240,51 +277,111 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     setFieldError("receiverAddressType", undefined);
   }, [setFieldError]);
 
-  // Clear receiver validation errors when address type is "existing"
+  // Clear receiver validation errors when address type changes
   useEffect(() => {
-    if (values.receiverAddressType === "existing") {
-      // Clear all receiver field validation errors
-      const receiverFields = [
-        "receiverName",
-        "receiverCompanyName",
-        "receiverZipCode",
-        "receiverState",
-        "receiverCity",
-        "receiverArea",
-        "receiverGstNo",
-        "receiverAddressLine1",
-        "receiverAddressLine2",
-        "receiverMobile",
-        "receiverEmail"
-      ];
+    const receiverFields = [
+      "receiverName",
+      "receiverCompanyName",
+      "receiverZipCode",
+      "receiverState",
+      "receiverCity",
+      "receiverArea",
+      "receiverGstNo",
+      "receiverAddressLine1",
+      "receiverAddressLine2",
+      "receiverMobile",
+      "receiverEmail"
+    ];
 
+    if (values.receiverAddressType === "existing") {
+      // Clear all receiver field validation errors when switching to existing
       receiverFields.forEach(field => {
         setFieldError(field, undefined);
       });
+
+      // Additional clearing with multiple timeouts
+      setTimeout(() => {
+        receiverFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 25);
+
+      setTimeout(() => {
+        receiverFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 100);
+    } else if (values.receiverAddressType === "new") {
+      // When switching to "new", clear errors immediately and with delays
+      receiverFields.forEach(field => {
+        setFieldError(field, undefined);
+      });
+
+      setTimeout(() => {
+        receiverFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 25);
+
+      setTimeout(() => {
+        receiverFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 100);
     }
   }, [values.receiverAddressType, setFieldError]);
 
-  // Clear sender validation errors when address type is "existing"
+  // Clear sender validation errors when address type changes
   useEffect(() => {
-    if (values.senderAddressType === "existing") {
-      // Clear all sender field validation errors
-      const senderFields = [
-        "senderName",
-        "senderCompanyName",
-        "senderZipCode",
-        "senderState",
-        "senderCity",
-        "senderArea",
-        "senderGstNo",
-        "senderAddressLine1",
-        "senderAddressLine2",
-        "senderMobile",
-        "senderEmail"
-      ];
+    const senderFields = [
+      "senderName",
+      "senderCompanyName",
+      "senderZipCode",
+      "senderState",
+      "senderCity",
+      "senderArea",
+      "senderGstNo",
+      "senderAddressLine1",
+      "senderAddressLine2",
+      "senderMobile",
+      "senderEmail"
+    ];
 
+    if (values.senderAddressType === "existing") {
+      // Clear all sender field validation errors when switching to existing
       senderFields.forEach(field => {
         setFieldError(field, undefined);
       });
+
+      // Additional clearing with multiple timeouts
+      setTimeout(() => {
+        senderFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 25);
+
+      setTimeout(() => {
+        senderFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 100);
+    } else if (values.senderAddressType === "new") {
+      // When switching to "new", clear errors immediately and with delays
+      senderFields.forEach(field => {
+        setFieldError(field, undefined);
+      });
+
+      setTimeout(() => {
+        senderFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 25);
+
+      setTimeout(() => {
+        senderFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 100);
     }
   }, [values.senderAddressType, setFieldError]);
 
@@ -306,14 +403,14 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
         // Auto-populate form fields and mark as touched to clear validation errors
         const mappedFields = mapCustomerToSenderFields(defaultCustomer);
-        populateFieldsAndClearErrors(mappedFields);
+        populateSenderFieldsAndClearErrors(mappedFields);
       }
     }
   }, [
     customers,
     values.senderAddressType,
     selectedSenderCustomer,
-    populateFieldsAndClearErrors,
+    populateSenderFieldsAndClearErrors,
   ]);
 
   // Handle conflicts between "Same as Sender" and receiver address type
@@ -332,12 +429,12 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       const customer = findCustomerByName(customers, selectedOption.value);
       if (customer) {
         const mappedFields = mapCustomerToSenderFields(customer);
-        populateFieldsAndClearErrors(mappedFields);
+        populateSenderFieldsAndClearErrors(mappedFields);
       }
     } else {
       // Clear sender fields if no customer selected
       const clearedFields = clearSenderFields();
-      populateFieldsAndClearErrors(clearedFields);
+      populateSenderFieldsAndClearErrors(clearedFields);
     }
   };
 
@@ -355,7 +452,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       if (customer) {
         try {
           const mappedFields = mapCustomerToReceiverFields(customer);
-          populateFieldsAndClearErrors(mappedFields);
+          populateReceiverFieldsAndClearErrors(mappedFields);
         } catch (error) {
           console.error("Error mapping customer fields:", error);
           // Show user-friendly error message
@@ -367,46 +464,83 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     } else {
       // Clear receiver fields if no customer selected
       const clearedFields = clearReceiverFields();
-      populateFieldsAndClearErrors(clearedFields);
+      populateReceiverFieldsAndClearErrors(clearedFields);
     }
   };
 
   // Handle address type change for sender
   const handleSenderAddressTypeChange = (value: string) => {
-    // Note: FormikRadioButton already handles setFieldValue and setFieldError
+    // Set changing state to suppress validation errors during transition
+    setIsSenderAddressTypeChanging(true);
+
+    // Clear customer selection when switching address types
+    setSelectedSenderCustomer(null);
+
+    // Define sender fields for error clearing
+    const senderFields = [
+      "senderName",
+      "senderCompanyName",
+      "senderZipCode",
+      "senderState",
+      "senderCity",
+      "senderArea",
+      "senderGstNo",
+      "senderAddressLine1",
+      "senderAddressLine2",
+      "senderMobile",
+      "senderEmail"
+    ];
+
+    // Immediately clear all sender validation errors regardless of address type
+    senderFields.forEach(field => {
+      setFieldError(field, undefined);
+    });
 
     if (value === "existing") {
-      // Immediately clear all sender validation errors when switching to existing
-      const senderFields = [
-        "senderName",
-        "senderCompanyName",
-        "senderZipCode",
-        "senderState",
-        "senderCity",
-        "senderArea",
-        "senderGstNo",
-        "senderAddressLine1",
-        "senderAddressLine2",
-        "senderMobile",
-        "senderEmail"
-      ];
-
-      senderFields.forEach(field => {
-        setFieldError(field, undefined);
-      });
+      // Additional clearing for existing address mode
+      setTimeout(() => {
+        senderFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 10);
     }
 
     if (value === "new") {
-      // Clear customer selection and form fields when switching to new address
-      setSelectedSenderCustomer(null);
+      // Clear form fields when switching to new address
       const clearedFields = clearSenderFields();
-      populateFieldsAndClearErrors(clearedFields);
+      populateSenderFieldsAndClearErrors(clearedFields);
+
+      // Additional error clearing for new address mode
+      setTimeout(() => {
+        senderFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 10);
     }
+
+    // Multiple timeout layers to ensure errors stay cleared
+    setTimeout(() => {
+      senderFields.forEach(field => {
+        setFieldError(field, undefined);
+      });
+    }, 50);
+
+    setTimeout(() => {
+      senderFields.forEach(field => {
+        setFieldError(field, undefined);
+      });
+    }, 150);
+
+    // Reset changing state after a longer delay to ensure form stability
+    setTimeout(() => {
+      setIsSenderAddressTypeChanging(false);
+    }, 200);
   };
 
   // Handle address type change for receiver
   const handleReceiverAddressTypeChange = (value: string) => {
-    // Note: FormikRadioButton already handles setFieldValue and setFieldError
+    // Set changing state to suppress validation errors during transition
+    setIsReceiverAddressTypeChanging(true);
 
     // Clear customer selection when switching address types
     setSelectedReceiverCustomer(null);
@@ -414,32 +548,67 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     // Also clear "Same as Sender" when switching to existing address
     if (value === "existing") {
       setSameAsPickup(false);
+    }
 
-      // Immediately clear all receiver validation errors when switching to existing
-      const receiverFields = [
-        "receiverName",
-        "receiverCompanyName",
-        "receiverZipCode",
-        "receiverState",
-        "receiverCity",
-        "receiverArea",
-        "receiverGstNo",
-        "receiverAddressLine1",
-        "receiverAddressLine2",
-        "receiverMobile",
-        "receiverEmail"
-      ];
+    // Define receiver fields for error clearing
+    const receiverFields = [
+      "receiverName",
+      "receiverCompanyName",
+      "receiverZipCode",
+      "receiverState",
+      "receiverCity",
+      "receiverArea",
+      "receiverGstNo",
+      "receiverAddressLine1",
+      "receiverAddressLine2",
+      "receiverMobile",
+      "receiverEmail"
+    ];
 
-      receiverFields.forEach(field => {
-        setFieldError(field, undefined);
-      });
+    // Immediately clear all receiver validation errors regardless of address type
+    receiverFields.forEach(field => {
+      setFieldError(field, undefined);
+    });
+
+    if (value === "existing") {
+      // Additional clearing for existing address mode
+      setTimeout(() => {
+        receiverFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 10);
     }
 
     if (value === "new") {
       // Clear form fields when switching to new address
       const clearedFields = clearReceiverFields();
-      populateFieldsAndClearErrors(clearedFields);
+      populateReceiverFieldsAndClearErrors(clearedFields);
+
+      // Additional error clearing for new address mode
+      setTimeout(() => {
+        receiverFields.forEach(field => {
+          setFieldError(field, undefined);
+        });
+      }, 10);
     }
+
+    // Multiple timeout layers to ensure errors stay cleared
+    setTimeout(() => {
+      receiverFields.forEach(field => {
+        setFieldError(field, undefined);
+      });
+    }, 50);
+
+    setTimeout(() => {
+      receiverFields.forEach(field => {
+        setFieldError(field, undefined);
+      });
+    }, 150);
+
+    // Reset changing state after a longer delay to ensure form stability
+    setTimeout(() => {
+      setIsReceiverAddressTypeChanging(false);
+    }, 200);
   };
 
   const stateOptions = [
@@ -498,15 +667,57 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         receiverMobile: values.senderMobile,
         receiverEmail: values.senderEmail,
       };
-      populateFieldsAndClearErrors(senderToReceiverMapping);
+      populateReceiverFieldsAndClearErrors(senderToReceiverMapping);
     } else {
       // Clear receiver fields when unchecking "Same as Sender"
       const clearedFields = clearReceiverFields();
-      populateFieldsAndClearErrors(clearedFields);
+      populateReceiverFieldsAndClearErrors(clearedFields);
 
       // Reset receiver address type to default
       setFieldValue("receiverAddressType", "new");
     }
+  };
+
+  // Modal handler functions
+  const handleOpenAddAreaModal = (context: 'sender' | 'receiver') => {
+    setModalContext(context);
+    setIsAddAreaModalOpen(true);
+  };
+
+  const handleCloseAddAreaModal = () => {
+    setIsAddAreaModalOpen(false);
+    setModalContext(null);
+  };
+
+  const handleAreaAdded = (newArea: { value: string; label: string }) => {
+    // Create a unique ID for the new area
+    const newAreaId = Date.now().toString();
+
+    // Add the new area to the Redux store using the proper action
+    dispatch(addAreaToList({
+      id: newAreaId,
+      name: newArea.value,
+      city_id: '',
+      pincode: modalContext === 'sender' ? values.senderZipCode : values.receiverZipCode
+    }));
+
+    // Create the option in the correct format for the dropdown (matching areasToOptions format)
+    const areaOption = {
+      value: newAreaId, // Use the ID as value (consistent with areasToOptions)
+      label: newArea.value // Use the area name as label
+    };
+
+    // Select the new area in the appropriate field
+    if (modalContext === 'sender') {
+      setFieldValue('senderArea', areaOption);
+      console.log('✅ New area added and selected for sender:', areaOption);
+    } else if (modalContext === 'receiver') {
+      setFieldValue('receiverArea', areaOption);
+      console.log('✅ New area added and selected for receiver:', areaOption);
+    }
+
+    // Close the modal
+    handleCloseAddAreaModal();
   };
 
   return (
@@ -518,22 +729,17 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         </div>
 
         <div className="row">
-          <div className="col-md-4">
-            <FormikRadioButton
-              id="newSenderAddress"
+          <div className="col-12">
+            <RadioGroup
               name="senderAddressType"
-              value="new"
-              label="New Address"
-              onCustomChange={handleSenderAddressTypeChange}
-            />
-          </div>
-
-          <div className="col-md-4">
-            <FormikRadioButton
-              id="existingSenderAddress"
-              name="senderAddressType"
-              value="existing"
-              label="Existing Address"
+              label="Address Type"
+              options={[
+                { value: "new", label: "New Address" },
+                { value: "existing", label: "Existing Address" }
+              ]}
+              direction="horizontal"
+              variant="card"
+              required={true}
               onCustomChange={handleSenderAddressTypeChange}
             />
           </div>
@@ -542,9 +748,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         {/* Customer Selection for Sender - Only show when existing address is selected */}
         {values.senderAddressType === "existing" && (
           <div className="col-md-12 mb-3">
-            <StepFieldWrapper name="senderCustomer" id="senderCustomer" label="Select Customer">
+            <StepFieldWrapper name="senderCustomer" label="Select Customer">
               <SingleSelect
-                id="senderCustomer"
                 options={customersToOptions(customers)}
                 value={selectedSenderCustomer}
                 onChange={handleSenderCustomerChange}
@@ -565,7 +770,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderName"
-            id="senderName"
             label="Name"
             suppressErrors={shouldSuppressSenderErrors}
           />
@@ -574,7 +778,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderCompanyName"
-            id="senderCompanyName"
             label="Company Name"
             suppressErrors={shouldSuppressSenderErrors}
           />
@@ -583,13 +786,11 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderZipCode"
-            id="senderZipCode"
             label="Zip Code"
             suppressErrors={shouldSuppressSenderErrors}
           >
             <div className="position-relative">
               <input
-                id="senderZipCode"
                 name="senderZipCode"
                 type="text"
                 className="form-control innerFormControll"
@@ -625,9 +826,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         </div>
 
         <div className="col-md-12 mb-3">
-          <StepFieldWrapper name="senderState" id="senderState" label="State">
+          <StepFieldWrapper name="senderState" label="State">
             <SingleSelect
-              id="senderState"
               options={stateOptions}
               value={values.senderState}
               onChange={(option) => setFieldValue("senderState", option)}
@@ -639,7 +839,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderCity"
-            id="senderCity"
             label="City"
             suppressErrors={shouldSuppressSenderErrors}
           />
@@ -648,12 +847,17 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderArea"
-            id="senderArea"
             label="Area"
             suppressErrors={shouldSuppressSenderErrors}
+            labelButton={
+              <AddAreaButton
+                text="Add Area"
+                onClick={() => handleOpenAddAreaModal('sender')}
+                ariaLabel="Add new area for sender address"
+              />
+            }
           >
             <SingleSelect
-              id="senderArea"
               options={areasToOptions(areas)}
               value={values.senderArea}
               onChange={(option) => setFieldValue("senderArea", option)}
@@ -665,19 +869,12 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                 Failed to load areas: {areasError}
               </div>
             )}
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-primary mt-1"
-            >
-              Add Area
-            </button>
           </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderGstNo"
-            id="senderGstNo"
             label="GST No."
             suppressErrors={shouldSuppressSenderErrors}
           />
@@ -686,7 +883,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderAddressLine1"
-            id="senderAddressLine1"
             label="Address Line 1"
             suppressErrors={shouldSuppressSenderErrors}
           />
@@ -695,7 +891,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderAddressLine2"
-            id="senderAddressLine2"
             label="Address Line 2"
             suppressErrors={shouldSuppressSenderErrors}
           />
@@ -704,7 +899,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderMobile"
-            id="senderMobile"
             label="Mobile"
             type="tel"
             suppressErrors={shouldSuppressSenderErrors}
@@ -714,7 +908,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderEmail"
-            id="senderEmail"
             label="Email"
             type="email"
             suppressErrors={shouldSuppressSenderErrors}
@@ -728,22 +921,17 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         </div>
 
         <div className="row">
-          <div className="col-md-4">
-            <FormikRadioButton
-              id="newReceiverAddress"
+          <div className="col-12">
+            <RadioGroup
               name="receiverAddressType"
-              value="new"
-              label="New Address"
-              onCustomChange={handleReceiverAddressTypeChange}
-            />
-          </div>
-
-          <div className="col-md-4">
-            <FormikRadioButton
-              id="existingReceiverAddress"
-              name="receiverAddressType"
-              value="existing"
-              label="Existing Address"
+              label="Address Type"
+              options={[
+                { value: "new", label: "New Address" },
+                { value: "existing", label: "Existing Address" }
+              ]}
+              direction="horizontal"
+              variant="card"
+              required={true}
               onCustomChange={handleReceiverAddressTypeChange}
             />
           </div>
@@ -751,10 +939,9 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
         {/* Customer Selection for Receiver - Only show when existing address is selected */}
         {values.receiverAddressType === "existing" && (
-          <div className="col-md-12">
-            <StepFieldWrapper name="receiverCustomer" id="receiverCustomer" label="Select Customer">
+          <div className="col-md-12 ">
+            <StepFieldWrapper name="receiverCustomer" label="Select Customer">
               <SingleSelect
-                id="receiverCustomer"
                 options={customersToOptions(customers)}
                 value={selectedReceiverCustomer}
                 onChange={handleReceiverCustomerChange}
@@ -782,34 +969,30 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           />
         </div>
 
-        <div className="col-md-12">
+        <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverName"
-            id="receiverName"
             label="Name"
             suppressErrors={shouldSuppressReceiverErrors}
           />
         </div>
 
-        <div className="col-md-12">
+        <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverCompanyName"
-            id="receiverCompanyName"
             label="Company Name"
             suppressErrors={shouldSuppressReceiverErrors}
           />
         </div>
 
-        <div className="col-md-12">
+        <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverZipCode"
-            id="receiverZipCode"
             label="Zip Code"
             suppressErrors={shouldSuppressReceiverErrors}
           >
             <div className="position-relative">
               <input
-                id="receiverZipCode"
                 name="receiverZipCode"
                 type="text"
                 className="form-control innerFormControll"
@@ -844,15 +1027,13 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           </StepFieldWrapper>
         </div>
 
-        <div className="col-md-12">
+        <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverState"
-            id="receiverState"
             label="State"
             suppressErrors={shouldSuppressReceiverErrors}
           >
             <SingleSelect
-              id="receiverState"
               options={stateOptions}
               value={values.receiverState}
               onChange={(option) => setFieldValue("receiverState", option)}
@@ -861,24 +1042,28 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           </StepFieldWrapper>
         </div>
 
-        <div className="col-md-12">
+        <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverCity"
-            id="receiverCity"
             label="City"
             suppressErrors={shouldSuppressReceiverErrors}
           />
         </div>
 
-        <div className="col-md-12">
+        <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverArea"
-            id="receiverArea"
             label="Area"
             suppressErrors={shouldSuppressReceiverErrors}
+            labelButton={
+              <AddAreaButton
+                text="Add Area"
+                onClick={() => handleOpenAddAreaModal('receiver')}
+                ariaLabel="Add new area for receiver address"
+              />
+            }
           >
             <SingleSelect
-              id="receiverArea"
               options={areasToOptions(areas)}
               value={values.receiverArea}
               onChange={(option) => setFieldValue("receiverArea", option)}
@@ -890,56 +1075,45 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                 Failed to load areas: {areasError}
               </div>
             )}
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-primary mt-1"
-            >
-              Add Area
-            </button>
           </StepFieldWrapper>
         </div>
 
-        <div className="col-md-12">
+        <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverGstNo"
-            id="receiverGstNo"
             label="GST No."
             suppressErrors={shouldSuppressReceiverErrors}
           />
         </div>
 
-        <div className="col-md-12">
+        <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverAddressLine1"
-            id="receiverAddressLine1"
             label="Address Line 1"
             suppressErrors={shouldSuppressReceiverErrors}
           />
         </div>
 
-        <div className="col-md-12">
+        <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverAddressLine2"
-            id="receiverAddressLine2"
             label="Address Line 2"
             suppressErrors={shouldSuppressReceiverErrors}
           />
         </div>
 
-        <div className="col-md-12">
+        <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverMobile"
-            id="receiverMobile"
             label="Mobile"
             type="tel"
             suppressErrors={shouldSuppressReceiverErrors}
           />
         </div>
 
-        <div className="col-md-12">
+        <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverEmail"
-            id="receiverEmail"
             label="Email"
             type="email"
             suppressErrors={shouldSuppressReceiverErrors}
@@ -952,28 +1126,26 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       </div>
 
       <div className="row">
-        <div className="col-md-2">
-        <RadioButton
-          id="billToSender"
-          name="billTo"
-          value="sender"
-          label="Sender"
-          checked={values.billTo === "sender"}
-          onChange={(e) => setFieldValue("billTo", e.target.value)}
-        />
+        <div className="col-12">
+          <RadioGroup
+            name="billTo"
+            options={[
+              { value: "sender", label: "Sender" },
+              { value: "receiver", label: "Receiver" }
+            ]}
+            direction="horizontal"
+            variant="card"
+          />
+        </div>
       </div>
 
-      <div className="col-md-2">
-        <RadioButton
-          id="billToReceiver"
-          name="billTo"
-          value="receiver"
-          label="Receiver"
-          checked={values.billTo === "receiver"}
-          onChange={(e) => setFieldValue("billTo", e.target.value)}
-        />
-      </div>
-      </div>
+      {/* Add Area Modal */}
+      <AddAreaModal
+        isOpen={isAddAreaModalOpen}
+        onClose={handleCloseAddAreaModal}
+        onAreaAdded={handleAreaAdded}
+        title={`Add New Area ${modalContext === 'sender' ? 'for Sender' : modalContext === 'receiver' ? 'for Receiver' : ''}`}
+      />
     </>
   );
 };

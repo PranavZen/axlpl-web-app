@@ -97,6 +97,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
         <div className="col-md-6">
           <Label htmlFor="country_id" text="Country" className="form-label" />
           <SingleSelect
+            id="country_id"
             options={[
               { value: "", label: "Select Country" },
               { value: "1", label: "India" },
@@ -116,6 +117,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
         <div className="col-md-6">
           <Label htmlFor="state_id" text="State" className="form-label" />
           <SingleSelect
+            id="state_id"
             options={[
               { value: "", label: "Select State" },
               { value: "4", label: "Maharashtra" },
@@ -138,6 +140,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
         <div className="col-md-6">
           <Label htmlFor="city_id" text="City" className="form-label" />
           <SingleSelect
+            id="city_id"
             options={[
               { value: "", label: "Select City" },
               { value: "817", label: "Mumbai" },
@@ -157,6 +160,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
         <div className="col-md-6">
           <Label htmlFor="area_id" text="Area" className="form-label" />
           <SingleSelect
+            id="area_id"
             options={[
               { value: "", label: "Select Area" },
               { value: "20745", label: "4 TH KUMBHARWADA" },

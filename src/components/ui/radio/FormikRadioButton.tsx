@@ -41,7 +41,7 @@ const FormikRadioButton: React.FC<FormikRadioButtonProps> = ({
   };
 
   return (
-    <div>
+    <div className="formik-radio-wrapper">
       <RadioButton
         id={id}
         name={name}
@@ -49,11 +49,21 @@ const FormikRadioButton: React.FC<FormikRadioButtonProps> = ({
         label={label}
         checked={field.value === value}
         onChange={handleChange}
-        className={className}
+        className={`${className} ${meta.error && meta.touched ? 'error' : ''}`}
         disabled={disabled}
         variant={variant}
       />
-      {/* Don't show validation errors for radio buttons as they're typically not required */}
+      {/* Show validation errors for radio buttons when touched and has error */}
+      {meta.error && meta.touched && (
+        <div className="radio-error-text" style={{
+          color: '#ff0000',
+          fontSize: '1.2rem',
+          marginTop: '0.5rem',
+          fontWeight: '500'
+        }}>
+          {meta.error}
+        </div>
+      )}
     </div>
   );
 };

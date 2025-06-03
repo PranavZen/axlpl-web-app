@@ -116,7 +116,6 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
       <div className="col-md-4">
         <StepFieldWrapper name="category" label="Category">
           <SingleSelect
-            id="category"
             options={categoryOptions}
             value={values.category}
             onChange={(option) => setFieldValue("category", option)}
@@ -128,7 +127,6 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
       <div className="col-md-4">
         <StepFieldWrapper name="commodity" label="Commodity">
           <MultiSelect
-            id="commodity"
             options={commodityOptions}
             value={values.commodity}
             onChange={(option: MultiValue<any>) => setFieldValue("commodity", option)}
@@ -139,7 +137,7 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
                   ? "Loading commodities..."
                   : commodityOptions.length === 0
                     ? "No commodities found for this category"
-                    : "Select commodities (will clear when category changes)"
+                    : "Select commodities"
             }
             isLoading={commoditiesLoading}
           />
@@ -154,7 +152,6 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
       <div className="col-md-2">
         <StepFieldWrapper name="paymentMode" label="Payment Mode">
           <SingleSelect
-            id="paymentMode"
             options={paymentModeOptions}
             value={values.paymentMode}
             onChange={(option) => setFieldValue("paymentMode", option)}
@@ -169,7 +166,6 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
       <div className="col-md-4">
         <StepFieldWrapper name="serviceType" label="Service Type">
           <SingleSelect
-            id="serviceType"
             options={serviceTypeOptions}
             value={values.serviceType}
             onChange={(option) => setFieldValue("serviceType", option)}
@@ -183,15 +179,12 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
       </div>
       <div className="col-md-2">
         <StepFieldWrapper name="insurance" label="Insurance by AXLPL">
-          <div className="radioBtnWrap">
-            <SwitchButton
-              id="insurance"
-              name="insurance"
-              label=""
-              checked={values.insurance}
-              onChange={(e) => handleInsuranceChange(e.target.checked)}
-            />
-          </div>
+          <SwitchButton
+            name="insurance"
+            label=""
+            checked={values.insurance}
+            onChange={(e) => handleInsuranceChange(e.target.checked)}
+          />
         </StepFieldWrapper>
       </div>
       <div className="col-md-2">

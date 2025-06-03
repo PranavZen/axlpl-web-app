@@ -1,0 +1,360 @@
+// CSS Custom Properties for AddAreaModal theming
+:root {
+  --modal-backdrop: rgba(0, 0, 0, 0.5);
+  --modal-bg: #ffffff;
+  --modal-border: #e2e8f0;
+  --modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --modal-radius: 1rem;
+  --modal-text: #1e293b;
+  --modal-text-secondary: #64748b;
+  --modal-text-muted: #94a3b8;
+  --modal-primary: #ed6723;
+  --modal-primary-hover: #d55b1d;
+  --modal-secondary: #6b7280;
+  --modal-secondary-hover: #4b5563;
+  --modal-danger: #ef4444;
+  --modal-success: #10b981;
+  --modal-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.add-area-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--modal-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 2rem;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+.add-area-modal {
+  background: var(--modal-bg);
+  border-radius: var(--modal-radius);
+  box-shadow: var(--modal-shadow);
+  width: 100%;
+  max-width: 50rem;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+  border: 1px solid var(--modal-border);
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-2rem) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+.add-area-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 2rem 1rem;
+  border-bottom: 1px solid var(--modal-border);
+
+  .add-area-modal-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--modal-text);
+    margin: 0;
+  }
+
+  .add-area-modal-close {
+    background: none;
+    border: none;
+    color: var(--modal-text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: var(--modal-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: #f1f5f9;
+      color: var(--modal-text);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    svg {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+}
+
+.add-area-modal-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.add-area-modal-body {
+  padding: 2rem;
+  flex: 1;
+  overflow-y: auto;
+
+  .pincode-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    border: 1px solid var(--modal-border);
+    margin-bottom: 2rem;
+
+    .pincode-label {
+      font-weight: 600;
+      color: var(--modal-text-secondary);
+      font-size: 1.4rem;
+    }
+
+    .pincode-value {
+      font-weight: 700;
+      color: var(--modal-primary);
+      font-size: 1.6rem;
+      background: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--modal-primary);
+    }
+  }
+
+  .form-group {
+    margin-bottom: 2rem;
+
+    .form-label {
+      display: block;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--modal-text);
+      margin-bottom: 0.75rem;
+
+      .required {
+        color: var(--modal-danger);
+        margin-left: 0.25rem;
+      }
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: 2px solid var(--modal-border);
+      border-radius: 0.75rem;
+      font-size: 1.6rem;
+      color: var(--modal-text);
+      background: white;
+      transition: var(--modal-transition);
+
+      &:focus {
+        outline: none;
+        border-color: var(--modal-primary);
+        box-shadow: 0 0 0 0.3rem rgba(237, 103, 35, 0.1);
+      }
+
+      &.is-invalid {
+        border-color: var(--modal-danger);
+        box-shadow: 0 0 0 0.3rem rgba(239, 68, 68, 0.1);
+      }
+
+      &:disabled {
+        background: #f8fafc;
+        color: var(--modal-text-muted);
+        cursor: not-allowed;
+      }
+
+      &::placeholder {
+        color: var(--modal-text-muted);
+      }
+    }
+
+    .error-message {
+      margin-top: 0.75rem;
+      color: var(--modal-danger);
+      font-size: 1.4rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &::before {
+        content: "⚠️";
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  .form-help-text {
+    p {
+      color: var(--modal-text-secondary);
+      font-size: 1.4rem;
+      line-height: 1.5;
+      margin: 0;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 0.75rem;
+      border-left: 4px solid var(--modal-primary);
+    }
+  }
+}
+
+.add-area-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1rem 2rem 2rem;
+  border-top: 1px solid var(--modal-border);
+
+  .btn {
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: var(--modal-transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 12rem;
+    justify-content: center;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    &.btn-secondary {
+      background: transparent;
+      color: var(--modal-secondary);
+      border-color: var(--modal-border);
+
+      &:hover:not(:disabled) {
+        background: #f8fafc;
+        border-color: var(--modal-secondary);
+        color: var(--modal-secondary-hover);
+      }
+    }
+
+    &.btn-primary {
+      background: linear-gradient(135deg, var(--modal-primary) 0%, var(--modal-primary-hover) 100%);
+      color: white;
+      border-color: var(--modal-primary);
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--modal-primary-hover) 0%, #c44d15 100%);
+        transform: translateY(-0.1rem);
+        box-shadow: 0 6px 16px rgba(237, 103, 35, 0.3);
+      }
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .add-area-modal-backdrop {
+    padding: 1rem;
+  }
+
+  .add-area-modal {
+    max-width: 100%;
+
+    .add-area-modal-header {
+      padding: 1.5rem 1.5rem 1rem;
+
+      .add-area-modal-title {
+        font-size: 1.8rem;
+      }
+    }
+
+    .add-area-modal-body {
+      padding: 1.5rem;
+
+      .form-group .form-control {
+        padding: 0.8rem 1.2rem;
+        font-size: 1.5rem;
+      }
+    }
+
+    .add-area-modal-footer {
+      padding: 1rem 1.5rem 1.5rem;
+      flex-direction: column;
+
+      .btn {
+        width: 100%;
+        min-width: auto;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .add-area-modal-backdrop {
+    padding: 0.5rem;
+  }
+
+  .add-area-modal {
+    .add-area-modal-header {
+      padding: 1rem;
+
+      .add-area-modal-title {
+        font-size: 1.6rem;
+      }
+    }
+
+    .add-area-modal-body {
+      padding: 1rem;
+
+      .pincode-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+    }
+
+    .add-area-modal-footer {
+      padding: 1rem;
+    }
+  }
+}

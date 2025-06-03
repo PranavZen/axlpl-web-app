@@ -1,0 +1,217 @@
+// CSS Custom Properties for AddAreaButton theming
+:root {
+  --add-area-primary: #ed6723;
+  --add-area-primary-hover: #d55b1d;
+  --add-area-primary-active: #c44d15;
+  --add-area-shadow: rgba(237, 103, 35, 0.2);
+  --add-area-shadow-hover: rgba(237, 103, 35, 0.3);
+  --add-area-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.add-area-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  border: 2px solid transparent;
+  border-radius: 0.75rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, var(--add-area-primary) 0%, var(--add-area-primary-hover) 100%);
+  box-shadow: 0 4px 12px var(--add-area-shadow);
+  transition: var(--add-area-transition);
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  user-select: none;
+
+  // Icon styling
+  .add-area-icon {
+    width: 1.6rem;
+    height: 1.6rem;
+    flex-shrink: 0;
+    transition: var(--add-area-transition);
+  }
+
+  // Text styling
+  .add-area-text {
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  // Hover state
+  &:hover {
+    background: linear-gradient(135deg, var(--add-area-primary-hover) 0%, var(--add-area-primary-active) 100%);
+    transform: translateY(-0.1rem);
+    box-shadow: 0 6px 16px var(--add-area-shadow-hover);
+    color: white;
+    text-decoration: none;
+
+    .add-area-icon {
+      transform: scale(1.1);
+    }
+  }
+
+  // Active state
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px var(--add-area-shadow);
+  }
+
+  // Focus state for accessibility
+  &:focus {
+    outline: 0.2rem solid var(--add-area-primary);
+    outline-offset: 0.2rem;
+  }
+
+  // Disabled state
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background: linear-gradient(135deg, var(--add-area-primary) 0%, var(--add-area-primary-hover) 100%);
+      transform: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+      .add-area-icon {
+        transform: none;
+      }
+    }
+  }
+
+  // Loading state
+  &.loading {
+    pointer-events: none;
+
+    .add-area-icon {
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  // Size variants
+  &.size-sm {
+    padding: 0.6rem 1.2rem;
+    font-size: 1.4rem;
+
+    .add-area-icon {
+      width: 1.4rem;
+      height: 1.4rem;
+    }
+  }
+
+  &.size-lg {
+    padding: 1rem 2rem;
+    font-size: 1.8rem;
+
+    .add-area-icon {
+      width: 1.8rem;
+      height: 1.8rem;
+    }
+  }
+
+  // Color variants
+  &.variant-secondary {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
+
+    &:hover {
+      background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+      box-shadow: 0 6px 16px rgba(107, 114, 128, 0.3);
+    }
+
+    &:focus {
+      outline-color: #6b7280;
+    }
+  }
+
+  &.variant-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+
+    &:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    &:focus {
+      outline-color: #10b981;
+    }
+  }
+
+  &.variant-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+
+    &:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+    }
+
+    &:focus {
+      outline-color: #ef4444;
+    }
+  }
+}
+
+// Spin animation for loading state
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .add-area-button {
+    padding: 0.7rem 1.2rem;
+    font-size: 1.5rem;
+
+    .add-area-icon {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    &.size-sm {
+      padding: 0.5rem 1rem;
+      font-size: 1.3rem;
+
+      .add-area-icon {
+        width: 1.3rem;
+        height: 1.3rem;
+      }
+    }
+
+    &.size-lg {
+      padding: 0.8rem 1.5rem;
+      font-size: 1.6rem;
+
+      .add-area-icon {
+        width: 1.6rem;
+        height: 1.6rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .add-area-button {
+    padding: 0.6rem 1rem;
+    font-size: 1.4rem;
+
+    .add-area-icon {
+      width: 1.4rem;
+      height: 1.4rem;
+    }
+
+    .add-area-text {
+      font-size: 1.4rem;
+    }
+  }
+}

@@ -1,246 +1,405 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import StepFieldWrapper from "./StepFieldWrapper";
+import SingleSelect from "../../ui/select/SingleSelect";
+import Checkbox from "../../ui/checkbox/Checkbox";
+import { RootState, AppDispatch } from "../../../redux/store";
+import {
+  fetchPincodeDetail,
+  fetchAreasByPincode,
+  addAreaToList,
+} from "../../../redux/slices/pincodeSlice";
+import { areasToOptions } from "../../../utils/customerUtils";
+import AddAreaButton from "../../ui/button/AddAreaButton";
+import AddAreaModal from "../../ui/modal/AddAreaModal";
 
 interface StepThreeFormFieldsProps {
   values: any;
   setFieldValue: (field: string, value: any) => void;
+  setFieldTouched: (field: string, touched: boolean) => void;
+  setFieldError: (field: string, error: string | undefined) => void;
   errors?: any;
   touched?: any;
 }
 
 const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
   values,
-  setFieldValue
+  setFieldValue,
+  setFieldTouched,
+  setFieldError,
+  errors,
+  touched,
 }) => {
-  const [calculatedVolume, setCalculatedVolume] = useState(0);
+  const dispatch = useDispatch<AppDispatch>();
+  const [isDifferentDeliveryAddress, setIsDifferentDeliveryAddress] =
+    useState(false);
 
-  // Calculate volume when dimensions change
-  React.useEffect(() => {
-    const { length, width, height } = values.packageDetails;
-    if (length && width && height) {
-      const volume = (parseFloat(length) * parseFloat(width) * parseFloat(height)) / 1000; // Convert to liters
-      setCalculatedVolume(volume);
-    }
-  }, [values.packageDetails.length, values.packageDetails.width, values.packageDetails.height]);
+  // Modal state for Add Area functionality
+  const [isAddAreaModalOpen, setIsAddAreaModalOpen] = useState(false);
 
-  const handleInsuranceToggle = (checked: boolean) => {
-    setFieldValue('packageDetails.insurance', checked);
+  // Redux state for pincode and areas
+  const {
+    pincodeDetail,
+    loading: pincodeLoading,
+    error: pincodeError,
+    areas,
+    areasLoading,
+    areasError,
+  } = useSelector((state: RootState) => state.pincode);
+
+  // Refs for debouncing pincode API calls
+  const deliveryPincodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Core pincode fetch function for delivery address
+  const fetchDeliveryPincodeData = useCallback(
+    async (pincode: string) => {
+      try {
+        console.log("🔍 Fetching data for Delivery Pincode:", pincode);
+
+        // Fetch pincode details first
+        const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
+
+        if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
+          const { state_name, city_name, area_name } = pincodeResult.payload;
+
+          // Auto-populate state and city
+          setFieldValue("deliveryState", {
+            value: state_name,
+            label: state_name,
+          });
+          setFieldValue("deliveryCity", city_name);
+
+          console.log("✅ Delivery Pincode details fetched:", {
+            state: state_name,
+            city: city_name,
+            area: area_name,
+          });
+        } else {
+          console.warn("❌ Failed to fetch pincode details for delivery");
+        }
+
+        // Fetch areas for the pincode
+        const areasResult = await dispatch(fetchAreasByPincode(pincode));
+
+        if (fetchAreasByPincode.fulfilled.match(areasResult)) {
+          console.log(
+            "✅ Delivery Areas fetched:",
+            areasResult.payload.length,
+            "areas available"
+          );
+
+          // Clear any previously selected area since we have new options
+          setFieldValue("deliveryArea", null);
+        } else {
+          console.warn("❌ Failed to fetch areas for delivery pincode");
+        }
+      } catch (error) {
+        console.error("❌ Error fetching delivery pincode data:", error);
+      }
+    },
+    [dispatch, setFieldValue]
+  );
+
+  // Debounced pincode handler for delivery address
+  const handleDeliveryPincodeChange = useCallback(
+    (pincode: string) => {
+      // Clear any existing timeout
+      if (deliveryPincodeTimeoutRef.current) {
+        clearTimeout(deliveryPincodeTimeoutRef.current);
+      }
+
+      // Only trigger when we have exactly 6 digits
+      if (pincode && pincode.length === 6 && /^\d{6}$/.test(pincode)) {
+        // Debounce the API call by 300ms
+        deliveryPincodeTimeoutRef.current = setTimeout(() => {
+          fetchDeliveryPincodeData(pincode);
+        }, 300);
+      } else if (pincode && pincode.length < 6) {
+        // Clear state, city, and area when pincode is incomplete
+        setFieldValue("deliveryState", null);
+        setFieldValue("deliveryCity", "");
+        setFieldValue("deliveryArea", null);
+      }
+    },
+    [fetchDeliveryPincodeData, setFieldValue]
+  );
+
+  // Handle different delivery address toggle
+  const handleDifferentDeliveryAddressToggle = (checked: boolean) => {
+    setIsDifferentDeliveryAddress(checked);
+    setFieldValue("isDifferentDeliveryAddress", checked);
+
     if (!checked) {
-      setFieldValue('packageDetails.insuranceValue', '');
+      // Clear delivery address fields when unchecked
+      setFieldValue("deliveryZipCode", "");
+      setFieldValue("deliveryState", null);
+      setFieldValue("deliveryCity", "");
+      setFieldValue("deliveryArea", null);
+      setFieldValue("deliveryAddressLine1", "");
+      setFieldValue("deliveryAddressLine2", "");
     }
   };
 
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (deliveryPincodeTimeoutRef.current) {
+        clearTimeout(deliveryPincodeTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Modal handler functions
+  const handleOpenAddAreaModal = () => {
+    setIsAddAreaModalOpen(true);
+  };
+
+  const handleCloseAddAreaModal = () => {
+    setIsAddAreaModalOpen(false);
+  };
+
+  const handleAreaAdded = (newArea: { value: string; label: string }) => {
+    // Create a unique ID for the new area
+    const newAreaId = Date.now().toString();
+
+    // Add the new area to the Redux store using the proper action
+    dispatch(addAreaToList({
+      id: newAreaId,
+      name: newArea.value,
+      city_id: '',
+      pincode: values.deliveryZipCode
+    }));
+
+    // Create the option in the correct format for the dropdown (matching areasToOptions format)
+    const areaOption = {
+      value: newAreaId, // Use the ID as value (consistent with areasToOptions)
+      label: newArea.value // Use the area name as label
+    };
+
+    // Select the new area in the delivery area field
+    setFieldValue('deliveryArea', areaOption);
+    console.log('✅ New area added and selected for delivery:', areaOption);
+
+    // Close the modal
+    handleCloseAddAreaModal();
+  };
+
+  const stateOptions = [
+    { value: "andhra-pradesh", label: "Andhra Pradesh" },
+    { value: "arunachal-pradesh", label: "Arunachal Pradesh" },
+    { value: "assam", label: "Assam" },
+    { value: "bihar", label: "Bihar" },
+    { value: "chhattisgarh", label: "Chhattisgarh" },
+    { value: "goa", label: "Goa" },
+    { value: "gujarat", label: "Gujarat" },
+    { value: "haryana", label: "Haryana" },
+    { value: "himachal-pradesh", label: "Himachal Pradesh" },
+    { value: "jharkhand", label: "Jharkhand" },
+    { value: "karnataka", label: "Karnataka" },
+    { value: "kerala", label: "Kerala" },
+    { value: "madhya-pradesh", label: "Madhya Pradesh" },
+    { value: "maharashtra", label: "Maharashtra" },
+    { value: "manipur", label: "Manipur" },
+    { value: "meghalaya", label: "Meghalaya" },
+    { value: "mizoram", label: "Mizoram" },
+    { value: "nagaland", label: "Nagaland" },
+    { value: "odisha", label: "Odisha" },
+    { value: "punjab", label: "Punjab" },
+    { value: "rajasthan", label: "Rajasthan" },
+    { value: "sikkim", label: "Sikkim" },
+    { value: "tamil-nadu", label: "Tamil Nadu" },
+    { value: "telangana", label: "Telangana" },
+    { value: "tripura", label: "Tripura" },
+    { value: "uttar-pradesh", label: "Uttar Pradesh" },
+    { value: "uttarakhand", label: "Uttarakhand" },
+    { value: "west-bengal", label: "West Bengal" },
+    { value: "delhi", label: "Delhi" },
+  ];
+
   return (
     <div className="step-three-fields">
-      {/* Package Dimensions Section */}
+      {/* Different Delivery Address Section */}
       <div className="package-section">
-        <div className="section-header">
-          <div className="section-icon">📦</div>
-          <div className="section-info">
-            <h3 className="section-title">Package Dimensions</h3>
-            <p className="section-description">Enter the physical dimensions and weight of your package</p>
-          </div>
+        <div className="col-md-12 mb-3">
+          <Checkbox
+            id="isDifferentDeliveryAddress"
+            name="isDifferentDeliveryAddress"
+            label="Different Delivery Address"
+            checked={isDifferentDeliveryAddress}
+            onChange={(e) =>
+              handleDifferentDeliveryAddressToggle(e.target.checked)
+            }
+          />
         </div>
 
-        <div className="form-row">
-          <div className="form-group">
-            <StepFieldWrapper
-              name="packageDetails.length"
-              label="Length (cm)"
-              placeholder="Enter length"
-              type="number"
-            />
-          </div>
+        {/* Delivery Address Fields - Only show when checkbox is checked */}
+        {isDifferentDeliveryAddress && (
+          <div className="delivery-address-fields">
+            <div className="row">
+              <div className="col-md-6 mb-3">
+                <StepFieldWrapper name="deliveryZipCode" label="Zip Code">
+                  <div className="position-relative">
+                    <input
+                      name="deliveryZipCode"
+                      type="text"
+                      className="form-control innerFormControll"
+                      value={values.deliveryZipCode || ""}
+                      onChange={(e) => {
+                        const pincode = e.target.value.replace(/\D/g, ""); // Only allow digits
+                        setFieldValue("deliveryZipCode", pincode);
+                        handleDeliveryPincodeChange(pincode);
+                      }}
+                      placeholder="Enter 6-digit pincode"
+                      maxLength={6}
+                      disabled={pincodeLoading}
+                    />
+                    {pincodeLoading && values.deliveryZipCode?.length === 6 && (
+                      <div
+                        className="position-absolute"
+                        style={{
+                          right: "10px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                        }}
+                      >
+                        <div
+                          className="spinner-border spinner-border-sm text-primary"
+                          role="status"
+                        >
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {values.deliveryZipCode?.length === 6 && pincodeDetail && (
+                    <div
+                      className="text-success mt-1"
+                      style={{ fontSize: "1.4rem" }}
+                    >
+                      ✅ Found: {pincodeDetail.city_name},{" "}
+                      {pincodeDetail.state_name}
+                    </div>
+                  )}
+                  {pincodeError && values.deliveryZipCode?.length === 6 && (
+                    <div
+                      className="text-danger mt-1"
+                      style={{ fontSize: "1.4rem" }}
+                    >
+                      ❌ {pincodeError}
+                    </div>
+                  )}
+                </StepFieldWrapper>
+              </div>
 
-          <div className="form-group">
-            <StepFieldWrapper
-              name="packageDetails.width"
-              label="Width (cm)"
-              placeholder="Enter width"
-              type="number"
-            />
-          </div>
-
-          <div className="form-group">
-            <StepFieldWrapper
-              name="packageDetails.height"
-              label="Height (cm)"
-              placeholder="Enter height"
-              type="number"
-            />
-          </div>
-        </div>
-
-        {calculatedVolume > 0 && (
-          <div className="volume-display">
-            <span className="volume-label">Calculated Volume:</span>
-            <span className="volume-value">{calculatedVolume.toFixed(2)} liters</span>
-          </div>
-        )}
-
-        <div className="form-row">
-          <div className="form-group">
-            <StepFieldWrapper
-              name="packageDetails.weight"
-              label="Weight (kg)"
-              placeholder="Enter weight"
-              type="number"
-            />
-          </div>
-
-          <div className="form-group">
-            <StepFieldWrapper
-              name="packageDetails.quantity"
-              label="Quantity"
-              placeholder="Enter quantity"
-              type="number"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Package Details Section */}
-      <div className="package-section">
-        <div className="section-header">
-          <div className="section-icon">📝</div>
-          <div className="section-info">
-            <h3 className="section-title">Package Information</h3>
-            <p className="section-description">Provide details about the package contents and value</p>
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <StepFieldWrapper
-              name="packageDetails.value"
-              label="Package Value (₹)"
-              placeholder="Enter package value"
-              type="number"
-            />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group full-width">
-            <StepFieldWrapper
-              name="packageDetails.description"
-              label="Package Description"
-              placeholder="Describe the contents of the package"
-            />
-          </div>
-        </div>
-
-        {/* Fragile Toggle */}
-        <div className="toggle-section">
-          <div className="toggle-wrapper">
-            <input
-              type="checkbox"
-              id="fragile"
-              checked={values.packageDetails.fragile}
-              onChange={(e) => setFieldValue('packageDetails.fragile', e.target.checked)}
-              className="toggle-checkbox"
-            />
-            <label htmlFor="fragile" className="toggle-label">
-              <span className="toggle-switch"></span>
-              <span className="toggle-text">
-                <span className="toggle-icon">🔸</span>
-                Mark as Fragile
-              </span>
-            </label>
-          </div>
-          <p className="toggle-description">
-            Fragile items receive special handling and packaging
-          </p>
-        </div>
-      </div>
-
-      {/* Insurance Section */}
-      <div className="package-section">
-        <div className="section-header">
-          <div className="section-icon">🛡️</div>
-          <div className="section-info">
-            <h3 className="section-title">Insurance Coverage</h3>
-            <p className="section-description">Protect your shipment with insurance coverage</p>
-          </div>
-        </div>
-
-        <div className="insurance-toggle">
-          <div className="toggle-wrapper">
-            <input
-              type="checkbox"
-              id="insurance"
-              checked={values.packageDetails.insurance}
-              onChange={(e) => handleInsuranceToggle(e.target.checked)}
-              className="toggle-checkbox"
-            />
-            <label htmlFor="insurance" className="toggle-label">
-              <span className="toggle-switch"></span>
-              <span className="toggle-text">
-                <span className="toggle-icon">🛡️</span>
-                Add Insurance Coverage
-              </span>
-            </label>
-          </div>
-          <p className="toggle-description">
-            Insurance covers loss or damage during transit
-          </p>
-        </div>
-
-        {values.packageDetails.insurance && (
-          <div className="insurance-details">
-            <div className="form-row">
-              <div className="form-group">
-                <StepFieldWrapper
-                  name="packageDetails.insuranceValue"
-                  label="Insurance Value (₹)"
-                  placeholder="Enter insurance value"
-                  type="number"
-                />
+              <div className="col-md-6 mb-3">
+                <StepFieldWrapper name="deliveryState" label="State">
+                  <SingleSelect
+                    options={stateOptions}
+                    value={values.deliveryState}
+                    onChange={(option) =>
+                      setFieldValue("deliveryState", option)
+                    }
+                    placeholder="Select State"
+                  />
+                </StepFieldWrapper>
               </div>
             </div>
 
-            <div className="insurance-info">
-              <h4>Insurance Benefits:</h4>
-              <ul>
-                <li>Full coverage for declared value</li>
-                <li>Quick claim processing</li>
-                <li>24/7 customer support</li>
-                <li>Premium: 2% of declared value (minimum ₹50)</li>
-              </ul>
+            <div className="row">
+              <div className="col-md-6 mb-3">
+                <StepFieldWrapper name="deliveryCity" label="City">
+                  <input
+                    name="deliveryCity"
+                    type="text"
+                    className="form-control innerFormControll"
+                    value={values.deliveryCity || ""}
+                    onChange={(e) =>
+                      setFieldValue("deliveryCity", e.target.value)
+                    }
+                    placeholder="Enter city name"
+                    disabled={!values.deliveryState}
+                  />
+                </StepFieldWrapper>
+              </div>
+
+              <div className="col-md-6 mb-3">
+                <StepFieldWrapper
+                  name="deliveryArea"
+                  label="Area"
+                  labelButton={
+                    <AddAreaButton
+                      text="Add Area"
+                      onClick={() => handleOpenAddAreaModal()}
+                      ariaLabel="Add new area for delivery address"
+                    />
+                  }
+                >
+                  <SingleSelect
+                    options={areasToOptions(areas)}
+                    value={values.deliveryArea}
+                    onChange={(option) => setFieldValue("deliveryArea", option)}
+                    placeholder={
+                      areasLoading ? "Loading areas..." : "Select Area"
+                    }
+                    isLoading={areasLoading}
+                  />
+                  {areasError && (
+                    <div className="errorText mt-1">
+                      Failed to load areas: {areasError}
+                    </div>
+                  )}
+                </StepFieldWrapper>
+              </div>
+            </div>
+
+            <div className="row">
+              <div className="col-md-6 mb-3">
+                <StepFieldWrapper
+                  name="deliveryAddressLine1"
+                  label="Address Line 1"
+                >
+                  <input
+                    name="deliveryAddressLine1"
+                    type="text"
+                    className="form-control innerFormControll"
+                    value={values.deliveryAddressLine1 || ""}
+                    onChange={(e) =>
+                      setFieldValue("deliveryAddressLine1", e.target.value)
+                    }
+                    placeholder="Enter address line 1"
+                  />
+                </StepFieldWrapper>
+              </div>
+
+              <div className="col-md-6 mb-3">
+                <StepFieldWrapper
+                  name="deliveryAddressLine2"
+                  label="Address Line 2"
+                >
+                  <input
+                    name="deliveryAddressLine2"
+                    type="text"
+                    className="form-control innerFormControll"
+                    value={values.deliveryAddressLine2 || ""}
+                    onChange={(e) =>
+                      setFieldValue("deliveryAddressLine2", e.target.value)
+                    }
+                    placeholder="Enter address line 2 (optional)"
+                  />
+                </StepFieldWrapper>
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Package Guidelines */}
-      <div className="package-guidelines">
-        <h4 className="guidelines-title">📋 Packaging Guidelines</h4>
-        <div className="guidelines-grid">
-          <div className="guideline-item">
-            <div className="guideline-icon">📦</div>
-            <h5>Proper Packaging</h5>
-            <p>Use appropriate packaging materials and ensure items are secure</p>
-          </div>
-
-          <div className="guideline-item">
-            <div className="guideline-icon">⚖️</div>
-            <h5>Accurate Weight</h5>
-            <p>Provide accurate weight to avoid additional charges</p>
-          </div>
-
-          <div className="guideline-item">
-            <div className="guideline-icon">🔸</div>
-            <h5>Fragile Items</h5>
-            <p>Mark fragile items for special handling and protection</p>
-          </div>
-
-          <div className="guideline-item">
-            <div className="guideline-icon">🛡️</div>
-            <h5>Insurance</h5>
-            <p>Consider insurance for valuable or important items</p>
-          </div>
-        </div>
-      </div>
+      {/* Add Area Modal */}
+      <AddAreaModal
+        isOpen={isAddAreaModalOpen}
+        onClose={handleCloseAddAreaModal}
+        onAreaAdded={handleAreaAdded}
+        title="Add New Area for Delivery"
+      />
     </div>
   );
 };

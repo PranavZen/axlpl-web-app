@@ -8,9 +8,11 @@ import { resetFormData, setFormData } from "../redux/slices/shipmentSlice";
 import * as Yup from "yup";
 import StepOneFormFields from "../components/pagecomponents/addshipmentpage/StepOneFormFields";
 import StepTwoFormFields from "../components/pagecomponents/addshipmentpage/StepTwoFormFields";
+import StepThreeFormFields from "../components/pagecomponents/addshipmentpage/StepThreeFormFields";
+import StepFourFormFields from "../components/pagecomponents/addshipmentpage/StepFourFormFields";
 import FormNavigation from "../components/pagecomponents/addshipmentpage/FormNavigation";
 import { SidebarContext } from "../contexts/SidebarContext";
-import "./AddShipment.scss";
+import "../assets/style/AddShipment.scss";
 
 const steps = [
   {
@@ -24,9 +26,9 @@ const steps = [
     icon: "📍"
   },
   {
-    title: "Package Details",
-    subtitle: "Weight, dimensions & insurance",
-    icon: "📏"
+    title: "Delivery Options",
+    subtitle: "Different delivery address",
+    icon: "🚚"
   },
   {
     title: "Review & Confirm",
@@ -92,19 +94,14 @@ const AddShipment = () => {
     receiverMobile: "",
     receiverEmail: "",
 
-    // Step 3: Package Details
-    packageDetails: {
-      weight: "",
-      length: "",
-      width: "",
-      height: "",
-      quantity: "1",
-      value: "",
-      description: "",
-      fragile: false,
-      insurance: false,
-      insuranceValue: ""
-    },
+    // Step 3: Delivery Address
+    isDifferentDeliveryAddress: false,
+    deliveryZipCode: "",
+    deliveryState: null,
+    deliveryCity: "",
+    deliveryArea: null,
+    deliveryAddressLine1: "",
+    deliveryAddressLine2: "",
 
     // Step 4: Additional Information
     specialInstructions: "",
@@ -149,16 +146,28 @@ const AddShipment = () => {
       receiverEmail: Yup.string().email("Invalid email").required("Email is required"),
     }),
 
-    // Step 3: Package Details
+    // Step 3: Delivery Address
     Yup.object({
-      packageDetails: Yup.object({
-        weight: Yup.number().positive("Weight must be positive").required("Weight is required"),
-        length: Yup.number().positive("Length must be positive").required("Length is required"),
-        width: Yup.number().positive("Width must be positive").required("Width is required"),
-        height: Yup.number().positive("Height must be positive").required("Height is required"),
-        quantity: Yup.number().positive("Quantity must be positive").required("Quantity is required"),
-        value: Yup.number().positive("Value must be positive").required("Package value is required"),
-        description: Yup.string().required("Package description is required"),
+      // Conditional validation for delivery address fields
+      deliveryZipCode: Yup.string().when('isDifferentDeliveryAddress', {
+        is: true,
+        then: (schema) => schema.required("Delivery zip code is required"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+      deliveryState: Yup.object().nullable().when('isDifferentDeliveryAddress', {
+        is: true,
+        then: (schema) => schema.required("Please select delivery state"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+      deliveryCity: Yup.string().when('isDifferentDeliveryAddress', {
+        is: true,
+        then: (schema) => schema.required("Delivery city is required"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+      deliveryAddressLine1: Yup.string().when('isDifferentDeliveryAddress', {
+        is: true,
+        then: (schema) => schema.required("Delivery address line 1 is required"),
+        otherwise: (schema) => schema.notRequired(),
       }),
     }),
 
@@ -270,32 +279,24 @@ const AddShipment = () => {
                             />
                           )}
                           {step === 2 && (
-                            <div className="step-three-fields">
-                              <div className="package-section">
-                                <div className="section-header">
-                                  <div className="section-icon">📦</div>
-                                  <div className="section-info">
-                                    <h3 className="section-title">Package Details</h3>
-                                    <p className="section-description">Enter package dimensions and details</p>
-                                  </div>
-                                </div>
-                                <p>Step 3 content will be implemented here...</p>
-                              </div>
-                            </div>
+                            <StepThreeFormFields
+                              values={values}
+                              setFieldValue={setFieldValue}
+                              setFieldTouched={setFieldTouched}
+                              setFieldError={setFieldError}
+                              errors={errors}
+                              touched={touched}
+                            />
                           )}
                           {step === 3 && (
-                            <div className="step-four-fields">
-                              <div className="summary-section">
-                                <div className="section-header">
-                                  <div className="section-icon">✅</div>
-                                  <div className="section-info">
-                                    <h3 className="section-title">Review & Confirmation</h3>
-                                    <p className="section-description">Review your shipment details</p>
-                                  </div>
-                                </div>
-                                <p>Step 4 content will be implemented here...</p>
-                              </div>
-                            </div>
+                            <StepFourFormFields
+                              values={values}
+                              setFieldValue={setFieldValue}
+                              setFieldTouched={setFieldTouched}
+                              setFieldError={setFieldError}
+                              errors={errors}
+                              touched={touched}
+                            />
                           )}
                         </div>
                       </div>

@@ -14,6 +14,7 @@ interface StepFieldWrapperProps {
   disabled?: boolean;
   suppressErrors?: boolean;
   id?: string; // Optional custom ID
+  labelButton?: React.ReactNode; // Optional button next to label
 }
 
 const StepFieldWrapper = ({
@@ -26,26 +27,56 @@ const StepFieldWrapper = ({
   disabled = false,
   suppressErrors = false,
   id,
+  labelButton,
 }: StepFieldWrapperProps) => {
-  // Generate unique ID: use custom ID if provided, otherwise use name as fallback
-  const fieldId = id || name;
+  // Generate unique ID: use custom ID if provided, otherwise create unique ID from name
+  const fieldId = id || `field-${name}`;
 
   return (
     <>
-      <Label className="form-label innerLabel" htmlFor={fieldId} text={label} />
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        <Label className="form-label innerLabel" htmlFor={fieldId} text={label} />
+        {labelButton && labelButton}
+      </div>
       {children ? (
-        // Render children with proper ID handling
-        <div>{children}</div>
+        // Render children with proper ID handling - clone children and pass the fieldId
+        <div>
+          {React.Children.map(children, (child) => {
+            if (React.isValidElement(child)) {
+              const childProps = child.props as any;
+              return React.cloneElement(child as React.ReactElement<any>, {
+                ...childProps,
+                id: fieldId
+              });
+            }
+            return child;
+          })}
+        </div>
       ) : (
         <Field
           name={name}
           id={fieldId}
-          as={as}
           type={type}
           placeholder={placeholder}
           className="form-control innerFormControll"
           disabled={disabled}
-        />
+        >
+          {({ field }: any) => (
+            <Input
+              type={type}
+              id={fieldId}
+              name={field.name}
+              value={field.value || ''}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              error=""
+              touched={false}
+              placeHolder={placeholder}
+              className="form-control innerFormControll"
+              disabled={disabled}
+            />
+          )}
+        </Field>
       )}
       {!suppressErrors && (
         <ErrorMessage name={name} component="div" className="errorText" />

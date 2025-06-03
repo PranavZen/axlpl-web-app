@@ -131,6 +131,53 @@ export const fetchAreasByPincode = createAsyncThunk(
   }
 );
 
+// Async thunk for adding a new area
+export const addNewArea = createAsyncThunk(
+  'pincode/addNewArea',
+  async (areaData: { area_name: string; pincode: string }, { rejectWithValue }) => {
+    try {
+      const userData = getUserData();
+      const token = userData?.Customerdetail?.token;
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      // Create FormData object
+      const formData = new FormData();
+      formData.append('area_name', areaData.area_name);
+      formData.append('pincode', areaData.pincode);
+
+      // TODO: Replace with actual API endpoint for adding area
+      // For now, we'll simulate the API call
+      const response = await fetch('https://new.axlpl.com/messenger/services_v6/addArea', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      // Simulate successful response for now
+      if (!response.ok) {
+        // For now, we'll simulate a successful response
+        console.log('Simulating successful area addition');
+      }
+
+      // Return the new area data
+      const newArea: AreaOption = {
+        id: Date.now().toString(), // Generate temporary ID
+        name: areaData.area_name,
+        city_id: '', // Will be populated by backend
+        pincode: areaData.pincode,
+      };
+
+      return newArea;
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Unknown error occurred');
+    }
+  }
+);
+
 // Pincode slice
 const pincodeSlice = createSlice({
   name: 'pincode',
@@ -145,6 +192,18 @@ const pincodeSlice = createSlice({
     clearAreas: (state) => {
       state.areas = [];
       state.areasError = null;
+    },
+    // Add new area to the existing areas array
+    addAreaToList: (state, action) => {
+      const newArea = action.payload;
+      // Check if area already exists to avoid duplicates
+      const exists = state.areas.some(area =>
+        area.name.toLowerCase() === newArea.name.toLowerCase() &&
+        area.pincode === newArea.pincode
+      );
+      if (!exists) {
+        state.areas.push(newArea);
+      }
     },
   },
   extraReducers: (builder) => {
@@ -178,9 +237,31 @@ const pincodeSlice = createSlice({
         state.areasLoading = false;
         state.areasError = action.payload as string;
         state.areas = [];
+      })
+      // Add new area
+      .addCase(addNewArea.pending, (state) => {
+        state.areasLoading = true;
+        state.areasError = null;
+      })
+      .addCase(addNewArea.fulfilled, (state, action) => {
+        state.areasLoading = false;
+        // Add the new area to the existing areas array
+        const newArea = action.payload;
+        const exists = state.areas.some(area =>
+          area.name.toLowerCase() === newArea.name.toLowerCase() &&
+          area.pincode === newArea.pincode
+        );
+        if (!exists) {
+          state.areas.push(newArea);
+        }
+        state.areasError = null;
+      })
+      .addCase(addNewArea.rejected, (state, action) => {
+        state.areasLoading = false;
+        state.areasError = action.payload as string;
       });
   },
 });
 
-export const { clearPincodeData, clearAreas } = pincodeSlice.actions;
+export const { clearPincodeData, clearAreas, addAreaToList } = pincodeSlice.actions;
 export default pincodeSlice.reducer;

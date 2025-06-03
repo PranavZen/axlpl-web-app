@@ -1,239 +1,199 @@
 import React from 'react';
-import SingleSelect from "../../ui/select/SingleSelect";
 import StepFieldWrapper from "./StepFieldWrapper";
 
 interface StepFourFormFieldsProps {
   values: any;
   setFieldValue: (field: string, value: any) => void;
+  setFieldTouched: (field: string, touched: boolean) => void;
+  setFieldError: (field: string, error: string | undefined) => void;
   errors?: any;
   touched?: any;
 }
 
 const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
   values,
-  setFieldValue
+  setFieldValue,
+  setFieldTouched,
+  setFieldError,
+  errors,
+  touched
 }) => {
-  const paymentModeOptions = [
-    { value: "cod", label: "Cash on Delivery (COD)" },
-    { value: "prepaid", label: "Prepaid" },
-    { value: "credit", label: "Credit Account" },
-  ];
+  // Calculate charges based on form values
+  const calculateCharges = () => {
+    // Base shipment charge calculation (example logic)
+    const baseRate = 0.15; // ₹0.15 per unit
+    const shipmentCharges = baseRate;
 
-  const calculateEstimatedCost = () => {
-    const baseRate = 50;
-    const weight = parseFloat(values.packageDetails?.weight) || 0;
-    const serviceMultiplier = values.serviceType?.value === 'express' ? 2 : 1;
-    const priorityMultiplier = values.priority === 'urgent' ? 1.5 : 1;
-    const insuranceCost = values.packageDetails?.insurance ?
-      Math.max(parseFloat(values.packageDetails?.insuranceValue) * 0.02, 50) : 0;
+    // Insurance charges (if insurance is enabled)
+    const insuranceCharges = values.insurance ? 0.00 : 0.00;
 
-    return Math.round((baseRate + (weight * 10)) * serviceMultiplier * priorityMultiplier + insuranceCost);
+    // Handling charges
+    const handlingCharges = 0.00;
+
+    // Total charges before GST
+    const totalCharges = shipmentCharges + insuranceCharges + handlingCharges;
+
+    // GST calculation (18%)
+    const gstAmount = totalCharges * 0.18;
+
+    // Grand total
+    const grandTotal = totalCharges + gstAmount;
+
+    return {
+      shipmentCharges: shipmentCharges.toFixed(2),
+      insuranceCharges: insuranceCharges.toFixed(2),
+      handlingCharges: handlingCharges.toFixed(2),
+      totalCharges: totalCharges.toFixed(2),
+      gstAmount: gstAmount.toFixed(3),
+      grandTotal: grandTotal.toFixed(2)
+    };
   };
+
+  const charges = calculateCharges();
 
   return (
     <div className="step-four-fields">
-      {/* Shipment Summary */}
-      <div className="summary-section">
-        <div className="section-header">
-          <div className="section-icon">📋</div>
-          <div className="section-info">
-            <h3 className="section-title">Shipment Summary</h3>
-            <p className="section-description">Review your shipment details before confirmation</p>
-          </div>
-        </div>
-
-        <div className="summary-grid">
-          {/* Basic Details */}
-          <div className="summary-card">
-            <h4 className="card-title">📦 Shipment Details</h4>
-            <div className="summary-item">
-              <span className="label">Customer:</span>
-              <span className="value">{values.customerName || 'Not specified'}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Type:</span>
-              <span className="value">{values.shipmentType?.label || 'Not specified'}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Service:</span>
-              <span className="value">{values.serviceType?.label || 'Not specified'}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Priority:</span>
-              <span className="value priority-badge priority-{values.priority}">
-                {values.priority || 'Standard'}
-              </span>
-            </div>
-          </div>
-
-          {/* Package Details */}
-          <div className="summary-card">
-            <h4 className="card-title">📏 Package Information</h4>
-            <div className="summary-item">
-              <span className="label">Dimensions:</span>
-              <span className="value">
-                {values.packageDetails?.length}×{values.packageDetails?.width}×{values.packageDetails?.height} cm
-              </span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Weight:</span>
-              <span className="value">{values.packageDetails?.weight} kg</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Quantity:</span>
-              <span className="value">{values.packageDetails?.quantity}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Value:</span>
-              <span className="value">₹{values.packageDetails?.value}</span>
-            </div>
-            {values.packageDetails?.fragile && (
-              <div className="summary-item">
-                <span className="label">Special:</span>
-                <span className="value fragile-badge">🔸 Fragile</span>
-              </div>
-            )}
-            {values.packageDetails?.insurance && (
-              <div className="summary-item">
-                <span className="label">Insurance:</span>
-                <span className="value insurance-badge">🛡️ ₹{values.packageDetails?.insuranceValue}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Addresses */}
-          <div className="summary-card">
-            <h4 className="card-title">📍 Pickup Address</h4>
-            <div className="address-summary">
-              <div className="contact-info">
-                <strong>{values.pickupAddress?.name}</strong>
-                <span>{values.pickupAddress?.phone}</span>
-              </div>
-              <div className="address-info">
-                {values.pickupAddress?.address}<br/>
-                {values.pickupAddress?.city}, {values.pickupAddress?.state} - {values.pickupAddress?.pincode}
-              </div>
-            </div>
-          </div>
-
-          <div className="summary-card">
-            <h4 className="card-title">🏠 Delivery Address</h4>
-            <div className="address-summary">
-              <div className="contact-info">
-                <strong>{values.deliveryAddress?.name}</strong>
-                <span>{values.deliveryAddress?.phone}</span>
-              </div>
-              <div className="address-info">
-                {values.deliveryAddress?.address}<br/>
-                {values.deliveryAddress?.city}, {values.deliveryAddress?.state} - {values.deliveryAddress?.pincode}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Payment and Schedule */}
+      {/* Payment Information Section */}
       <div className="payment-section">
-        <div className="section-header">
-          <div className="section-icon">💳</div>
-          <div className="section-info">
-            <h3 className="section-title">Payment & Schedule</h3>
-            <p className="section-description">Choose payment method and schedule your shipment</p>
-          </div>
-        </div>
 
-        <div className="form-row">
-          <div className="form-group">
-            <StepFieldWrapper name="paymentMode" label="Payment Mode">
-              <SingleSelect
-                options={paymentModeOptions}
-                value={values.paymentMode}
-                onChange={(option) => setFieldValue("paymentMode", option)}
-                placeholder="Select payment mode"
-              />
-            </StepFieldWrapper>
-          </div>
+        <div className="payment-details">
+          <div className="row">
+            {/* Left Column */}
+            <div className="col-md-6">
+              {/* Shipment Charges */}
+              <div className="mb-3">
+                <StepFieldWrapper
+                  name="shipmentCharges"
+                  label="Shipment Charges"
+                >
+                  <input
+                    name="shipmentCharges"
+                    type="text"
+                    className="form-control innerFormControll"
+                    value={charges.shipmentCharges}
+                    disabled
+                    readOnly
+                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                  />
+                </StepFieldWrapper>
+              </div>
 
-          <div className="form-group">
-            <StepFieldWrapper
-              name="pickupDate"
-              label="Preferred Pickup Date"
-              type="date"
-            />
-          </div>
-        </div>
+              {/* Handling Charges */}
+              <div className="mb-3">
+                <StepFieldWrapper
+                  name="handlingCharges"
+                  label="Handling Charges"
+                >
+                  <input
+                    name="handlingCharges"
+                    type="text"
+                    className="form-control innerFormControll"
+                    value={charges.handlingCharges}
+                    disabled
+                    readOnly
+                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                  />
+                </StepFieldWrapper>
+              </div>
 
-        <div className="form-row">
-          <div className="form-group full-width">
-            <StepFieldWrapper
-              name="specialInstructions"
-              label="Special Instructions (Optional)"
-              placeholder="Any special handling instructions or notes"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Cost Estimation */}
-      <div className="cost-section">
-        <div className="section-header">
-          <div className="section-icon">💰</div>
-          <div className="section-info">
-            <h3 className="section-title">Cost Estimation</h3>
-            <p className="section-description">Estimated shipping cost breakdown</p>
-          </div>
-        </div>
-
-        <div className="cost-breakdown">
-          <div className="cost-item">
-            <span className="cost-label">Base Shipping:</span>
-            <span className="cost-value">₹50</span>
-          </div>
-          <div className="cost-item">
-            <span className="cost-label">Weight Charges:</span>
-            <span className="cost-value">₹{(parseFloat(values.packageDetails?.weight) || 0) * 10}</span>
-          </div>
-          {values.serviceType?.value === 'express' && (
-            <div className="cost-item">
-              <span className="cost-label">Express Service:</span>
-              <span className="cost-value">+100%</span>
+              {/* GST (18%) */}
+              <div className="mb-3">
+                <StepFieldWrapper
+                  name="gstAmount"
+                  label="GST (18%)"
+                >
+                  <input
+                    name="gstAmount"
+                    type="text"
+                    className="form-control innerFormControll"
+                    value={charges.gstAmount}
+                    disabled
+                    readOnly
+                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                  />
+                </StepFieldWrapper>
+              </div>
             </div>
-          )}
-          {values.priority === 'urgent' && (
-            <div className="cost-item">
-              <span className="cost-label">Priority Handling:</span>
-              <span className="cost-value">+50%</span>
+
+            {/* Right Column */}
+            <div className="col-md-6">
+              {/* Insurance Charges */}
+              <div className="mb-3">
+                <StepFieldWrapper
+                  name="insuranceCharges"
+                  label="Insurance Charges"
+                >
+                  <input
+                    name="insuranceCharges"
+                    type="text"
+                    className="form-control innerFormControll"
+                    value={charges.insuranceCharges}
+                    disabled
+                    readOnly
+                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                  />
+                </StepFieldWrapper>
+              </div>
+
+              {/* Total Charges */}
+              <div className="mb-3">
+                <StepFieldWrapper
+                  name="totalCharges"
+                  label="Total Charges"
+                >
+                  <input
+                    name="totalCharges"
+                    type="text"
+                    className="form-control innerFormControll"
+                    value={charges.totalCharges}
+                    disabled
+                    readOnly
+                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                  />
+                </StepFieldWrapper>
+              </div>
+
+              {/* Grand Total */}
+              <div className="mb-3">
+                <StepFieldWrapper
+                  name="grandTotal"
+                  label="Grand Total"
+                >
+                  <input
+                    name="grandTotal"
+                    type="text"
+                    className="form-control innerFormControll"
+                    value={charges.grandTotal}
+                    disabled
+                    readOnly
+                    style={{
+                      backgroundColor: '#e3f2fd',
+                      cursor: 'not-allowed',
+                      fontWeight: 'bold',
+                      fontSize: '1.1em',
+                      border: '2px solid #2196f3'
+                    }}
+                  />
+                </StepFieldWrapper>
+              </div>
             </div>
-          )}
-          {values.packageDetails?.insurance && (
-            <div className="cost-item">
-              <span className="cost-label">Insurance:</span>
-              <span className="cost-value">₹{Math.max(parseFloat(values.packageDetails?.insuranceValue) * 0.02, 50)}</span>
-            </div>
-          )}
-          <div className="cost-total">
-            <span className="total-label">Estimated Total:</span>
-            <span className="total-value">₹{calculateEstimatedCost()}</span>
           </div>
         </div>
 
-        <div className="cost-note">
-          <p>* Final charges may vary based on actual weight and dimensions measured at pickup</p>
-        </div>
-      </div>
-
-      {/* Terms and Conditions */}
-      <div className="terms-section">
-        <div className="terms-checkbox">
-          <input
-            type="checkbox"
-            id="acceptTerms"
-            required
-            className="terms-checkbox-input"
-          />
-          <label htmlFor="acceptTerms" className="terms-label">
-            I agree to the <a href="#" target="_blank">Terms and Conditions</a> and <a href="#" target="_blank">Privacy Policy</a>
-          </label>
+        {/* Payment Notes */}
+        <div className="payment-notes mt-3">
+          <div className="alert alert-info">
+            <h6 className="alert-heading">
+              <span className="me-2">ℹ️</span>
+              Payment Information
+            </h6>
+            <ul className="mb-0">
+              <li>All charges are calculated automatically based on your shipment details</li>
+              <li>GST is applied at 18% on the total charges</li>
+              <li>Insurance charges apply only if insurance is selected</li>
+              <li>Final payment will be processed after shipment confirmation</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>

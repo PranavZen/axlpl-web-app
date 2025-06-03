@@ -195,6 +195,54 @@
     }
   }
 
+  // Error state
+  &.has-error {
+    .custom-radio-label {
+      border-color: #ff0000;
+      background: #fff5f5;
+      color: #d63031;
+
+      &:hover {
+        border-color: #ff0000;
+        box-shadow: 0 4px 12px rgba(255, 0, 0, 0.15);
+      }
+    }
+
+    .custom-radio-indicator {
+      border-color: #ff0000;
+      background: #fff5f5;
+
+      &.error {
+        border-color: #ff0000;
+        box-shadow: 0 0 0 0.3rem rgba(255, 0, 0, 0.1);
+      }
+
+      .custom-radio-dot {
+        background: #ff0000;
+      }
+    }
+
+    .custom-radio-input:checked + .custom-radio-label {
+      border-color: #ff0000;
+      background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+      box-shadow: 0 6px 20px rgba(255, 0, 0, 0.15);
+
+      .custom-radio-indicator {
+        border-color: #ff0000;
+        box-shadow: 0 0 0 0.3rem rgba(255, 0, 0, 0.15);
+
+        .custom-radio-dot {
+          background: #ff0000;
+        }
+      }
+    }
+
+    .custom-radio-input:focus + .custom-radio-label {
+      outline-color: #ff0000;
+      box-shadow: 0 0 0 0.4rem rgba(255, 0, 0, 0.1);
+    }
+  }
+
   // Enhanced variant for better visual hierarchy
   &.enhanced {
     .custom-radio-label {

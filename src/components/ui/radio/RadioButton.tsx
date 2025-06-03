@@ -24,8 +24,10 @@ const RadioButton: React.FC<RadioButtonProps> = ({
   disabled = false,
   variant = "default",
 }) => {
+  const hasError = className.includes('error');
+
   return (
-    <div className={`custom-radio-wrapper ${variant} ${className}`}>
+    <div className={`custom-radio-wrapper ${variant} ${className} ${hasError ? 'has-error' : ''}`}>
       <input
         type="radio"
         id={id}
@@ -35,9 +37,10 @@ const RadioButton: React.FC<RadioButtonProps> = ({
         onChange={onChange}
         disabled={disabled}
         className="custom-radio-input"
+        aria-describedby={hasError ? `${id}-error` : undefined}
       />
-      <label htmlFor={id} className="custom-radio-label">
-        <span className="custom-radio-indicator">
+      <label htmlFor={id} className={`custom-radio-label ${disabled ? 'disabled' : ''}`}>
+        <span className={`custom-radio-indicator ${hasError ? 'error' : ''}`}>
           <span className="custom-radio-dot"></span>
         </span>
         <span className="custom-radio-text">{label}</span>

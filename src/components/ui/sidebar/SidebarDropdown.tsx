@@ -51,7 +51,7 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
           }
         }}
       >
-        <div className="d-flex align-items-center">
+        <div className="d-flex align-items-center gap-3">
           <div className="iconBox" title={title}>
             {icon}
           </div>

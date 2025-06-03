@@ -1,7 +1,7 @@
 import React from "react";
 
 interface SwitchButtonProps {
-  id: string;
+  id?: string;
   name: string;
   label: string;
   checked: boolean;
@@ -17,6 +17,9 @@ const SwitchButton: React.FC<SwitchButtonProps> = ({
   onChange,
   className = "",
 }) => {
+  // Use provided id or fallback to name
+  const switchId = id || name;
+
   return (
     <div className="form-check form-switch">
       <input
@@ -24,11 +27,11 @@ const SwitchButton: React.FC<SwitchButtonProps> = ({
         type="checkbox"
         role="switch"
         name={name}
-        id={id}
+        id={switchId}
         checked={checked}
         onChange={onChange}
       />
-      <label className="form-check-label" htmlFor={id}>
+      <label className="form-check-label" htmlFor={switchId}>
         {label}
       </label>
     </div>
