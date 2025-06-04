@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SignIn = lazy(() => import("./pages/SignIn"));
 const AddShipment = lazy(() => import("./pages/AddShipement"));
+const EditShipment = lazy(() => import("./pages/EditShipment"));
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
             <Route path="/" element={<SignIn />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/add-shipment" element={<ProtectedRoute><AddShipment /></ProtectedRoute>} />
+            <Route path="/edit-shipment/:shipmentId" element={<ProtectedRoute><EditShipment /></ProtectedRoute>} />
             <Route path="/shipments/:shipment_status" element={<ProtectedRoute><ShipmentsPage /></ProtectedRoute>} />
             <Route path="/customer/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
           </Routes>

@@ -14,7 +14,7 @@ const SwitchButton: React.FC<SwitchButtonProps> = ({
   name,
   label,
   checked,
-  onChange,
+  onChange, 
   className = "",
 }) => {
   // Use provided id or fallback to name

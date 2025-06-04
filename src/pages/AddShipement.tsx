@@ -1,10 +1,11 @@
 import { Formik, Form } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useContext, useEffect } from "react";
+import { toast } from "react-toastify";
 import MainBody from "../components/ui/mainbody/MainBody";
 import Sidebar from "../components/ui/sidebar/Sidebar";
-import { RootState } from "../redux/store";
-import { resetFormData, setFormData } from "../redux/slices/shipmentSlice";
+import { RootState, AppDispatch } from "../redux/store";
+import { resetFormData, setFormData, submitShipment, clearSubmitState } from "../redux/slices/shipmentSlice";
 import * as Yup from "yup";
 import StepOneFormFields from "../components/pagecomponents/addshipmentpage/StepOneFormFields";
 import StepTwoFormFields from "../components/pagecomponents/addshipmentpage/StepTwoFormFields";
@@ -39,8 +40,8 @@ const steps = [
 
 const AddShipment = () => {
   const [step, setStep] = useState(0);
-  const dispatch = useDispatch();
-  const { formData } = useSelector((state: RootState) => state.shipment);
+  const dispatch = useDispatch<AppDispatch>();
+  const { submitting, submitError, submitSuccess, submittedShipmentId } = useSelector((state: RootState) => state.shipment);
   const { isSidebarCollapsed } = useContext(SidebarContext);
 
   // Reset form data on component mount to ensure clean state
@@ -177,11 +178,60 @@ const AddShipment = () => {
     }),
   ];
 
-  const handleSubmit = (values: any) => {
-    dispatch(resetFormData());
-    console.log("Submit to API", values);
-    // Add your API submission logic here
+  const handleSubmit = async (values: any, { resetForm }: any) => {
+    console.log("🚀 handleSubmit called with values:", values);
+    try {
+      // Show loading toast
+      const loadingToast = toast.loading("Submitting shipment...");
+
+      console.log("📤 Dispatching submitShipment...");
+      // Submit the shipment
+      const result = await dispatch(submitShipment(values));
+      console.log("📥 submitShipment result:", result);
+
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
+
+      if (submitShipment.fulfilled.match(result)) {
+        // Success - Clear form and show success message
+        const shipmentId = result.payload.shipmentId;
+        toast.success(`Shipment submitted successfully! ${shipmentId ? `Shipment ID: ${shipmentId}` : ''}`);
+
+        // 1. Reset Redux form data
+        dispatch(resetFormData());
+
+        // 2. Reset Formik form to initial values
+        resetForm();
+
+        // 3. Reset step to 0
+        setStep(0);
+
+      } else {
+        // Error
+        const errorMessage = result.payload as string || "Failed to submit shipment";
+        toast.error(errorMessage);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An unexpected error occurred");
+    }
   };
+
+  // Handle submission state changes
+  useEffect(() => {
+    if (submitSuccess && submittedShipmentId) {
+      // Clear submit state after showing success
+      setTimeout(() => {
+        dispatch(clearSubmitState());
+      }, 3000);
+    }
+
+    if (submitError) {
+      // Clear error state after some time
+      setTimeout(() => {
+        dispatch(clearSubmitState());
+      }, 5000);
+    }
+  }, [submitSuccess, submitError, submittedShipmentId, dispatch]);
 
   return (
       <div className="container-fluid p-0">
@@ -238,11 +288,14 @@ const AddShipment = () => {
                 <Formik
                   initialValues={initialValues}
                   validationSchema={validationSchemas[step]}
-                  onSubmit={(values) => {
+                  onSubmit={async (values, formikHelpers) => {
+                    console.log("📝 Formik onSubmit called - Step:", step, "Values:", values);
                     dispatch(setFormData(values));
                     if (step === steps.length - 1) {
-                      handleSubmit(values);
+                      console.log("✅ Last step reached, calling handleSubmit");
+                      await handleSubmit(values, formikHelpers);
                     } else {
+                      console.log("➡️ Moving to next step:", step + 1);
                       setStep(step + 1);
                     }
                   }}
@@ -306,6 +359,7 @@ const AddShipment = () => {
                         stepsLength={steps.length}
                         onBack={() => setStep(step - 1)}
                         isLastStep={step === steps.length - 1}
+                        isSubmitting={submitting}
                       />
                     </Form>
                   )}

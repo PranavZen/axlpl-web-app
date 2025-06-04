@@ -43,8 +43,9 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
     dispatch(fetchServiceTypes());
   }, [dispatch]);
 
-  // Set the logged-in user's name when component mounts
+  // Set the logged-in user's name when component mounts (only for new shipments, not edit)
   useEffect(() => {
+    // Only set default name if it's empty and we're not editing (no existing name value)
     if (loggedInUserName && !values.name) {
       setFieldValue("name", loggedInUserName);
     }
@@ -177,13 +178,13 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
           </p>
         </StepFieldWrapper>
       </div>
-      <div className="col-md-2">
+      <div className="col-md-2 radioBtnWrap">
         <StepFieldWrapper name="insurance" label="Insurance by AXLPL">
           <SwitchButton
             name="insurance"
             label=""
             checked={values.insurance}
-            onChange={(e) => handleInsuranceChange(e.target.checked)}
+            onChange={(e) => handleInsuranceChange(e.target.checked)} 
           />
         </StepFieldWrapper>
       </div>

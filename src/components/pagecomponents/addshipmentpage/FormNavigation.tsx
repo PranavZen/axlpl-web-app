@@ -5,13 +5,17 @@ interface FormNavigationProps {
   stepsLength: number;
   onBack: () => void;
   isLastStep?: boolean;
+  submitText?: string;
+  isSubmitting?: boolean;
 }
 
 const FormNavigation: React.FC<FormNavigationProps> = ({
   step,
   stepsLength,
   onBack,
-  isLastStep = false
+  isLastStep = false,
+  submitText = "Submit Shipment",
+  isSubmitting = false
 }) => (
   <div className="form-navigation">
     <div className="navigation-buttons">
@@ -31,13 +35,25 @@ const FormNavigation: React.FC<FormNavigationProps> = ({
       <button
         type="submit"
         className={`btn ${isLastStep ? 'btn-success btn-submit' : 'btn-primary btn-next'}`}
+        disabled={isSubmitting}
       >
         {isLastStep ? (
           <>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-            Submit Shipment
+            {isSubmitting ? (
+              <>
+                <div className="spinner-border spinner-border-sm me-2" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                Submitting...
+              </>
+            ) : (
+              <>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                {submitText}
+              </>
+            )}
           </>
         ) : (
           <>

@@ -1,6 +1,7 @@
 .table-responsive {
   display: block;
   width: 100%;
+  white-space: nowrap;
   .table {
     width: 100%;
     .thead-dark {
@@ -48,5 +49,81 @@
         }
       }
     }
+  }
+}
+
+// Row details modal styling
+.row-details {
+  .detail-row {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.75rem;
+
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .detail-label {
+      color: #123458;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .detail-value {
+      color: #4e4e4e;
+      font-size: 1.4rem;
+      font-weight: 400;
+      word-break: break-word;
+    }
+  }
+}
+
+// Action buttons styling
+.innerBtnsWrap {
+  .btn {
+    font-size: 1.2rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.4rem;
+    font-weight: 500;
+
+    &.btn-info {
+      background-color: #17a2b8;
+      border-color: #17a2b8;
+      color: white;
+
+      &:hover {
+        background-color: #138496;
+        border-color: #117a8b;
+      }
+    }
+  }
+}
+
+// Checkbox column styling
+.table {
+  th:first-child,
+  td:first-child {
+    width: 50px;
+    text-align: center;
+
+    .custom-checkbox-wrapper {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+
+      &.inline {
+        .custom-checkbox-label {
+          margin: 0;
+          padding: 0;
+        }
+      }
+    }
+  }
+
+  // Actions column styling
+  th:last-child,
+  td:last-child {
+    min-width: 150px;
+    text-align: center;
   }
 }

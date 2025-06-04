@@ -3,6 +3,9 @@ import "../table/Table.scss";
 import SearchBox from "../search/Search";
 import Pagination from "../pagination/Pagination";
 import InnerButtons from "../common/inner-buttons/InnerButtons";
+import Checkbox from "../checkbox/Checkbox";
+import Modal from "../modals/Modal";
+import Button from "../button/Button";
 
 export interface Column<T> {
   header: string;
@@ -10,20 +13,39 @@ export interface Column<T> {
   cell?: (value: any) => React.ReactNode;
 }
 
+interface RowActions<T> {
+  onEdit?: (row: T) => void;
+  onDelete?: (row: T) => void;
+  onView?: (row: T) => void;
+}
+
 interface TableProps<T> {
   columns: Column<T>[];
   data: T[];
   sectionTitle?: string;
+  enableRowSelection?: boolean;
+  selectedRows?: T[];
+  onRowSelectionChange?: (selectedRows: T[]) => void;
+  rowActions?: RowActions<T>;
+  rowIdAccessor?: keyof T; // Used to identify unique rows
 }
 
 function Table<T extends Record<string, any>>({
   columns,
   data,
   sectionTitle,
+  enableRowSelection = false,
+  selectedRows = [],
+  onRowSelectionChange,
+  rowActions,
+  rowIdAccessor = 'id' as keyof T,
 }: TableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState<T[]>(data);
+  const [internalSelectedRows, setInternalSelectedRows] = useState<T[]>(selectedRows);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewModalData, setViewModalData] = useState<T | null>(null);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -78,6 +100,62 @@ function Table<T extends Record<string, any>>({
     alert("Print clicked!");
     window.print(); // or custom print logic
   };
+
+  // Row selection handlers
+  const currentSelectedRows = onRowSelectionChange ? selectedRows : internalSelectedRows;
+
+  const handleRowSelect = (row: T, checked: boolean) => {
+    let newSelectedRows: T[];
+    if (checked) {
+      newSelectedRows = [...currentSelectedRows, row];
+    } else {
+      newSelectedRows = currentSelectedRows.filter(
+        (selectedRow) => selectedRow[rowIdAccessor] !== row[rowIdAccessor]
+      );
+    }
+
+    if (onRowSelectionChange) {
+      onRowSelectionChange(newSelectedRows);
+    } else {
+      setInternalSelectedRows(newSelectedRows);
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    const newSelectedRows = checked ? [...paginatedData] : [];
+    if (onRowSelectionChange) {
+      onRowSelectionChange(newSelectedRows);
+    } else {
+      setInternalSelectedRows(newSelectedRows);
+    }
+  };
+
+  const isRowSelected = (row: T) => {
+    return currentSelectedRows.some(
+      (selectedRow) => selectedRow[rowIdAccessor] === row[rowIdAccessor]
+    );
+  };
+
+  const isAllSelected = paginatedData.length > 0 &&
+    paginatedData.every((row) => isRowSelected(row));
+
+  // Action handlers
+  const handleView = (row: T) => {
+    setViewModalData(row);
+    setViewModalOpen(true);
+  };
+
+  const handleEdit = (row: T) => {
+    if (rowActions?.onEdit) {
+      rowActions.onEdit(row);
+    }
+  };
+
+  const handleDelete = (row: T) => {
+    if (rowActions?.onDelete) {
+      rowActions.onDelete(row);
+    }
+  };
   return (
     <>
       <div className="topSecWrap">
@@ -99,21 +177,44 @@ function Table<T extends Record<string, any>>({
           <table className="table align-middle table-striped">
             <thead className="thead-dark">
               <tr>
+                {enableRowSelection && (
+                  <th>
+                    <Checkbox
+                      id="select-all"
+                      label=""
+                      checked={isAllSelected}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                      variant="inline"
+                    />
+                  </th>
+                )}
                 {columns.map((col, idx) => (
                   <th key={idx}>{col.header}</th>
                 ))}
+                {rowActions && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
               {paginatedData.length > 0 ? (
                 paginatedData.map((item, rowIdx) => (
                   <tr key={rowIdx}>
+                    {enableRowSelection && (
+                      <td>
+                        <Checkbox
+                          id={`row-${rowIdx}`}
+                          label=""
+                          checked={isRowSelected(item)}
+                          onChange={(e) => handleRowSelect(item, e.target.checked)}
+                          variant="inline"
+                        />
+                      </td>
+                    )}
                     {columns.map((col, colIdx) => {
                       const value = item[col.accessor];
                       const isLast = colIdx === columns.length - 1;
                       let cellClass = "";
 
-                      if (isLast && !col.cell) {
+                      if (isLast && !col.cell && !rowActions) {
                         const strValue = String(value);
                         if (strValue.toLowerCase() === "approved") {
                           cellClass = "status-approved";
@@ -130,11 +231,48 @@ function Table<T extends Record<string, any>>({
                         </td>
                       );
                     })}
+                    {rowActions && (
+                      <td>
+                        <div className="d-flex gap-2 innerBtnsWrap">
+                          {rowActions.onView && (
+                            <Button
+                              text="View"
+                              type="button"
+                              className="btn btn-sm btn-info"
+                              onClick={() => handleView(item)}
+                            />
+                          )}
+                          {rowActions.onEdit && (
+                            <Button
+                              text="Edit"
+                              type="button"
+                              className="btn btn-sm btn-primary"
+                              onClick={() => handleEdit(item)}
+                            />
+                          )}
+                          {rowActions.onDelete && (
+                            <Button
+                              text="Delete"
+                              type="button"
+                              className="btn btn-sm btn-danger"
+                              onClick={() => handleDelete(item)}
+                            />
+                          )}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={columns.length} className="text-center">
+                  <td
+                    colSpan={
+                      columns.length +
+                      (enableRowSelection ? 1 : 0) +
+                      (rowActions ? 1 : 0)
+                    }
+                    className="text-center"
+                  >
                     Data Not Found
                   </td>
                 </tr>
@@ -153,6 +291,33 @@ function Table<T extends Record<string, any>>({
           )}
         </div>
       </div>
+
+      {/* View Modal */}
+      {viewModalData && (
+        <Modal
+          isOpen={viewModalOpen}
+          title="Row Details"
+          onClose={() => setViewModalOpen(false)}
+          size="lg"
+        >
+          <div className="row-details">
+            {Object.entries(viewModalData).map(([key, value]) => (
+              <div key={key} className="detail-row mb-3">
+                <div className="row">
+                  <div className="col-4">
+                    <strong className="detail-label">
+                      {key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')}:
+                    </strong>
+                  </div>
+                  <div className="col-8">
+                    <span className="detail-value">{String(value)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Modal>
+      )}
     </>
   );
 }

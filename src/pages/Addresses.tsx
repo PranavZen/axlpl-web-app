@@ -157,45 +157,27 @@ const Addresses: React.FC = () => {
     }
   };
 
+  // Handle view address (will open modal automatically)
+  const handleViewAddress = (address: any) => {
+    console.log("View address:", address);
+    // The view modal will automatically open with address details
+  };
+
+  // Row action handlers for the new table
+  const handleEditAddressRow = (address: any) => {
+    handleEditAddress(address.id);
+  };
+
+  const handleDeleteAddressRow = (address: any) => {
+    showDeleteConfirmation(address.id);
+  };
+
   const tableColumns: Column<any>[] = [
     { header: "Company Name", accessor: "company_name" },
     { header: "Name", accessor: "name" },
     { header: "City", accessor: "city_name" },
-    { header: "address 1", accessor: "address1" },
-    { header: "address 2", accessor: "address2" },
-    {
-      header: "Actions",
-      accessor: "id",
-      // Custom cell renderer for actions column
-      cell: (value: string) => (
-        <div className="d-flex gap-2 innerBtnsWrap">
-          <button
-            className="btn btn-sm btn-primary"
-            onClick={() => handleEditAddress(value)}
-          >
-            Edit
-          </button>
-          <button
-            className="btn btn-sm btn-danger"
-            onClick={() => showDeleteConfirmation(value)}
-            disabled={deletingId === value}
-          >
-            {deletingId === value ? (
-              <>
-                <span
-                  className="spinner-border spinner-border-sm me-1"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                Deleting...
-              </>
-            ) : (
-              "Delete"
-            )}
-          </button>
-        </div>
-      ),
-    },
+    { header: "Address 1", accessor: "address1" },
+    { header: "Address 2", accessor: "address2" },
   ];
 
   return (
@@ -231,6 +213,12 @@ const Addresses: React.FC = () => {
                     columns={tableColumns}
                     data={addresses}
                     sectionTitle=""
+                    rowActions={{
+                      onEdit: handleEditAddressRow,
+                      onDelete: handleDeleteAddressRow,
+                      onView: handleViewAddress
+                    }}
+                    rowIdAccessor="id"
                   />
                 )}
               </div>

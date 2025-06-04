@@ -263,14 +263,15 @@
           left: 0px;
           width: 33px;
           height: 33px;
-          background: white;
+          background: #ffa679;
           border-radius: 50%;
           transition: transform 0.3s;
         }
         &:checked {
-          background-color: #ed6823;
+          background-color: #0d2d50;
           &::before {
             transform: translateX(29px);
+            background: #e56422;
           }
         }
         &:focus {
@@ -282,4 +283,3 @@
     }
   }
 }
-
