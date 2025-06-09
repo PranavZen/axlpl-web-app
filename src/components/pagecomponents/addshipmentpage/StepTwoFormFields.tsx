@@ -9,15 +9,19 @@ import AddAreaModal from "../../ui/modal/AddAreaModal";
 import { RootState, AppDispatch } from "../../../redux/store";
 import { fetchCustomers } from "../../../redux/slices/customerSlice";
 import { fetchPincodeDetail, fetchAreasByPincode, addAreaToList } from "../../../redux/slices/pincodeSlice";
+import { getUserData } from "../../../utils/authUtils";
 import {
   findCustomerByName,
+  mapLoginUserToSenderFields,
   mapCustomerToSenderFields,
   mapCustomerToReceiverFields,
   customersToOptions,
+  customersToOptionsWithLoginUser,
   getCustomerApiParams,
   clearSenderFields,
   clearReceiverFields,
   areasToOptions,
+  debugLoginUserData,
 } from "../../../utils/customerUtils";
 
 interface StepTwoFormFieldsProps {
@@ -143,7 +147,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const { state_name, city_name, area_name } = pincodeResult.payload;
 
         // Auto-populate state and city
-        setFieldValue('senderState', { value: state_name, label: state_name });
+        setFieldValue('senderState', state_name);
         setFieldValue('senderCity', city_name);
 
         console.log('✅ Sender Pincode details fetched:', {
@@ -186,7 +190,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       }, 300);
     } else if (pincode && pincode.length < 6) {
       // Clear state, city, and area when pincode is incomplete
-      setFieldValue('senderState', null);
+      setFieldValue('senderState', '');
       setFieldValue('senderCity', '');
       setFieldValue('senderArea', null);
     }
@@ -204,7 +208,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const { state_name, city_name, area_name } = pincodeResult.payload;
 
         // Auto-populate state and city
-        setFieldValue('receiverState', { value: state_name, label: state_name });
+        setFieldValue('receiverState', state_name);
         setFieldValue('receiverCity', city_name);
 
         console.log('✅ Receiver Pincode details fetched:', {
@@ -247,7 +251,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       }, 300);
     } else if (pincode && pincode.length < 6) {
       // Clear state, city, and area when pincode is incomplete
-      setFieldValue('receiverState', null);
+      setFieldValue('receiverState', '');
       setFieldValue('receiverCity', '');
       setFieldValue('receiverArea', null);
     }
@@ -257,6 +261,10 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   useEffect(() => {
     const params = getCustomerApiParams();
     dispatch(fetchCustomers(params));
+
+    // Expose debug function to window for easy access in browser console
+    (window as any).debugLoginUserData = debugLoginUserData;
+    console.log('Debug function available: window.debugLoginUserData()');
   }, [dispatch]);
 
   // Cleanup timeouts on unmount
@@ -385,29 +393,26 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     }
   }, [values.senderAddressType, setFieldError]);
 
-  // Auto-populate sender info with default customer when user logs in
+  // Auto-populate sender info with login user data when "Existing Address" is selected
   useEffect(() => {
-    if (
-      customers.length > 0 &&
-      values.senderAddressType === "existing" &&
-      !selectedSenderCustomer
-    ) {
-      // Auto-select first customer as default for sender info
-      const defaultCustomer = customers[0];
-      if (defaultCustomer) {
-        const customerOption = {
-          value: defaultCustomer.full_name,
-          label: defaultCustomer.full_name,
-        };
-        setSelectedSenderCustomer(customerOption);
+    if (values.senderAddressType === "existing" && !selectedSenderCustomer) {
+      // Auto-select login user option and populate fields
+      const userData = getUserData();
+      const customerDetail = userData?.Customerdetail;
+      const userName = customerDetail?.name || customerDetail?.full_name || customerDetail?.customer_name || 'Your Account';
+      const loginUserOption = {
+        value: 'login_user',
+        label: `${userName} (Your Account)`,
+      };
+      setSelectedSenderCustomer(loginUserOption);
 
-        // Auto-populate form fields and mark as touched to clear validation errors
-        const mappedFields = mapCustomerToSenderFields(defaultCustomer);
-        populateSenderFieldsAndClearErrors(mappedFields);
+      // Populate with login user data
+      const loginUserFields = mapLoginUserToSenderFields();
+      if (Object.keys(loginUserFields).length > 0) {
+        populateSenderFieldsAndClearErrors(loginUserFields);
       }
     }
   }, [
-    customers,
     values.senderAddressType,
     selectedSenderCustomer,
     populateSenderFieldsAndClearErrors,
@@ -426,10 +431,17 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     setSelectedSenderCustomer(selectedOption);
 
     if (selectedOption) {
-      const customer = findCustomerByName(customers, selectedOption.value);
-      if (customer) {
-        const mappedFields = mapCustomerToSenderFields(customer);
-        populateSenderFieldsAndClearErrors(mappedFields);
+      if (selectedOption.value === 'login_user') {
+        // Use login user data
+        const loginUserFields = mapLoginUserToSenderFields();
+        populateSenderFieldsAndClearErrors(loginUserFields);
+      } else {
+        // Use selected customer data
+        const customer = findCustomerByName(customers, selectedOption.value);
+        if (customer) {
+          const mappedFields = mapCustomerToSenderFields(customer);
+          populateSenderFieldsAndClearErrors(mappedFields);
+        }
       }
     } else {
       // Clear sender fields if no customer selected
@@ -497,6 +509,22 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     });
 
     if (value === "existing") {
+      // Auto-select login user option
+      const userData = getUserData();
+      const customerDetail = userData?.Customerdetail;
+      const userName = customerDetail?.name || customerDetail?.full_name || customerDetail?.customer_name || 'Your Account';
+      const loginUserOption = {
+        value: 'login_user',
+        label: `${userName} (Your Account)`,
+      };
+      setSelectedSenderCustomer(loginUserOption);
+
+      // Populate with login user data when switching to existing address
+      const loginUserFields = mapLoginUserToSenderFields();
+      if (Object.keys(loginUserFields).length > 0) {
+        populateSenderFieldsAndClearErrors(loginUserFields);
+      }
+
       // Additional clearing for existing address mode
       setTimeout(() => {
         senderFields.forEach(field => {
@@ -611,37 +639,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     }, 200);
   };
 
-  const stateOptions = [
-    { value: "andhra-pradesh", label: "Andhra Pradesh" },
-    { value: "arunachal-pradesh", label: "Arunachal Pradesh" },
-    { value: "assam", label: "Assam" },
-    { value: "bihar", label: "Bihar" },
-    { value: "chhattisgarh", label: "Chhattisgarh" },
-    { value: "goa", label: "Goa" },
-    { value: "gujarat", label: "Gujarat" },
-    { value: "haryana", label: "Haryana" },
-    { value: "himachal-pradesh", label: "Himachal Pradesh" },
-    { value: "jharkhand", label: "Jharkhand" },
-    { value: "karnataka", label: "Karnataka" },
-    { value: "kerala", label: "Kerala" },
-    { value: "madhya-pradesh", label: "Madhya Pradesh" },
-    { value: "maharashtra", label: "Maharashtra" },
-    { value: "manipur", label: "Manipur" },
-    { value: "meghalaya", label: "Meghalaya" },
-    { value: "mizoram", label: "Mizoram" },
-    { value: "nagaland", label: "Nagaland" },
-    { value: "odisha", label: "Odisha" },
-    { value: "punjab", label: "Punjab" },
-    { value: "rajasthan", label: "Rajasthan" },
-    { value: "sikkim", label: "Sikkim" },
-    { value: "tamil-nadu", label: "Tamil Nadu" },
-    { value: "telangana", label: "Telangana" },
-    { value: "tripura", label: "Tripura" },
-    { value: "uttar-pradesh", label: "Uttar Pradesh" },
-    { value: "uttarakhand", label: "Uttarakhand" },
-    { value: "west-bengal", label: "West Bengal" },
-    { value: "delhi", label: "Delhi" },
-  ];
+
 
   const handleSameAsPickup = (checked: boolean) => {
     setSameAsPickup(checked);
@@ -750,7 +748,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           <div className="col-md-12 mb-3">
             <StepFieldWrapper name="senderCustomer" label="Select Customer">
               <SingleSelect
-                options={customersToOptions(customers)}
+                options={customersToOptionsWithLoginUser(customers)}
                 value={selectedSenderCustomer}
                 onChange={handleSenderCustomerChange}
                 placeholder={
@@ -826,14 +824,11 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         </div>
 
         <div className="col-md-12 mb-3">
-          <StepFieldWrapper name="senderState" label="State">
-            <SingleSelect
-              options={stateOptions}
-              value={values.senderState}
-              onChange={(option) => setFieldValue("senderState", option)}
-              placeholder="Select State"
-            />
-          </StepFieldWrapper>
+          <StepFieldWrapper
+            name="senderState"
+            label="State"
+            suppressErrors={shouldSuppressSenderErrors}
+          />
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1032,14 +1027,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverState"
             label="State"
             suppressErrors={shouldSuppressReceiverErrors}
-          >
-            <SingleSelect
-              options={stateOptions}
-              value={values.receiverState}
-              onChange={(option) => setFieldValue("receiverState", option)}
-              placeholder="Select State"
-            />
-          </StepFieldWrapper>
+          />
         </div>
 
         <div className="col-md-12 mb-3">

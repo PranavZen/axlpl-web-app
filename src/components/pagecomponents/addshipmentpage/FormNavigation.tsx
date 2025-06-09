@@ -36,6 +36,7 @@ const FormNavigation: React.FC<FormNavigationProps> = ({
         type="submit"
         className={`btn ${isLastStep ? 'btn-success btn-submit' : 'btn-primary btn-next'}`}
         disabled={isSubmitting}
+        onClick={() => console.log(`🔘 ${isLastStep ? 'Submit' : 'Next'} button clicked - Step:`, step)}
       >
         {isLastStep ? (
           <>

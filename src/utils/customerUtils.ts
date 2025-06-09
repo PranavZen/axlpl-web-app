@@ -2,6 +2,33 @@
  * Utility functions for customer data handling
  */
 
+import { getUserData } from './authUtils';
+
+/**
+ * Debug function to log all available fields in login user data
+ * Call this function in browser console to see what fields are available
+ */
+export const debugLoginUserData = () => {
+  try {
+    const userData = getUserData();
+    console.log('=== LOGIN USER DATA DEBUG ===');
+    console.log('Full userData:', userData);
+    console.log('Customerdetail:', userData?.Customerdetail);
+
+    if (userData?.Customerdetail) {
+      console.log('Available fields in Customerdetail:');
+      Object.keys(userData.Customerdetail).forEach(key => {
+        console.log(`  ${key}:`, userData.Customerdetail[key]);
+      });
+    }
+    console.log('=== END DEBUG ===');
+    return userData;
+  } catch (error) {
+    console.error('Error in debugLoginUserData:', error);
+    return null;
+  }
+};
+
 interface Customer {
   id: string;
   full_name: string;
@@ -33,6 +60,47 @@ export const findCustomerByName = (customers: Customer[], fullName: string): Cus
 };
 
 /**
+ * Map login user data to sender fields for existing address
+ * @returns Object with mapped field values from logged-in user
+ */
+export const mapLoginUserToSenderFields = () => {
+  try {
+    const userData = getUserData();
+    const customerDetail = userData?.Customerdetail;
+
+    if (!customerDetail) {
+      console.log('No customerDetail found in userData');
+      return {};
+    }
+
+    // Debug: Log all available fields in customerDetail
+    console.log('Available customerDetail fields:', Object.keys(customerDetail));
+    console.log('CustomerDetail data:', customerDetail);
+
+    // Map fields based on actual login response structure
+    const mappedFields = {
+      senderName: customerDetail.name || customerDetail.full_name || customerDetail.customer_name || '',
+      senderCompanyName: customerDetail.company_name || customerDetail.name || '',
+      senderZipCode: customerDetail.pincode || customerDetail.zip_code || customerDetail.postal_code || '',
+      senderState: customerDetail.state_name || customerDetail.state || '',
+      senderCity: customerDetail.city_name || customerDetail.city || '',
+      senderArea: customerDetail.area_name ? { value: customerDetail.area_name, label: customerDetail.area_name } : null,
+      senderGstNo: customerDetail.gst_no || customerDetail.gst_number || '',
+      senderAddressLine1: customerDetail.reg_address1 || customerDetail.address1 || customerDetail.address || '',
+      senderAddressLine2: customerDetail.reg_address2 || customerDetail.address2 || '',
+      senderMobile: customerDetail.mobile || customerDetail.mobile_no || customerDetail.phone || '',
+      senderEmail: customerDetail.email || customerDetail.email_id || '',
+    };
+
+    console.log('Mapped fields for sender:', mappedFields);
+    return mappedFields;
+  } catch (error) {
+    console.error('Error mapping login user to sender fields:', error);
+    return {};
+  }
+};
+
+/**
  * Map customer data to form field values for sender info
  * @param customer The customer object
  * @returns Object with mapped field values
@@ -47,7 +115,7 @@ export const mapCustomerToSenderFields = (customer: Customer | null) => {
       senderName: customer.full_name || '',
       senderCompanyName: customer.company_name || '',
       senderZipCode: customer.pincode || '',
-      senderState: customer.state_name ? { value: customer.state_name, label: customer.state_name } : null,
+      senderState: customer.state_name || '',
       senderCity: customer.city_name || '',
       senderArea: customer.area_name ? { value: customer.area_name, label: customer.area_name } : null,
       senderGstNo: customer.gst_no || '',
@@ -77,7 +145,7 @@ export const mapCustomerToReceiverFields = (customer: Customer | null) => {
       receiverName: customer.full_name || '',
       receiverCompanyName: customer.company_name || '',
       receiverZipCode: customer.pincode || '',
-      receiverState: customer.state_name ? { value: customer.state_name, label: customer.state_name } : null,
+      receiverState: customer.state_name || '',
       receiverCity: customer.city_name || '',
       receiverArea: customer.area_name ? { value: customer.area_name, label: customer.area_name } : null,
       receiverGstNo: customer.gst_no || '',
@@ -106,6 +174,43 @@ export const customersToOptions = (customers: Customer[]) => {
     value: customer.full_name,
     label: customer.full_name,
   }));
+};
+
+/**
+ * Convert customers array to options format with login user as first option
+ * @param customers Array of customer objects
+ * @returns Array of option objects with login user first, then customers
+ */
+export const customersToOptionsWithLoginUser = (customers: Customer[]) => {
+  const options = [];
+
+  try {
+    // Add login user as first option
+    const userData = getUserData();
+    const customerDetail = userData?.Customerdetail;
+
+    if (customerDetail) {
+      // Use the correct field name based on login response structure
+      const userName = customerDetail.name || customerDetail.full_name || customerDetail.customer_name || 'Your Account';
+      options.push({
+        value: 'login_user',
+        label: `${userName} (Your Account)`,
+      });
+    }
+
+    // Add other customers
+    if (customers && Array.isArray(customers)) {
+      const customerOptions = customers.map(customer => ({
+        value: customer.full_name,
+        label: customer.full_name,
+      }));
+      options.push(...customerOptions);
+    }
+  } catch (error) {
+    console.error('Error creating customer options with login user:', error);
+  }
+
+  return options;
 };
 
 /**
@@ -141,7 +246,7 @@ export const clearSenderFields = () => {
     senderName: '',
     senderCompanyName: '',
     senderZipCode: '',
-    senderState: null,
+    senderState: '',
     senderCity: '',
     senderArea: null,
     senderGstNo: '',
@@ -161,7 +266,7 @@ export const clearReceiverFields = () => {
     receiverName: '',
     receiverCompanyName: '',
     receiverZipCode: '',
-    receiverState: null,
+    receiverState: '',
     receiverCity: '',
     receiverArea: null,
     receiverGstNo: '',

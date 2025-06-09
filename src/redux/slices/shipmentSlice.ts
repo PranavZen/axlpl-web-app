@@ -3,6 +3,29 @@ import axios from "axios";
 import { getUserData } from "../../utils/authUtils";
 import { API_BASE_URL } from "../../config";
 
+/**
+ * Helper function to safely extract value from form field
+ * Handles both string values and object values with .value property
+ */
+const getFieldValue = (field: any, defaultValue: string = ""): string => {
+  if (field === null || field === undefined) {
+    return defaultValue;
+  }
+
+  if (typeof field === 'object' && field.value !== undefined) {
+    return String(field.value);
+  }
+
+  return String(field);
+};
+
+/**
+ * Helper function to convert boolean or string boolean to "1" or "0"
+ */
+const getBooleanValue = (value: any): string => {
+  return (value === true || value === "true" || value === "1") ? "1" : "0";
+};
+
 interface ShipmentState {
   formData: any;
   submitting: boolean;
@@ -23,7 +46,9 @@ const initialState: ShipmentState = {
 export const submitShipment = createAsyncThunk(
   "shipment/submit",
   async (formValues: any, { rejectWithValue }) => {
-    console.log("🔄 submitShipment thunk called with:", formValues);
+    console.log("🔄 submitShipment thunk called with form values:");
+    console.log("📋 Raw form values:", JSON.stringify(formValues, null, 2));
+
     try {
       const userData = getUserData();
       const token = userData?.Customerdetail?.token;
@@ -36,25 +61,40 @@ export const submitShipment = createAsyncThunk(
         return rejectWithValue("Authentication required");
       }
 
-      // Transform form data to match API requirements exactly like Postman
+      console.log("🔄 Building dynamic FormData from form values...");
+
+      // Transform form data to match API requirements dynamically
       const formData = new FormData();
 
-      // Use exact values from your working Postman example
-      formData.append("customer_id", "63");
-      formData.append("category_id", "1");
-      formData.append("product_id", "2");
-      formData.append("net_weight", "122");
-      formData.append("gross_weight", "546");
-      formData.append("payment_mode", "prepaid");
-      formData.append("service_id", "1");
-      formData.append("invoice_value", "10000");
-      formData.append("axlpl_insurance", "1");
-      formData.append("policy_no", "P-12345");
-      formData.append("exp_date", "2025-12-31");
-      formData.append("insurance_value", "1000");
-      formData.append("remark", "Urgent shipment");
-      formData.append("bill_to", "2");
-      formData.append("number_of_parcel", "2");
+      // Dynamic shipment details from form values
+      formData.append("customer_id", String(userId)); // Use logged-in user ID
+      formData.append("category_id", getFieldValue(formValues.category));
+
+      // Handle commodity - extract product IDs from selected commodities
+      const commodityIds = Array.isArray(formValues.commodity)
+        ? formValues.commodity.map((item: any) => getFieldValue(item)).join(",")
+        : getFieldValue(formValues.commodity);
+      formData.append("product_id", commodityIds);
+
+      formData.append("net_weight", getFieldValue(formValues.netWeight));
+      formData.append("gross_weight", getFieldValue(formValues.grossWeight));
+      formData.append("payment_mode", getFieldValue(formValues.paymentMode));
+      formData.append("service_id", getFieldValue(formValues.serviceType));
+      formData.append("invoice_value", getFieldValue(formValues.invoiceValue));
+
+      // Insurance handling
+      formData.append("axlpl_insurance", getBooleanValue(formValues.insurance));
+      formData.append("policy_no", getFieldValue(formValues.policyNumber));
+      formData.append("exp_date", getFieldValue(formValues.expiryDate));
+      formData.append("insurance_value", getFieldValue(formValues.insuranceValue));
+
+      formData.append("remark", getFieldValue(formValues.remark));
+
+      // Bill to handling - convert to numeric value
+      const billToValue = formValues.billTo === "sender" ? "1" : "2";
+      formData.append("bill_to", billToValue);
+
+      formData.append("number_of_parcel", getFieldValue(formValues.numberOfParcel, "1"));
       formData.append("additional_axlpl_insurance", "0.00");
       formData.append("shipment_status", "Pending");
       formData.append("calculation_status", "custom");
@@ -65,62 +105,102 @@ export const submitShipment = createAsyncThunk(
       formData.append("is_amt_edited_by_user", "0");
       formData.append("shipment_id", "");
 
-      // Sender details - exact values from working Postman example
-      formData.append("sender_name", "A.B. GOLD");
-      formData.append("sender_company_name", "A.B. GOLD");
-      formData.append("sender_country", "1");
-      formData.append("sender_state", "4");
-      formData.append("sender_city", "817");
-      formData.append("sender_area", "63862");
-      formData.append("sender_pincode", "400002");
-      formData.append("sender_address1", "305, floor-3RD, D D IMAGE, SHAIKH MEMON STREET, , Maharashtra, 400002");
-      formData.append("sender_address2", "Maharashtra, 400002");
-      formData.append("sender_mobile", "9323688666");
-      formData.append("sender_email", "abgoldmum@gmail.com");
-      formData.append("sender_save_address", "1");
-      formData.append("sender_is_new_sender_address", "0");
-      formData.append("sender_gst_no", "27AACPJ9801C1Z1");
-      formData.append("sender_customer_id", "233");
+      // Sender details - dynamic values from form
+      formData.append("sender_name", getFieldValue(formValues.senderName));
+      formData.append("sender_company_name", getFieldValue(formValues.senderCompanyName));
+      formData.append("sender_country", "1"); // Default to India (1)
+      formData.append("sender_state", getFieldValue(formValues.senderState));
+      formData.append("sender_city", getFieldValue(formValues.senderCity));
+      formData.append("sender_area", getFieldValue(formValues.senderArea));
+      formData.append("sender_pincode", getFieldValue(formValues.senderZipCode));
+      formData.append("sender_address1", getFieldValue(formValues.senderAddressLine1));
+      formData.append("sender_address2", getFieldValue(formValues.senderAddressLine2));
+      formData.append("sender_mobile", getFieldValue(formValues.senderMobile));
+      formData.append("sender_email", getFieldValue(formValues.senderEmail));
 
-      // Receiver details - exact values from working Postman example
-      formData.append("receiver_name", "DGLA QUALITY SERVICS PVT. LTD.");
-      formData.append("receiver_company_name", "DGLA QUALITY SERVICS PVT. LTD.");
-      formData.append("receiver_country", "1");
-      formData.append("receiver_state", "4");
-      formData.append("receiver_city", "817");
-      formData.append("receiver_area", "24441");
-      formData.append("receiver_pincode", "400093");
-      formData.append("receiver_address1", "C 4 UDHYOG SADAN 3 MIDC ANDHERI EAST MUMBAI");
-      formData.append("receiver_address2", "C 4 UDHYOG SADAN 3 MIDC ANDHERI EAST MUMBAI");
-      formData.append("receiver_mobile", "9833722993");
-      formData.append("receiver_email", "Sourabh@dpjewellers.com");
-      formData.append("receiver_save_address", "1");
-      formData.append("receiver_is_new_receiver_address", "0");
-      formData.append("receiver_gst_no", "");
-      formData.append("receiver_customer_id", "1950");
+      // Handle address saving preference
+      formData.append("sender_save_address", getBooleanValue(formValues.senderSaveAddress));
 
-      // Different delivery address - exact values from working Postman example
-      formData.append("is_diff_add", "0");
-      formData.append("diff_receiver_country", "1");
-      formData.append("diff_receiver_state", "4");
-      formData.append("diff_receiver_city", "817");
-      formData.append("diff_receiver_area", "MADURAI");
-      formData.append("diff_receiver_pincode", "500072");
-      formData.append("diff_receiver_address1", "asca");
-      formData.append("diff_receiver_address2", "test");
+      // Determine if this is a new address or existing one
+      const isNewSenderAddress = formValues.senderAddressType === "new" ? "1" : "0";
+      formData.append("sender_is_new_sender_address", isNewSenderAddress);
 
-      // Charges - exact values from working Postman example
-      formData.append("shipment_charges", "0");
-      formData.append("insurance_charges", "0.00");
-      formData.append("invoice_charges", "0");
-      formData.append("handling_charges", "0.00");
-      formData.append("tax", "147.42");
-      formData.append("total_charges", "819");
-      formData.append("grand_total", "966.42");
-      formData.append("docket_no", "");
-      formData.append("shipment_date", "2025-05-14");
+      formData.append("sender_gst_no", getFieldValue(formValues.senderGstNo));
+      formData.append("sender_customer_id", getFieldValue(formValues.senderCustomerId, String(userId)));
 
-      console.log("📋 FormData prepared, making API call to:", `${API_BASE_URL}/insertShipment`);
+      // Receiver details - dynamic values from form
+      formData.append("receiver_name", getFieldValue(formValues.receiverName));
+      formData.append("receiver_company_name", getFieldValue(formValues.receiverCompanyName));
+      formData.append("receiver_country", "1"); // Default to India (1)
+      formData.append("receiver_state", getFieldValue(formValues.receiverState));
+      formData.append("receiver_city", getFieldValue(formValues.receiverCity));
+      formData.append("receiver_area", getFieldValue(formValues.receiverArea));
+      formData.append("receiver_pincode", getFieldValue(formValues.receiverZipCode));
+      formData.append("receiver_address1", getFieldValue(formValues.receiverAddressLine1));
+      formData.append("receiver_address2", getFieldValue(formValues.receiverAddressLine2));
+      formData.append("receiver_mobile", getFieldValue(formValues.receiverMobile));
+      formData.append("receiver_email", getFieldValue(formValues.receiverEmail));
+
+      // Handle address saving preference
+      formData.append("receiver_save_address", getBooleanValue(formValues.receiverSaveAddress));
+
+      // Determine if this is a new address or existing one
+      const isNewReceiverAddress = formValues.receiverAddressType === "new" ? "1" : "0";
+      formData.append("receiver_is_new_receiver_address", isNewReceiverAddress);
+
+      formData.append("receiver_gst_no", getFieldValue(formValues.receiverGstNo));
+      formData.append("receiver_customer_id", getFieldValue(formValues.receiverCustomerId));
+
+      // Different delivery address - dynamic values from form
+      const isDifferentDeliveryAddress = getBooleanValue(formValues.isDifferentDeliveryAddress) === "1";
+      formData.append("is_diff_add", getBooleanValue(formValues.isDifferentDeliveryAddress));
+
+      if (isDifferentDeliveryAddress) {
+        formData.append("diff_receiver_country", "1"); // Default to India (1)
+        formData.append("diff_receiver_state", getFieldValue(formValues.deliveryState));
+        formData.append("diff_receiver_city", getFieldValue(formValues.deliveryCity));
+        formData.append("diff_receiver_area", getFieldValue(formValues.deliveryArea));
+        formData.append("diff_receiver_pincode", getFieldValue(formValues.deliveryZipCode));
+        formData.append("diff_receiver_address1", getFieldValue(formValues.deliveryAddressLine1));
+        formData.append("diff_receiver_address2", getFieldValue(formValues.deliveryAddressLine2));
+      } else {
+        // Set default values for API compatibility when not using different delivery address
+        formData.append("diff_receiver_country", "1");
+        formData.append("diff_receiver_state", "");
+        formData.append("diff_receiver_city", "");
+        formData.append("diff_receiver_area", "");
+        formData.append("diff_receiver_pincode", "");
+        formData.append("diff_receiver_address1", "");
+        formData.append("diff_receiver_address2", "");
+      }
+
+      // Charges - dynamic values from form
+      formData.append("shipment_charges", getFieldValue(formValues.shipmentCharges, "0"));
+      formData.append("insurance_charges", getFieldValue(formValues.insuranceCharges, "0.00"));
+      formData.append("invoice_charges", getFieldValue(formValues.invoiceCharges, "0"));
+      formData.append("handling_charges", getFieldValue(formValues.handlingCharges, "0.00"));
+      formData.append("tax", getFieldValue(formValues.tax, "0"));
+      formData.append("total_charges", getFieldValue(formValues.totalCharges, "0"));
+      formData.append("grand_total", getFieldValue(formValues.grandTotal, "0"));
+      formData.append("docket_no", getFieldValue(formValues.docketNo));
+
+      // Use current date if shipment date not provided
+      const currentDate = new Date().toISOString().split('T')[0];
+      formData.append("shipment_date", getFieldValue(formValues.shipmentDate, currentDate));
+
+      console.log("✅ Dynamic FormData built successfully!");
+      console.log("📊 Key dynamic values extracted:");
+      console.log("  - Category:", getFieldValue(formValues.category));
+      console.log("  - Commodity:", commodityIds);
+      console.log("  - Payment Mode:", getFieldValue(formValues.paymentMode));
+      console.log("  - Service Type:", getFieldValue(formValues.serviceType));
+      console.log("  - Insurance:", getBooleanValue(formValues.insurance));
+      console.log("  - Sender Name:", getFieldValue(formValues.senderName));
+      console.log("  - Receiver Name:", getFieldValue(formValues.receiverName));
+      console.log("  - Different Delivery:", getBooleanValue(formValues.isDifferentDeliveryAddress));
+      console.log("  - Grand Total:", getFieldValue(formValues.grandTotal, "0"));
+
+      console.log("📋 Making API call to:", `${API_BASE_URL}/insertShipment`);
 
       // Log ALL form data for debugging
       console.log("📊 Complete FormData contents:");

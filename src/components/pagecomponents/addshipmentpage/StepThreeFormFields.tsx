@@ -184,37 +184,7 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
     handleCloseAddAreaModal();
   };
 
-  const stateOptions = [
-    { value: "andhra-pradesh", label: "Andhra Pradesh" },
-    { value: "arunachal-pradesh", label: "Arunachal Pradesh" },
-    { value: "assam", label: "Assam" },
-    { value: "bihar", label: "Bihar" },
-    { value: "chhattisgarh", label: "Chhattisgarh" },
-    { value: "goa", label: "Goa" },
-    { value: "gujarat", label: "Gujarat" },
-    { value: "haryana", label: "Haryana" },
-    { value: "himachal-pradesh", label: "Himachal Pradesh" },
-    { value: "jharkhand", label: "Jharkhand" },
-    { value: "karnataka", label: "Karnataka" },
-    { value: "kerala", label: "Kerala" },
-    { value: "madhya-pradesh", label: "Madhya Pradesh" },
-    { value: "maharashtra", label: "Maharashtra" },
-    { value: "manipur", label: "Manipur" },
-    { value: "meghalaya", label: "Meghalaya" },
-    { value: "mizoram", label: "Mizoram" },
-    { value: "nagaland", label: "Nagaland" },
-    { value: "odisha", label: "Odisha" },
-    { value: "punjab", label: "Punjab" },
-    { value: "rajasthan", label: "Rajasthan" },
-    { value: "sikkim", label: "Sikkim" },
-    { value: "tamil-nadu", label: "Tamil Nadu" },
-    { value: "telangana", label: "Telangana" },
-    { value: "tripura", label: "Tripura" },
-    { value: "uttar-pradesh", label: "Uttar Pradesh" },
-    { value: "uttarakhand", label: "Uttarakhand" },
-    { value: "west-bengal", label: "West Bengal" },
-    { value: "delhi", label: "Delhi" },
-  ];
+
 
   return (
     <div className="step-three-fields">
@@ -293,13 +263,15 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
 
               <div className="col-md-6 mb-3">
                 <StepFieldWrapper name="deliveryState" label="State">
-                  <SingleSelect
-                    options={stateOptions}
-                    value={values.deliveryState}
-                    onChange={(option) =>
-                      setFieldValue("deliveryState", option)
+                  <input
+                    name="deliveryState"
+                    type="text"
+                    className="form-control innerFormControll"
+                    value={values.deliveryState || ""}
+                    onChange={(e) =>
+                      setFieldValue("deliveryState", e.target.value)
                     }
-                    placeholder="Select State"
+                    placeholder="Enter state name"
                   />
                 </StepFieldWrapper>
               </div>

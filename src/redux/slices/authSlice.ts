@@ -32,7 +32,7 @@ export const loginUser = createAsyncThunk(
 
         if (response.data.status === "success") {
           // Log the response data to understand its structure
-          // console.log('Login response data:', JSON.stringify(response.data, null, 2));
+          console.log('Login response data:', JSON.stringify(response.data, null, 2));
 
           // Check if the user has the role "messenger"
           // Try different paths to find the role

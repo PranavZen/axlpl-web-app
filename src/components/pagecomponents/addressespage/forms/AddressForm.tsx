@@ -44,6 +44,7 @@ interface AddressFormProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onSelectChange: (name: string) => (option: any) => void;
   onCancel: () => void;
+  errors?: { [key: string]: string };
 }
 
 /**
@@ -57,6 +58,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
   onInputChange,
   onSelectChange,
   onCancel,
+  errors = {},
 }) => {
   return (
     <form onSubmit={onSubmit}>
@@ -72,7 +74,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
             onChange={onInputChange}
             onBlur={() => {}}
             placeHolder="Enter name"
+            error={errors.name || ""}
+            touched={!!errors.name}
           />
+          {errors.name && (
+            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
+              {errors.name}
+            </div>
+          )}
         </div>
         <div className="col-md-6">
           <Label
@@ -89,7 +98,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
             onChange={onInputChange}
             onBlur={() => {}}
             placeHolder="Enter company name"
+            error={errors.company_name || ""}
+            touched={!!errors.company_name}
           />
+          {errors.company_name && (
+            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
+              {errors.company_name}
+            </div>
+          )}
         </div>
       </div>
 
@@ -116,23 +132,23 @@ const AddressForm: React.FC<AddressFormProps> = ({
         </div>
         <div className="col-md-6">
           <Label htmlFor="state_id" text="State" className="form-label" />
-          <SingleSelect
+          <Input
+            type="text"
             id="state_id"
-            options={[
-              { value: "", label: "Select State" },
-              { value: "4", label: "Maharashtra" },
-            ]}
-            value={
-              formData.state_id
-                ? {
-                    value: formData.state_id,
-                    label: formData.state_id === "4" ? "Maharashtra" : "",
-                  }
-                : null
-            }
-            onChange={onSelectChange("state_id")}
-            placeholder="Select State"
+            name="state_id"
+            className="form-control innerFormControll"
+            value={formData.state_id}
+            onChange={onInputChange}
+            onBlur={() => {}}
+            placeHolder="Enter state name"
+            error={errors.state_id || ""}
+            touched={!!errors.state_id}
           />
+          {errors.state_id && (
+            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
+              {errors.state_id}
+            </div>
+          )}
         </div>
       </div>
 
@@ -192,7 +208,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
             onChange={onInputChange}
             onBlur={() => {}}
             placeHolder="Enter zip code"
+            error={errors.zip_code || ""}
+            touched={!!errors.zip_code}
           />
+          {errors.zip_code && (
+            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
+              {errors.zip_code}
+            </div>
+          )}
         </div>
         <div className="col-md-6">
           <Label
@@ -209,7 +232,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
             onChange={onInputChange}
             onBlur={() => {}}
             placeHolder="Enter mobile number"
+            error={errors.mobile_no || ""}
+            touched={!!errors.mobile_no}
           />
+          {errors.mobile_no && (
+            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
+              {errors.mobile_no}
+            </div>
+          )}
         </div>
       </div>
 
@@ -225,7 +255,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
             onChange={onInputChange}
             onBlur={() => {}}
             placeHolder="Enter email"
+            error={errors.email || ""}
+            touched={!!errors.email}
           />
+          {errors.email && (
+            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
+              {errors.email}
+            </div>
+          )}
         </div>
         <div className="col-md-6">
           <Label
@@ -241,8 +278,15 @@ const AddressForm: React.FC<AddressFormProps> = ({
             value={formData.sender_gst_no}
             onChange={onInputChange}
             onBlur={() => {}}
-            placeHolder="Enter GST number"
+            placeHolder="Enter GST number (optional)"
+            error={errors.sender_gst_no || ""}
+            touched={!!errors.sender_gst_no}
           />
+          {errors.sender_gst_no && (
+            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
+              {errors.sender_gst_no}
+            </div>
+          )}
         </div>
       </div>
 
@@ -262,7 +306,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
             onChange={onInputChange}
             onBlur={() => {}}
             placeHolder="Enter address line 1"
+            error={errors.address1 || ""}
+            touched={!!errors.address1}
           />
+          {errors.address1 && (
+            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
+              {errors.address1}
+            </div>
+          )}
         </div>
       </div>
 
@@ -270,7 +321,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
         <div className="col-md-12">
           <Label
             htmlFor="address2"
-            text="Address Line 2"
+            text="Address Line 2 (Optional)"
             className="form-label"
           />
           <Input
@@ -281,8 +332,15 @@ const AddressForm: React.FC<AddressFormProps> = ({
             value={formData.address2}
             onChange={onInputChange}
             onBlur={() => {}}
-            placeHolder="Enter address line 2"
+            placeHolder="Enter address line 2 (optional)"
+            error={errors.address2 || ""}
+            touched={!!errors.address2}
           />
+          {errors.address2 && (
+            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
+              {errors.address2}
+            </div>
+          )}
         </div>
       </div>
     </form>

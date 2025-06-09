@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AddressForm, { AddressFormData, initialAddressFormData } from "../components/pagecomponents/addressespage/forms/AddressForm";
+import { validateAddressForm } from "../utils/validationUtils";
 import ConfirmationModal from "../components/ui/modals/ConfirmationModal";
 import FormModal from "../components/ui/modals/FormModal";
 import MainBody from "../components/ui/mainbody/MainBody";
@@ -27,6 +28,7 @@ const Addresses: React.FC = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const dispatch = useDispatch<AppDispatch>();
   const { addresses, loading, error } = useSelector(
     (state: RootState) => state.address
@@ -64,10 +66,19 @@ const Addresses: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
+    const updatedFormData = {
+      ...formData,
       [name]: value,
-    }));
+    };
+    setFormData(updatedFormData);
+
+    // Clear specific field error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [name]: '',
+      }));
+    }
   };
 
   // Handle select change for SingleSelect component
@@ -90,10 +101,22 @@ const Addresses: React.FC = () => {
     setEditingAddress(null);
     setIsEditMode(false);
     setFormData(initialAddressFormData);
+    setFormErrors({});
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate form data
+    const errors = validateAddressForm(formData);
+    setFormErrors(errors);
+
+    // Check if there are any validation errors
+    if (Object.keys(errors).length > 0) {
+      showError("Please fix the validation errors before submitting.");
+      return;
+    }
+
     setFormSubmitting(true);
     try {
       if (isEditMode && editingAddress) {
@@ -245,6 +268,7 @@ const Addresses: React.FC = () => {
           onInputChange={handleInputChange}
           onSelectChange={handleSelectChange}
           onCancel={handleCloseForm}
+          errors={formErrors}
         />
       </FormModal>
 

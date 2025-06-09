@@ -71,7 +71,7 @@ const AddShipment = () => {
     senderName: "",
     senderCompanyName: "",
     senderZipCode: "",
-    senderState: null,
+    senderState: "",
     senderCity: "",
     senderArea: null,
     senderGstNo: "",
@@ -86,7 +86,7 @@ const AddShipment = () => {
     receiverName: "",
     receiverCompanyName: "",
     receiverZipCode: "",
-    receiverState: null,
+    receiverState: "",
     receiverCity: "",
     receiverArea: null,
     receiverGstNo: "",
@@ -98,7 +98,7 @@ const AddShipment = () => {
     // Step 3: Delivery Address
     isDifferentDeliveryAddress: false,
     deliveryZipCode: "",
-    deliveryState: null,
+    deliveryState: "",
     deliveryCity: "",
     deliveryArea: null,
     deliveryAddressLine1: "",
@@ -126,25 +126,138 @@ const AddShipment = () => {
 
     // Step 2: Address Information
     Yup.object({
-      senderAddressType: Yup.string().oneOf(["new", "existing"], "Invalid address type"),
-      senderName: Yup.string().required("Sender name is required"),
-      senderCompanyName: Yup.string().required("Company name is required"),
-      senderZipCode: Yup.string().required("Zip code is required"),
-      senderState: Yup.object().nullable().required("Please select state"),
-      senderCity: Yup.string().required("City is required"),
-      senderAddressLine1: Yup.string().required("Address line 1 is required"),
-      senderMobile: Yup.string().required("Mobile number is required"),
-      senderEmail: Yup.string().email("Invalid email").required("Email is required"),
+      senderAddressType: Yup.string().oneOf(["new", "existing"], "Invalid sender address type").required("Please select sender address type"),
+      receiverAddressType: Yup.string().oneOf(["new", "existing"], "Invalid receiver address type").required("Please select receiver address type"),
 
-      receiverAddressType: Yup.string().oneOf(["new", "existing"], "Invalid address type"),
-      receiverName: Yup.string().required("Receiver name is required"),
-      receiverCompanyName: Yup.string().required("Company name is required"),
-      receiverZipCode: Yup.string().required("Zip code is required"),
-      receiverState: Yup.object().nullable().required("Please select state"),
-      receiverCity: Yup.string().required("City is required"),
-      receiverAddressLine1: Yup.string().required("Address line 1 is required"),
-      receiverMobile: Yup.string().required("Mobile number is required"),
-      receiverEmail: Yup.string().email("Invalid email").required("Email is required"),
+      // Sender Information Validation
+      senderName: Yup.string()
+        .trim()
+        .min(2, "Name must be at least 2 characters")
+        .max(100, "Name cannot exceed 100 characters")
+        .matches(/^[a-zA-Z\s.'-]+$/, "Name can only contain letters, spaces, dots, apostrophes, and hyphens")
+        .required("Sender name is required"),
+
+      senderCompanyName: Yup.string()
+        .trim()
+        .min(2, "Company name must be at least 2 characters")
+        .max(200, "Company name cannot exceed 200 characters")
+        .required("Company name is required"),
+
+      senderZipCode: Yup.string()
+        .trim()
+        .matches(/^\d{6}$/, "Zip code must be exactly 6 digits")
+        .required("Zip code is required"),
+
+      senderState: Yup.string()
+        .trim()
+        .min(2, "State must be at least 2 characters")
+        .max(50, "State cannot exceed 50 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "State can only contain letters, spaces, dots, and hyphens")
+        .required("State is required"),
+
+      senderCity: Yup.string()
+        .trim()
+        .min(2, "City must be at least 2 characters")
+        .max(100, "City cannot exceed 100 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "City can only contain letters, spaces, dots, and hyphens")
+        .required("City is required"),
+
+      senderArea: Yup.object()
+        .nullable(),
+
+      senderGstNo: Yup.string()
+        .trim()
+        .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Invalid GST number format")
+        .nullable(),
+
+      senderAddressLine1: Yup.string()
+        .trim()
+        .min(5, "Address must be at least 5 characters")
+        .max(200, "Address cannot exceed 200 characters")
+        .required("Address line 1 is required"),
+
+      senderAddressLine2: Yup.string()
+        .trim()
+        .max(200, "Address cannot exceed 200 characters")
+        .nullable(),
+
+      senderMobile: Yup.string()
+        .trim()
+        .matches(/^[6-9]\d{9}$/, "Mobile number must be 10 digits starting with 6, 7, 8, or 9")
+        .required("Mobile number is required"),
+
+      senderEmail: Yup.string()
+        .trim()
+        .email("Invalid email format")
+        .max(100, "Email cannot exceed 100 characters")
+        .required("Email is required"),
+
+      // Receiver Information Validation
+      receiverName: Yup.string()
+        .trim()
+        .min(2, "Name must be at least 2 characters")
+        .max(100, "Name cannot exceed 100 characters")
+        .matches(/^[a-zA-Z\s.'-]+$/, "Name can only contain letters, spaces, dots, apostrophes, and hyphens")
+        .required("Receiver name is required"),
+
+      receiverCompanyName: Yup.string()
+        .trim()
+        .min(2, "Company name must be at least 2 characters")
+        .max(200, "Company name cannot exceed 200 characters")
+        .required("Company name is required"),
+
+      receiverZipCode: Yup.string()
+        .trim()
+        .matches(/^\d{6}$/, "Zip code must be exactly 6 digits")
+        .required("Zip code is required"),
+
+      receiverState: Yup.string()
+        .trim()
+        .min(2, "State must be at least 2 characters")
+        .max(50, "State cannot exceed 50 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "State can only contain letters, spaces, dots, and hyphens")
+        .required("State is required"),
+
+      receiverCity: Yup.string()
+        .trim()
+        .min(2, "City must be at least 2 characters")
+        .max(100, "City cannot exceed 100 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "City can only contain letters, spaces, dots, and hyphens")
+        .required("City is required"),
+
+      receiverArea: Yup.object()
+        .nullable(),
+
+      receiverGstNo: Yup.string()
+        .trim()
+        .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Invalid GST number format")
+        .nullable(),
+
+      receiverAddressLine1: Yup.string()
+        .trim()
+        .min(5, "Address must be at least 5 characters")
+        .max(200, "Address cannot exceed 200 characters")
+        .required("Address line 1 is required"),
+
+      receiverAddressLine2: Yup.string()
+        .trim()
+        .max(200, "Address cannot exceed 200 characters")
+        .nullable(),
+
+      receiverMobile: Yup.string()
+        .trim()
+        .matches(/^[6-9]\d{9}$/, "Mobile number must be 10 digits starting with 6, 7, 8, or 9")
+        .required("Mobile number is required"),
+
+      receiverEmail: Yup.string()
+        .trim()
+        .email("Invalid email format")
+        .max(100, "Email cannot exceed 100 characters")
+        .required("Email is required"),
+
+      billTo: Yup.string()
+        .oneOf(["sender", "receiver"], "Please select who to bill")
+        .required("Please select billing option"),
     }),
 
     // Step 3: Delivery Address
@@ -152,22 +265,51 @@ const AddShipment = () => {
       // Conditional validation for delivery address fields
       deliveryZipCode: Yup.string().when('isDifferentDeliveryAddress', {
         is: true,
-        then: (schema) => schema.required("Delivery zip code is required"),
+        then: (schema) => schema
+          .trim()
+          .matches(/^\d{6}$/, "Delivery zip code must be exactly 6 digits")
+          .required("Delivery zip code is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
-      deliveryState: Yup.object().nullable().when('isDifferentDeliveryAddress', {
+
+      deliveryState: Yup.string().when('isDifferentDeliveryAddress', {
         is: true,
-        then: (schema) => schema.required("Please select delivery state"),
+        then: (schema) => schema
+          .trim()
+          .min(2, "Delivery state must be at least 2 characters")
+          .max(50, "Delivery state cannot exceed 50 characters")
+          .matches(/^[a-zA-Z\s.-]+$/, "Delivery state can only contain letters, spaces, dots, and hyphens")
+          .required("Delivery state is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
+
       deliveryCity: Yup.string().when('isDifferentDeliveryAddress', {
         is: true,
-        then: (schema) => schema.required("Delivery city is required"),
+        then: (schema) => schema
+          .trim()
+          .min(2, "Delivery city must be at least 2 characters")
+          .max(100, "Delivery city cannot exceed 100 characters")
+          .matches(/^[a-zA-Z\s.-]+$/, "Delivery city can only contain letters, spaces, dots, and hyphens")
+          .required("Delivery city is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
+
       deliveryAddressLine1: Yup.string().when('isDifferentDeliveryAddress', {
         is: true,
-        then: (schema) => schema.required("Delivery address line 1 is required"),
+        then: (schema) => schema
+          .trim()
+          .min(5, "Delivery address must be at least 5 characters")
+          .max(200, "Delivery address cannot exceed 200 characters")
+          .required("Delivery address line 1 is required"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+
+      deliveryAddressLine2: Yup.string().when('isDifferentDeliveryAddress', {
+        is: true,
+        then: (schema) => schema
+          .trim()
+          .max(200, "Delivery address cannot exceed 200 characters")
+          .nullable(),
         otherwise: (schema) => schema.notRequired(),
       }),
     }),
@@ -290,6 +432,18 @@ const AddShipment = () => {
                   validationSchema={validationSchemas[step]}
                   onSubmit={async (values, formikHelpers) => {
                     console.log("📝 Formik onSubmit called - Step:", step, "Values:", values);
+                    console.log("🔍 Current validation schema:", validationSchemas[step]);
+
+                    // Check for validation errors
+                    try {
+                      await validationSchemas[step].validate(values, { abortEarly: false });
+                      console.log("✅ Validation passed for step", step);
+                    } catch (validationError: any) {
+                      console.log("❌ Validation failed for step", step, "Errors:", validationError.errors);
+                      console.log("❌ Validation error details:", validationError);
+                      return; // Don't proceed if validation fails
+                    }
+
                     dispatch(setFormData(values));
                     if (step === steps.length - 1) {
                       console.log("✅ Last step reached, calling handleSubmit");
@@ -301,7 +455,16 @@ const AddShipment = () => {
                   }}
                   enableReinitialize
                 >
-                  {({ values, setFieldValue, setFieldTouched, setFieldError, errors, touched }) => (
+                  {({ values, setFieldValue, setFieldTouched, setFieldError, errors, touched }) => {
+                    // Debug: Log current form state for step 2
+                    if (step === 1) {
+                      console.log("🔍 Step 2 Form State:");
+                      console.log("Values:", values);
+                      console.log("Errors:", errors);
+                      console.log("Touched:", touched);
+                    }
+
+                    return (
                     <Form className="multi-step-form" noValidate>
                       <div className="step-content">
                         <div className="step-header">
@@ -361,8 +524,27 @@ const AddShipment = () => {
                         isLastStep={step === steps.length - 1}
                         isSubmitting={submitting}
                       />
+
+                      {/* Temporary Debug Button for Step 2 */}
+                      {step === 1 && (
+                        <div className="mt-3">
+                          <button
+                            type="button"
+                            className="btn btn-warning"
+                            onClick={() => {
+                              console.log("🔧 Debug: Force moving to step 3");
+                              console.log("🔧 Current values:", values);
+                              console.log("🔧 Current errors:", errors);
+                              setStep(2);
+                            }}
+                          >
+                            🔧 Debug: Force Next Step
+                          </button>
+                        </div>
+                      )}
                     </Form>
-                  )}
+                    );
+                  }}
                 </Formik>
               </div>
             </div>

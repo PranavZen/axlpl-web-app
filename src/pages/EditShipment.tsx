@@ -97,7 +97,7 @@ const EditShipment = () => {
       senderName: shipment?.sender_name || "",
       senderCompanyName: shipment?.sender_company_name || "",
       senderZipCode: shipment?.sender_zip_code || "",
-      senderState: shipment?.sender_state || null,
+      senderState: shipment?.sender_state || "",
       senderCity: shipment?.sender_city || shipment?.origin || "",
       senderArea: shipment?.sender_area || shipment?.sender_areaname || null,
       senderGstNo: shipment?.sender_gst_no || "",
@@ -112,7 +112,7 @@ const EditShipment = () => {
       receiverName: shipment?.receiver_name || "",
       receiverCompanyName: shipment?.receiver_company_name || "",
       receiverZipCode: shipment?.receiver_zip_code || "",
-      receiverState: shipment?.receiver_state || null,
+      receiverState: shipment?.receiver_state || "",
       receiverCity: shipment?.receiver_city || shipment?.destination || "",
       receiverArea: shipment?.receiver_area || shipment?.receiver_areaname || null,
       receiverGstNo: shipment?.receiver_gst_no || "",
@@ -124,7 +124,7 @@ const EditShipment = () => {
       // Step 3: Delivery Address
       isDifferentDeliveryAddress: shipment?.is_different_delivery_address === true || false,
       deliveryZipCode: shipment?.delivery_zip_code || "",
-      deliveryState: shipment?.delivery_state || null,
+      deliveryState: shipment?.delivery_state || "",
       deliveryCity: shipment?.delivery_city || "",
       deliveryArea: shipment?.delivery_area || null,
       deliveryAddressLine1: shipment?.delivery_address_line1 || "",
@@ -154,24 +154,128 @@ const EditShipment = () => {
     // Step 2: Address Information
     Yup.object({
       senderAddressType: Yup.string().oneOf(["new", "existing"], "Invalid address type"),
-      senderName: Yup.string().required("Sender name is required"),
-      senderCompanyName: Yup.string().required("Company name is required"),
-      senderZipCode: Yup.string().required("Zip code is required"),
-      senderState: Yup.object().nullable().required("Please select state"),
-      senderCity: Yup.string().required("City is required"),
-      senderAddressLine1: Yup.string().required("Address line 1 is required"),
-      senderMobile: Yup.string().required("Mobile number is required"),
-      senderEmail: Yup.string().email("Invalid email").required("Email is required"),
 
+      // Sender Information Validation
+      senderName: Yup.string()
+        .trim()
+        .min(2, "Name must be at least 2 characters")
+        .max(100, "Name cannot exceed 100 characters")
+        .matches(/^[a-zA-Z\s.'-]+$/, "Name can only contain letters, spaces, dots, apostrophes, and hyphens")
+        .required("Sender name is required"),
+
+      senderCompanyName: Yup.string()
+        .trim()
+        .min(2, "Company name must be at least 2 characters")
+        .max(200, "Company name cannot exceed 200 characters")
+        .required("Company name is required"),
+
+      senderZipCode: Yup.string()
+        .trim()
+        .matches(/^\d{6}$/, "Zip code must be exactly 6 digits")
+        .required("Zip code is required"),
+
+      senderState: Yup.string()
+        .trim()
+        .min(2, "State must be at least 2 characters")
+        .max(50, "State cannot exceed 50 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "State can only contain letters, spaces, dots, and hyphens")
+        .required("State is required"),
+
+      senderCity: Yup.string()
+        .trim()
+        .min(2, "City must be at least 2 characters")
+        .max(100, "City cannot exceed 100 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "City can only contain letters, spaces, dots, and hyphens")
+        .required("City is required"),
+
+      senderGstNo: Yup.string()
+        .trim()
+        .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Invalid GST number format")
+        .nullable(),
+
+      senderAddressLine1: Yup.string()
+        .trim()
+        .min(5, "Address must be at least 5 characters")
+        .max(200, "Address cannot exceed 200 characters")
+        .required("Address line 1 is required"),
+
+      senderAddressLine2: Yup.string()
+        .trim()
+        .max(200, "Address cannot exceed 200 characters")
+        .nullable(),
+
+      senderMobile: Yup.string()
+        .trim()
+        .matches(/^[6-9]\d{9}$/, "Mobile number must be 10 digits starting with 6, 7, 8, or 9")
+        .required("Mobile number is required"),
+
+      senderEmail: Yup.string()
+        .trim()
+        .email("Invalid email format")
+        .max(100, "Email cannot exceed 100 characters")
+        .required("Email is required"),
+
+      // Receiver Information Validation
       receiverAddressType: Yup.string().oneOf(["new", "existing"], "Invalid address type"),
-      receiverName: Yup.string().required("Receiver name is required"),
-      receiverCompanyName: Yup.string().required("Company name is required"),
-      receiverZipCode: Yup.string().required("Zip code is required"),
-      receiverState: Yup.object().nullable().required("Please select state"),
-      receiverCity: Yup.string().required("City is required"),
-      receiverAddressLine1: Yup.string().required("Address line 1 is required"),
-      receiverMobile: Yup.string().required("Mobile number is required"),
-      receiverEmail: Yup.string().email("Invalid email").required("Email is required"),
+
+      receiverName: Yup.string()
+        .trim()
+        .min(2, "Name must be at least 2 characters")
+        .max(100, "Name cannot exceed 100 characters")
+        .matches(/^[a-zA-Z\s.'-]+$/, "Name can only contain letters, spaces, dots, apostrophes, and hyphens")
+        .required("Receiver name is required"),
+
+      receiverCompanyName: Yup.string()
+        .trim()
+        .min(2, "Company name must be at least 2 characters")
+        .max(200, "Company name cannot exceed 200 characters")
+        .required("Company name is required"),
+
+      receiverZipCode: Yup.string()
+        .trim()
+        .matches(/^\d{6}$/, "Zip code must be exactly 6 digits")
+        .required("Zip code is required"),
+
+      receiverState: Yup.string()
+        .trim()
+        .min(2, "State must be at least 2 characters")
+        .max(50, "State cannot exceed 50 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "State can only contain letters, spaces, dots, and hyphens")
+        .required("State is required"),
+
+      receiverCity: Yup.string()
+        .trim()
+        .min(2, "City must be at least 2 characters")
+        .max(100, "City cannot exceed 100 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "City can only contain letters, spaces, dots, and hyphens")
+        .required("City is required"),
+
+      receiverGstNo: Yup.string()
+        .trim()
+        .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Invalid GST number format")
+        .nullable(),
+
+      receiverAddressLine1: Yup.string()
+        .trim()
+        .min(5, "Address must be at least 5 characters")
+        .max(200, "Address cannot exceed 200 characters")
+        .required("Address line 1 is required"),
+
+      receiverAddressLine2: Yup.string()
+        .trim()
+        .max(200, "Address cannot exceed 200 characters")
+        .nullable(),
+
+      receiverMobile: Yup.string()
+        .trim()
+        .matches(/^[6-9]\d{9}$/, "Mobile number must be 10 digits starting with 6, 7, 8, or 9")
+        .required("Mobile number is required"),
+
+      receiverEmail: Yup.string()
+        .trim()
+        .email("Invalid email format")
+        .max(100, "Email cannot exceed 100 characters")
+        .required("Email is required"),
     }),
 
     // Step 3: Delivery Address
@@ -179,22 +283,51 @@ const EditShipment = () => {
       // Conditional validation for delivery address fields
       deliveryZipCode: Yup.string().when('isDifferentDeliveryAddress', {
         is: true,
-        then: (schema) => schema.required("Delivery zip code is required"),
+        then: (schema) => schema
+          .trim()
+          .matches(/^\d{6}$/, "Delivery zip code must be exactly 6 digits")
+          .required("Delivery zip code is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
-      deliveryState: Yup.object().nullable().when('isDifferentDeliveryAddress', {
+
+      deliveryState: Yup.string().when('isDifferentDeliveryAddress', {
         is: true,
-        then: (schema) => schema.required("Please select delivery state"),
+        then: (schema) => schema
+          .trim()
+          .min(2, "Delivery state must be at least 2 characters")
+          .max(50, "Delivery state cannot exceed 50 characters")
+          .matches(/^[a-zA-Z\s.-]+$/, "Delivery state can only contain letters, spaces, dots, and hyphens")
+          .required("Delivery state is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
+
       deliveryCity: Yup.string().when('isDifferentDeliveryAddress', {
         is: true,
-        then: (schema) => schema.required("Delivery city is required"),
+        then: (schema) => schema
+          .trim()
+          .min(2, "Delivery city must be at least 2 characters")
+          .max(100, "Delivery city cannot exceed 100 characters")
+          .matches(/^[a-zA-Z\s.-]+$/, "Delivery city can only contain letters, spaces, dots, and hyphens")
+          .required("Delivery city is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
+
       deliveryAddressLine1: Yup.string().when('isDifferentDeliveryAddress', {
         is: true,
-        then: (schema) => schema.required("Delivery address line 1 is required"),
+        then: (schema) => schema
+          .trim()
+          .min(5, "Delivery address must be at least 5 characters")
+          .max(200, "Delivery address cannot exceed 200 characters")
+          .required("Delivery address line 1 is required"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+
+      deliveryAddressLine2: Yup.string().when('isDifferentDeliveryAddress', {
+        is: true,
+        then: (schema) => schema
+          .trim()
+          .max(200, "Delivery address cannot exceed 200 characters")
+          .nullable(),
         otherwise: (schema) => schema.notRequired(),
       }),
     }),
