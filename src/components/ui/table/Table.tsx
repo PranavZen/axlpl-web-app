@@ -296,7 +296,7 @@ function Table<T extends Record<string, any>>({
       {viewModalData && (
         <Modal
           isOpen={viewModalOpen}
-          title="Row Details"
+          title="Details"
           onClose={() => setViewModalOpen(false)}
           size="lg"
         >

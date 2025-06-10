@@ -8,9 +8,9 @@ export interface AddressFormData {
   name: string;
   company_name: string;
   country_id: string;
-  state_id: string;
-  city_id: string;
-  area_id: string;
+  state_id: string; // Now stores state_name for display
+  city_id: string;  // Now stores city_name for display
+  area_id: string;  // Now stores area_name for display
   zip_code: string;
   address1: string;
   address2: string;
@@ -155,44 +155,43 @@ const AddressForm: React.FC<AddressFormProps> = ({
       <div className="row mb-3">
         <div className="col-md-6">
           <Label htmlFor="city_id" text="City" className="form-label" />
-          <SingleSelect
+          <Input
+            type="text"
             id="city_id"
-            options={[
-              { value: "", label: "Select City" },
-              { value: "817", label: "Mumbai" },
-            ]}
-            value={
-              formData.city_id
-                ? {
-                    value: formData.city_id,
-                    label: formData.city_id === "817" ? "Mumbai" : "",
-                  }
-                : null
-            }
-            onChange={onSelectChange("city_id")}
-            placeholder="Select City"
+            name="city_id"
+            className="form-control innerFormControll"
+            value={formData.city_id}
+            onChange={onInputChange}
+            onBlur={() => {}}
+            placeHolder="Enter city name"
+            error={errors.city_id || ""}
+            touched={!!errors.city_id}
           />
+          {errors.city_id && (
+            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
+              {errors.city_id}
+            </div>
+          )}
         </div>
         <div className="col-md-6">
           <Label htmlFor="area_id" text="Area" className="form-label" />
-          <SingleSelect
+          <Input
+            type="text"
             id="area_id"
-            options={[
-              { value: "", label: "Select Area" },
-              { value: "20745", label: "4 TH KUMBHARWADA" },
-            ]}
-            value={
-              formData.area_id
-                ? {
-                    value: formData.area_id,
-                    label:
-                      formData.area_id === "20745" ? "4 TH KUMBHARWADA" : "",
-                  }
-                : null
-            }
-            onChange={onSelectChange("area_id")}
-            placeholder="Select Area"
+            name="area_id"
+            className="form-control innerFormControll"
+            value={formData.area_id}
+            onChange={onInputChange}
+            onBlur={() => {}}
+            placeHolder="Enter area name"
+            error={errors.area_id || ""}
+            touched={!!errors.area_id}
           />
+          {errors.area_id && (
+            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
+              {errors.area_id}
+            </div>
+          )}
         </div>
       </div>
 

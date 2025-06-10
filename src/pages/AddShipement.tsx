@@ -79,6 +79,7 @@ const AddShipment = () => {
     senderAddressLine2: "",
     senderMobile: "",
     senderEmail: "",
+    senderCustomerId: "",
 
     billTo: "sender",
 
@@ -94,6 +95,7 @@ const AddShipment = () => {
     receiverAddressLine2: "",
     receiverMobile: "",
     receiverEmail: "",
+    receiverCustomerId: "",
 
     // Step 3: Delivery Address
     isDifferentDeliveryAddress: false,
@@ -104,9 +106,7 @@ const AddShipment = () => {
     deliveryAddressLine1: "",
     deliveryAddressLine2: "",
 
-    // Step 4: Additional Information
-    specialInstructions: "",
-    pickupDate: "",
+    // Step 4: Review & Confirmation
     deliveryDate: "",
   };
 
@@ -124,144 +124,45 @@ const AddShipment = () => {
       invoiceValue: Yup.number().positive("Invoice value must be positive").required("Invoice value is required"),
     }),
 
-    // Step 2: Address Information
+    // Step 2: Address Information (Simplified validation)
     Yup.object({
       senderAddressType: Yup.string().oneOf(["new", "existing"], "Invalid sender address type").required("Please select sender address type"),
       receiverAddressType: Yup.string().oneOf(["new", "existing"], "Invalid receiver address type").required("Please select receiver address type"),
+      billTo: Yup.string().oneOf(["sender", "receiver"], "Please select who to bill").required("Please select billing option"),
 
-      // Sender Information Validation
-      senderName: Yup.string()
-        .trim()
-        .min(2, "Name must be at least 2 characters")
-        .max(100, "Name cannot exceed 100 characters")
-        .matches(/^[a-zA-Z\s.'-]+$/, "Name can only contain letters, spaces, dots, apostrophes, and hyphens")
-        .required("Sender name is required"),
+      // Only validate essential fields - let the component handle the rest
+      senderName: Yup.string().nullable(),
+      senderCompanyName: Yup.string().nullable(),
+      senderZipCode: Yup.string().nullable(),
+      senderState: Yup.string().nullable(),
+      senderCity: Yup.string().nullable(),
+      senderArea: Yup.object().nullable(),
+      senderGstNo: Yup.string().nullable(),
+      senderAddressLine1: Yup.string().nullable(),
+      senderAddressLine2: Yup.string().nullable(),
+      senderMobile: Yup.string().nullable(),
+      senderEmail: Yup.string().nullable(),
 
-      senderCompanyName: Yup.string()
-        .trim()
-        .min(2, "Company name must be at least 2 characters")
-        .max(200, "Company name cannot exceed 200 characters")
-        .required("Company name is required"),
-
-      senderZipCode: Yup.string()
-        .trim()
-        .matches(/^\d{6}$/, "Zip code must be exactly 6 digits")
-        .required("Zip code is required"),
-
-      senderState: Yup.string()
-        .trim()
-        .min(2, "State must be at least 2 characters")
-        .max(50, "State cannot exceed 50 characters")
-        .matches(/^[a-zA-Z\s.-]+$/, "State can only contain letters, spaces, dots, and hyphens")
-        .required("State is required"),
-
-      senderCity: Yup.string()
-        .trim()
-        .min(2, "City must be at least 2 characters")
-        .max(100, "City cannot exceed 100 characters")
-        .matches(/^[a-zA-Z\s.-]+$/, "City can only contain letters, spaces, dots, and hyphens")
-        .required("City is required"),
-
-      senderArea: Yup.object()
-        .nullable(),
-
-      senderGstNo: Yup.string()
-        .trim()
-        .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Invalid GST number format")
-        .nullable(),
-
-      senderAddressLine1: Yup.string()
-        .trim()
-        .min(5, "Address must be at least 5 characters")
-        .max(200, "Address cannot exceed 200 characters")
-        .required("Address line 1 is required"),
-
-      senderAddressLine2: Yup.string()
-        .trim()
-        .max(200, "Address cannot exceed 200 characters")
-        .nullable(),
-
-      senderMobile: Yup.string()
-        .trim()
-        .matches(/^[6-9]\d{9}$/, "Mobile number must be 10 digits starting with 6, 7, 8, or 9")
-        .required("Mobile number is required"),
-
-      senderEmail: Yup.string()
-        .trim()
-        .email("Invalid email format")
-        .max(100, "Email cannot exceed 100 characters")
-        .required("Email is required"),
-
-      // Receiver Information Validation
-      receiverName: Yup.string()
-        .trim()
-        .min(2, "Name must be at least 2 characters")
-        .max(100, "Name cannot exceed 100 characters")
-        .matches(/^[a-zA-Z\s.'-]+$/, "Name can only contain letters, spaces, dots, apostrophes, and hyphens")
-        .required("Receiver name is required"),
-
-      receiverCompanyName: Yup.string()
-        .trim()
-        .min(2, "Company name must be at least 2 characters")
-        .max(200, "Company name cannot exceed 200 characters")
-        .required("Company name is required"),
-
-      receiverZipCode: Yup.string()
-        .trim()
-        .matches(/^\d{6}$/, "Zip code must be exactly 6 digits")
-        .required("Zip code is required"),
-
-      receiverState: Yup.string()
-        .trim()
-        .min(2, "State must be at least 2 characters")
-        .max(50, "State cannot exceed 50 characters")
-        .matches(/^[a-zA-Z\s.-]+$/, "State can only contain letters, spaces, dots, and hyphens")
-        .required("State is required"),
-
-      receiverCity: Yup.string()
-        .trim()
-        .min(2, "City must be at least 2 characters")
-        .max(100, "City cannot exceed 100 characters")
-        .matches(/^[a-zA-Z\s.-]+$/, "City can only contain letters, spaces, dots, and hyphens")
-        .required("City is required"),
-
-      receiverArea: Yup.object()
-        .nullable(),
-
-      receiverGstNo: Yup.string()
-        .trim()
-        .matches(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Invalid GST number format")
-        .nullable(),
-
-      receiverAddressLine1: Yup.string()
-        .trim()
-        .min(5, "Address must be at least 5 characters")
-        .max(200, "Address cannot exceed 200 characters")
-        .required("Address line 1 is required"),
-
-      receiverAddressLine2: Yup.string()
-        .trim()
-        .max(200, "Address cannot exceed 200 characters")
-        .nullable(),
-
-      receiverMobile: Yup.string()
-        .trim()
-        .matches(/^[6-9]\d{9}$/, "Mobile number must be 10 digits starting with 6, 7, 8, or 9")
-        .required("Mobile number is required"),
-
-      receiverEmail: Yup.string()
-        .trim()
-        .email("Invalid email format")
-        .max(100, "Email cannot exceed 100 characters")
-        .required("Email is required"),
-
-      billTo: Yup.string()
-        .oneOf(["sender", "receiver"], "Please select who to bill")
-        .required("Please select billing option"),
+      receiverName: Yup.string().nullable(),
+      receiverCompanyName: Yup.string().nullable(),
+      receiverZipCode: Yup.string().nullable(),
+      receiverState: Yup.string().nullable(),
+      receiverCity: Yup.string().nullable(),
+      receiverArea: Yup.object().nullable(),
+      receiverGstNo: Yup.string().nullable(),
+      receiverAddressLine1: Yup.string().nullable(),
+      receiverAddressLine2: Yup.string().nullable(),
+      receiverMobile: Yup.string().nullable(),
+      receiverEmail: Yup.string().nullable(),
+      senderCustomerId: Yup.string().nullable(),
+      receiverCustomerId: Yup.string().nullable(),
     }),
 
     // Step 3: Delivery Address
     Yup.object({
+      // Include the checkbox field in validation
+      isDifferentDeliveryAddress: Yup.boolean(),
+
       // Conditional validation for delivery address fields
       deliveryZipCode: Yup.string().when('isDifferentDeliveryAddress', {
         is: true,
@@ -316,7 +217,7 @@ const AddShipment = () => {
 
     // Step 4: Review & Confirmation
     Yup.object({
-      pickupDate: Yup.date().required("Pickup date is required"),
+      // No additional validation required for step 4
     }),
   ];
 
@@ -441,6 +342,15 @@ const AddShipment = () => {
                     } catch (validationError: any) {
                       console.log("❌ Validation failed for step", step, "Errors:", validationError.errors);
                       console.log("❌ Validation error details:", validationError);
+                      console.log("❌ Current form values:", values);
+
+                      // Show validation errors to user
+                      if (validationError.errors && validationError.errors.length > 0) {
+                        const errorMessage = `Please fix the following errors:\n${validationError.errors.join('\n')}`;
+                        console.error("Validation errors:", errorMessage);
+                        // Show toast with validation errors
+                        toast.error(errorMessage);
+                      }
                       return; // Don't proceed if validation fails
                     }
 
@@ -456,13 +366,6 @@ const AddShipment = () => {
                   enableReinitialize
                 >
                   {({ values, setFieldValue, setFieldTouched, setFieldError, errors, touched }) => {
-                    // Debug: Log current form state for step 2
-                    if (step === 1) {
-                      console.log("🔍 Step 2 Form State:");
-                      console.log("Values:", values);
-                      console.log("Errors:", errors);
-                      console.log("Touched:", touched);
-                    }
 
                     return (
                     <Form className="multi-step-form" noValidate>
@@ -524,24 +427,6 @@ const AddShipment = () => {
                         isLastStep={step === steps.length - 1}
                         isSubmitting={submitting}
                       />
-
-                      {/* Temporary Debug Button for Step 2 */}
-                      {step === 1 && (
-                        <div className="mt-3">
-                          <button
-                            type="button"
-                            className="btn btn-warning"
-                            onClick={() => {
-                              console.log("🔧 Debug: Force moving to step 3");
-                              console.log("🔧 Current values:", values);
-                              console.log("🔧 Current errors:", errors);
-                              setStep(2);
-                            }}
-                          >
-                            🔧 Debug: Force Next Step
-                          </button>
-                        </div>
-                      )}
                     </Form>
                     );
                   }}

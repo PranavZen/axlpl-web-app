@@ -7,7 +7,7 @@ import Checkbox from "../../ui/checkbox/Checkbox";
 import AddAreaButton from "../../ui/button/AddAreaButton";
 import AddAreaModal from "../../ui/modal/AddAreaModal";
 import { RootState, AppDispatch } from "../../../redux/store";
-import { fetchCustomers } from "../../../redux/slices/customerSlice";
+import { fetchCustomers, searchCustomers } from "../../../redux/slices/customerSlice";
 import { fetchPincodeDetail, fetchAreasByPincode, addAreaToList } from "../../../redux/slices/pincodeSlice";
 import { getUserData } from "../../../utils/authUtils";
 import {
@@ -73,6 +73,10 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   // Modal state for Add Area functionality
   const [isAddAreaModalOpen, setIsAddAreaModalOpen] = useState(false);
   const [modalContext, setModalContext] = useState<'sender' | 'receiver' | null>(null);
+
+  // Search state for customer search functionality
+  const [receiverSearchQuery, setReceiverSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   // Refs for debouncing pincode API calls
   const senderPincodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -144,11 +148,11 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
       if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-        const { state_name, city_name, area_name } = pincodeResult.payload;
+        const { state_id, state_name, city_id, city_name, area_name } = pincodeResult.payload;
 
-        // Auto-populate state and city
-        setFieldValue('senderState', state_name);
-        setFieldValue('senderCity', city_name);
+        // Auto-populate state and city with proper select objects containing IDs
+        setFieldValue('senderState', { value: state_id, label: state_name });
+        setFieldValue('senderCity', { value: city_id, label: city_name });
 
         console.log('✅ Sender Pincode details fetched:', {
           state: state_name,
@@ -205,11 +209,11 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
       if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-        const { state_name, city_name, area_name } = pincodeResult.payload;
+        const { state_id, state_name, city_id, city_name, area_name } = pincodeResult.payload;
 
-        // Auto-populate state and city
-        setFieldValue('receiverState', state_name);
-        setFieldValue('receiverCity', city_name);
+        // Auto-populate state and city with proper select objects containing IDs
+        setFieldValue('receiverState', { value: state_id, label: state_name });
+        setFieldValue('receiverCity', { value: city_id, label: city_name });
 
         console.log('✅ Receiver Pincode details fetched:', {
           state: state_name,
@@ -257,15 +261,42 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     }
   }, [fetchReceiverPincodeData, setFieldValue]);
 
-  // Fetch customers on component mount
+  // Function to search customers
+  const handleCustomerSearch = useCallback(async (searchQuery: string) => {
+    if (!searchQuery || searchQuery.trim() === '') {
+      // If search query is empty, fetch all customers
+      const params = getCustomerApiParams();
+      dispatch(fetchCustomers(params));
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const baseParams = getCustomerApiParams();
+      const searchParams = {
+        ...baseParams,
+        search_query: searchQuery.trim()
+      };
+      console.log('🔍 Searching customers with query:', searchQuery);
+      await dispatch(searchCustomers(searchParams));
+    } catch (error) {
+      console.error('❌ Error searching customers:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [dispatch]);
+
+  // Fetch customers on component mount with default search
   useEffect(() => {
-    const params = getCustomerApiParams();
-    dispatch(fetchCustomers(params));
+    // Start with a search for "version" as requested
+    const defaultSearchQuery = "version";
+    setReceiverSearchQuery(defaultSearchQuery);
+    handleCustomerSearch(defaultSearchQuery);
 
     // Expose debug function to window for easy access in browser console
     (window as any).debugLoginUserData = debugLoginUserData;
     console.log('Debug function available: window.debugLoginUserData()');
-  }, [dispatch]);
+  }, [dispatch, handleCustomerSearch]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -399,6 +430,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       // Auto-select login user option and populate fields
       const userData = getUserData();
       const customerDetail = userData?.Customerdetail;
+      const userId = customerDetail?.id;
       const userName = customerDetail?.name || customerDetail?.full_name || customerDetail?.customer_name || 'Your Account';
       const loginUserOption = {
         value: 'login_user',
@@ -406,10 +438,14 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       };
       setSelectedSenderCustomer(loginUserOption);
 
-      // Populate with login user data
+      // Populate with login user data including customer ID
       const loginUserFields = mapLoginUserToSenderFields();
       if (Object.keys(loginUserFields).length > 0) {
-        populateSenderFieldsAndClearErrors(loginUserFields);
+        const fieldsWithCustomerId = {
+          ...loginUserFields,
+          senderCustomerId: userId || ""
+        };
+        populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
       }
     }
   }, [
@@ -433,20 +469,39 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     if (selectedOption) {
       if (selectedOption.value === 'login_user') {
         // Use login user data
+        const userData = getUserData();
+        const userId = userData?.Customerdetail?.id;
         const loginUserFields = mapLoginUserToSenderFields();
-        populateSenderFieldsAndClearErrors(loginUserFields);
+        // Add the login user ID as sender customer ID
+        const fieldsWithCustomerId = {
+          ...loginUserFields,
+          senderCustomerId: userId || ""
+        };
+        populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
+        console.log("✅ Login user selected as sender, ID:", userId);
       } else {
         // Use selected customer data
         const customer = findCustomerByName(customers, selectedOption.value);
         if (customer) {
           const mappedFields = mapCustomerToSenderFields(customer);
-          populateSenderFieldsAndClearErrors(mappedFields);
+          // Add the customer ID to the mapped fields
+          const fieldsWithCustomerId = {
+            ...mappedFields,
+            senderCustomerId: customer.id
+          };
+          populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
+          console.log("✅ Sender customer selected:", customer.full_name, "ID:", customer.id);
         }
       }
     } else {
       // Clear sender fields if no customer selected
       const clearedFields = clearSenderFields();
-      populateSenderFieldsAndClearErrors(clearedFields);
+      // Also clear the customer ID
+      const fieldsWithClearedId = {
+        ...clearedFields,
+        senderCustomerId: ""
+      };
+      populateSenderFieldsAndClearErrors(fieldsWithClearedId);
     }
   };
 
@@ -464,7 +519,13 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       if (customer) {
         try {
           const mappedFields = mapCustomerToReceiverFields(customer);
-          populateReceiverFieldsAndClearErrors(mappedFields);
+          // Add the customer ID to the mapped fields
+          const fieldsWithCustomerId = {
+            ...mappedFields,
+            receiverCustomerId: customer.id
+          };
+          populateReceiverFieldsAndClearErrors(fieldsWithCustomerId);
+          console.log("✅ Receiver customer selected:", customer.full_name, "ID:", customer.id);
         } catch (error) {
           console.error("Error mapping customer fields:", error);
           // Show user-friendly error message
@@ -476,7 +537,12 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     } else {
       // Clear receiver fields if no customer selected
       const clearedFields = clearReceiverFields();
-      populateReceiverFieldsAndClearErrors(clearedFields);
+      // Also clear the customer ID
+      const fieldsWithClearedId = {
+        ...clearedFields,
+        receiverCustomerId: ""
+      };
+      populateReceiverFieldsAndClearErrors(fieldsWithClearedId);
     }
   };
 
@@ -934,24 +1000,63 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
         {/* Customer Selection for Receiver - Only show when existing address is selected */}
         {values.receiverAddressType === "existing" && (
-          <div className="col-md-12 ">
-            <StepFieldWrapper name="receiverCustomer" label="Select Customer">
-              <SingleSelect
-                options={customersToOptions(customers)}
-                value={selectedReceiverCustomer}
-                onChange={handleReceiverCustomerChange}
-                placeholder={
-                  customersLoading ? "Loading customers..." : "Select customer"
-                }
-                isLoading={customersLoading}
-              />
-            </StepFieldWrapper>
-            {customersError && (
-              <div className="errorText">
-                Failed to load customers: {customersError}
-              </div>
-            )}
-          </div>
+          <>
+            {/* Customer Search Input */}
+            <div className="col-md-12 mb-3">
+              <StepFieldWrapper name="receiverCustomerSearch" label="Search Customers">
+                <input
+                  type="text"
+                  className="form-control innerFormControll"
+                  placeholder="Search customers by name, company, or phone..."
+                  value={receiverSearchQuery}
+                  onChange={(e) => {
+                    const query = e.target.value;
+                    setReceiverSearchQuery(query);
+
+                    // Debounce the search to avoid too many API calls
+                    if (receiverPincodeTimeoutRef.current) {
+                      clearTimeout(receiverPincodeTimeoutRef.current);
+                    }
+
+                    receiverPincodeTimeoutRef.current = setTimeout(() => {
+                      handleCustomerSearch(query);
+                    }, 500); // 500ms delay
+                  }}
+                  disabled={isSearching}
+                />
+                {isSearching && (
+                  <small className="text-muted">
+                    <i className="fas fa-spinner fa-spin"></i> Searching...
+                  </small>
+                )}
+              </StepFieldWrapper>
+            </div>
+
+            {/* Customer Selection Dropdown */}
+            <div className="col-md-12 mb-3">
+              <StepFieldWrapper name="receiverCustomer" label="Select Customer">
+                <SingleSelect
+                  options={customersToOptions(customers)}
+                  value={selectedReceiverCustomer}
+                  onChange={handleReceiverCustomerChange}
+                  placeholder={
+                    customersLoading || isSearching ? "Loading customers..." : "Select customer"
+                  }
+                  isLoading={customersLoading || isSearching}
+                />
+                {receiverSearchQuery && customers.length === 0 && !customersLoading && !isSearching && (
+                  <small className="text-muted">
+                    No customers found for "{receiverSearchQuery}". Try a different search term.
+                  </small>
+                )}
+              </StepFieldWrapper>
+              {customersError && (
+                <div className="errorText">
+                  Failed to load customers: {customersError}
+                </div>
+              )}
+            </div>
+          </>
         )}
 
         <div className="col-md-12 d-none">

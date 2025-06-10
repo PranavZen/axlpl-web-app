@@ -6,7 +6,6 @@ import Table, { Column } from "../components/ui/table/Table";
 import Sidebar from "../components/ui/sidebar/Sidebar";
 import MainBody from "../components/ui/mainbody/MainBody";
 import { fetchAllShipments } from "../redux/slices/activeShipmentSlice";
-import { setShipment } from "../redux/slices/editShipmentSlice";
 
 const statusTitleMap: Record<string, string> = {
   pending: "Pending Shipments",
@@ -49,22 +48,7 @@ const ShipmentsPage: React.FC = () => {
     // The view modal will automatically open with shipment details
   };
 
-  // Handle edit shipment
-  const handleEditShipment = (shipment: any) => {
-    console.log("Edit shipment:", shipment);
 
-    // Check if shipment is active/approved (only allow editing active shipments)
-    if (shipment.shipment_status?.toLowerCase() !== 'approved') {
-      alert('Only active shipments can be edited');
-      return;
-    }
-
-    // Set the shipment data in Redux store to avoid API call
-    dispatch(setShipment(shipment));
-
-    // Navigate to edit page
-    navigate(`/edit-shipment/${shipment.shipment_id}`);
-  };
 
   // Handle delete shipment
   const handleDeleteShipment = (shipment: any) => {
@@ -73,6 +57,40 @@ const ShipmentsPage: React.FC = () => {
       alert(`Shipment ${shipment.shipment_id} deleted successfully!`);
       // Here you would typically call an API to delete the shipment
     }
+  };
+
+  // Handle edit shipment
+  const handleEditShipment = (shipment: any) => {
+    console.log("Edit shipment:", shipment);
+
+    // Check if shipment is active/approved (only allow editing active shipments)
+    if (shipment.shipment_status?.toLowerCase() !== 'approved') {
+      alert('Only active/approved shipments can be edited');
+      return;
+    }
+
+    // For now, show available shipment data that can be edited
+    const editableFields = [
+      `Shipment ID: ${shipment.shipment_id}`,
+      `Sender Company: ${shipment.sender_company_name || 'N/A'}`,
+      `Receiver Company: ${shipment.receiver_company_name || 'N/A'}`,
+      `Origin: ${shipment.origin || 'N/A'}`,
+      `Destination: ${shipment.destination || 'N/A'}`,
+      `Sender Area: ${shipment.sender_areaname || 'N/A'}`,
+      `Receiver Area: ${shipment.receiver_areaname || 'N/A'}`,
+      `Sender GST: ${shipment.sender_gst_no || 'N/A'}`,
+      `Receiver GST: ${shipment.receiver_gst_no || 'N/A'}`,
+      `Status: ${shipment.shipment_status || 'N/A'}`,
+      `Created: ${shipment.created_date || 'N/A'}`
+    ].join('\n');
+
+    alert(`Edit Shipment - Available Data:\n\n${editableFields}\n\nNote: Full edit functionality can be implemented as needed.`);
+
+    // TODO: Implement actual edit functionality
+    // This could be:
+    // 1. A modal with editable fields
+    // 2. Navigation to a dedicated edit page
+    // 3. Inline editing in the table
   };
 
   const tableColumns: Column<any>[] = [

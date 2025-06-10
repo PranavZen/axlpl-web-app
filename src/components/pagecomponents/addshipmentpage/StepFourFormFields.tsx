@@ -526,48 +526,7 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
           </div>
         </div>
 
-        {/* Additional Information Section */}
-        <div className="additional-info-section mt-4">
-          <h5 className="section-title mb-3">Additional Information</h5>
-          <div className="row">
-            <div className="col-md-6">
-              {/* Pickup Date */}
-              <div className="mb-3">
-                <StepFieldWrapper
-                  name="pickupDate"
-                  label="Pickup Date"
-                >
-                  <input
-                    name="pickupDate"
-                    type="date"
-                    className="form-control innerFormControll"
-                    value={values.pickupDate || ""}
-                    onChange={(e) => setFieldValue("pickupDate", e.target.value)}
-                    min={new Date().toISOString().split('T')[0]} // Minimum date is today
-                  />
-                </StepFieldWrapper>
-              </div>
-            </div>
-            <div className="col-md-6">
-              {/* Special Instructions */}
-              <div className="mb-3">
-                <StepFieldWrapper
-                  name="specialInstructions"
-                  label="Special Instructions (Optional)"
-                >
-                  <textarea
-                    name="specialInstructions"
-                    className="form-control innerFormControll"
-                    rows={3}
-                    value={values.specialInstructions || ""}
-                    onChange={(e) => setFieldValue("specialInstructions", e.target.value)}
-                    placeholder="Any special handling instructions..."
-                  />
-                </StepFieldWrapper>
-              </div>
-            </div>
-          </div>
-        </div>
+
 
         {/* Payment Notes */}
         <div className="payment-notes mt-3">

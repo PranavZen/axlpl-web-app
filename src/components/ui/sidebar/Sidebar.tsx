@@ -12,8 +12,10 @@ import SidebarDropdown from "./SidebarDropdown";
 import SidebarLink from "./SidebarLink";
 import SidebarToggleButton from "./SidebarToggleButton";
 import { useDispatch } from "react-redux";
-import { logout } from "../../../redux/slices/authSlice";
+import { logoutUser, logoutLocal } from "../../../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
+import { AppDispatch } from "../../../redux/store";
+import { showSuccess, showError } from "../../../utils/toastUtils";
 // Cast icons to JSX-compatible components
 const FaHome = FaHomeIconRaw as React.FC<React.SVGProps<SVGSVGElement>>;
 const FaUser = FaUserIconRaw as React.FC<React.SVGProps<SVGSVGElement>>;
@@ -29,7 +31,7 @@ const Sidebar = () => {
   const { isSidebarCollapsed } = useContext(SidebarContext);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>(null);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,9 +44,49 @@ const Sidebar = () => {
   const toggleDropdown = (menu: string | null) =>
     setDropdownOpen((prev) => (prev === menu ? null : menu));
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      console.log('🔄 Starting logout process...');
+
+      // Call the logout API
+      const result = await dispatch(logoutUser());
+
+      if (logoutUser.fulfilled.match(result)) {
+        console.log('✅ Logout API successful');
+
+        // Show success toast message from API response
+        const message = result.payload?.message || "Logout Successfully";
+        showSuccess(message);
+
+        // Navigate to login page after a short delay to show the toast
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      } else {
+        console.warn('⚠️ Logout API failed, but proceeding with local logout');
+
+        // Show warning toast for API failure
+        showError('Logout API failed, but you have been logged out locally');
+
+        // Navigate to login page
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+
+      // Fallback to local logout if API completely fails
+      dispatch(logoutLocal());
+
+      // Show error toast
+      showError('Logout failed, but you have been logged out locally');
+
+      // Navigate to login page
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+    }
   };
 
   return (

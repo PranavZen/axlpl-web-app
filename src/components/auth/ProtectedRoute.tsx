@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { isAuthenticated, getUserData } from '../../utils/authUtils';
-import { logout } from '../../redux/slices/authSlice';
+import { logoutLocal } from '../../redux/slices/authSlice';
 import { showError } from '../../utils/toastUtils';
 
 interface ProtectedRouteProps {
@@ -37,8 +37,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // If the user is a messenger, log them out and redirect to login page
   if (userRole === "messenger" || userRole === "messanger" || userRole.includes("mess")) {
-    // Log out the user
-    dispatch(logout());
+    // Log out the user (local logout for security)
+    dispatch(logoutLocal());
     // Show error message
     showError("Messenger accounts are not allowed to access this application. Please contact support.");
     // Redirect to login page

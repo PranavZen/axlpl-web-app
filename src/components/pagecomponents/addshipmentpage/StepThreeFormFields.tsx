@@ -32,7 +32,7 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [isDifferentDeliveryAddress, setIsDifferentDeliveryAddress] =
-    useState(false);
+    useState(values.isDifferentDeliveryAddress || false);
 
   // Modal state for Add Area functionality
   const [isAddAreaModalOpen, setIsAddAreaModalOpen] = useState(false);
@@ -63,10 +63,7 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
           const { state_name, city_name, area_name } = pincodeResult.payload;
 
           // Auto-populate state and city
-          setFieldValue("deliveryState", {
-            value: state_name,
-            label: state_name,
-          });
+          setFieldValue("deliveryState", state_name);
           setFieldValue("deliveryCity", city_name);
 
           console.log("✅ Delivery Pincode details fetched:", {
@@ -116,7 +113,7 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
         }, 300);
       } else if (pincode && pincode.length < 6) {
         // Clear state, city, and area when pincode is incomplete
-        setFieldValue("deliveryState", null);
+        setFieldValue("deliveryState", "");
         setFieldValue("deliveryCity", "");
         setFieldValue("deliveryArea", null);
       }
@@ -132,13 +129,18 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
     if (!checked) {
       // Clear delivery address fields when unchecked
       setFieldValue("deliveryZipCode", "");
-      setFieldValue("deliveryState", null);
+      setFieldValue("deliveryState", "");
       setFieldValue("deliveryCity", "");
       setFieldValue("deliveryArea", null);
       setFieldValue("deliveryAddressLine1", "");
       setFieldValue("deliveryAddressLine2", "");
     }
   };
+
+  // Sync local state with Formik values
+  useEffect(() => {
+    setIsDifferentDeliveryAddress(values.isDifferentDeliveryAddress || false);
+  }, [values.isDifferentDeliveryAddress]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {

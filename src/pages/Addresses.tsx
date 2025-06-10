@@ -45,20 +45,29 @@ const Addresses: React.FC = () => {
   // Update form data when editing an address
   useEffect(() => {
     if (editingAddress) {
-      setFormData({
+      console.log("🔍 EditingAddress data:", editingAddress);
+      console.log("📍 Available fields:");
+      console.log("  - state_id:", editingAddress.state_id, "| state_name:", editingAddress.state_name);
+      console.log("  - city_id:", editingAddress.city_id, "| city_name:", editingAddress.city_name);
+      console.log("  - area_id:", editingAddress.area_id, "| area_name:", editingAddress.area_name);
+
+      const formDataToSet = {
         name: editingAddress.name || "",
         company_name: editingAddress.company_name || "",
         country_id: editingAddress.country_id || "",
-        state_id: editingAddress.state_id || "",
-        city_id: editingAddress.city_id || "",
-        area_id: editingAddress.area_id || "",
+        state_id: editingAddress.state_name || editingAddress.state_id || "", // Use state_name instead of state_id
+        city_id: editingAddress.city_name || editingAddress.city_id || "", // Use city_name instead of city_id
+        area_id: editingAddress.area_name || editingAddress.area_id || "", // Use area_name instead of area_id
         zip_code: editingAddress.zip_code || "",
         address1: editingAddress.address1 || "",
         address2: editingAddress.address2 || "",
         mobile_no: editingAddress.mobile_no || "",
         email: editingAddress.email || "",
         sender_gst_no: editingAddress.sender_gst_no || "",
-      });
+      };
+
+      console.log("✅ Form data being set:", formDataToSet);
+      setFormData(formDataToSet);
     }
   }, [editingAddress]);
 

@@ -62,12 +62,79 @@ export const loginUser = createAsyncThunk(
     }
   );
 
+// Async thunk for logout API call
+export const logoutUser = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      // Get user data from session storage
+      const userData = JSON.parse(sessionStorage.getItem('user') || '{}');
+
+      // Extract m_id, role, and token from user data
+      const m_id = userData?.Customerdetail?.id || userData?.id || '';
+      const role = userData?.Customerdetail?.role || userData?.role || '';
+      const token = userData?.Customerdetail?.token || userData?.token || '';
+
+      console.log('🔍 Logout API - User data:', { m_id, role, token: token ? '***' + token.slice(-4) : 'missing' });
+
+      // Check if we have required data
+      if (!m_id || !role) {
+        console.warn('⚠️ Missing required logout data:', { m_id: !!m_id, role: !!role });
+        return rejectWithValue("Missing user ID or role for logout");
+      }
+
+      if (!token) {
+        console.warn('⚠️ Missing authentication token for logout');
+        return rejectWithValue("Missing authentication token");
+      }
+
+      // Create FormData for the logout API
+      const formData = new FormData();
+      formData.append("m_id", m_id);
+      formData.append("role", role);
+
+      console.log('📤 Logout API - Sending request to:', 'https://new.axlpl.com/messenger/services_v6/logout');
+      console.log('📤 Logout API - FormData:', { m_id, role });
+      console.log('📤 Logout API - Token:', token ? 'Bearer ***' + token.slice(-4) : 'missing');
+
+      // Call the logout API with authentication token
+      const response = await axios.post(
+        'https://new.axlpl.com/messenger/services_v6/logout',
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Authorization": `Bearer ${token}`, // Add authentication token
+          },
+        }
+      );
+
+      console.log('✅ Logout API Response:', response.data);
+
+      // Check if logout was successful
+      if (response.data.status === "success") {
+        return response.data;
+      } else {
+        return rejectWithValue(response.data.message || "Logout failed");
+      }
+    } catch (error: any) {
+      console.error('❌ Logout API Error:', error);
+      console.error('❌ Error response:', error.response?.data);
+      // Even if API fails, we should still log out locally
+      return rejectWithValue(error.response?.data?.message || error.message || "Logout API failed");
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout: (state) => {
+    // Synchronous logout (for immediate local logout)
+    logoutLocal: (state) => {
       state.user = null;
+      state.loading = false;
+      state.error = null;
       // Clear user data from session storage using the utility function
       clearUserData();
     },
@@ -112,9 +179,32 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      // Logout API cases
+      .addCase(logoutUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(logoutUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = null;
+        state.error = null;
+        // Clear user data from session storage
+        clearUserData();
+        console.log('✅ Logout successful:', action.payload.message);
+        // Toast message will be shown in the component
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.loading = false;
+        // Even if API fails, we should still log out locally
+        state.user = null;
+        // Clear user data from session storage
+        clearUserData();
+        console.warn('⚠️ Logout API failed but logged out locally:', action.payload);
+        // Don't set error for logout failures - just log them
       });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logoutLocal } = authSlice.actions;
 export default authSlice.reducer;

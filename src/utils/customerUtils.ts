@@ -82,9 +82,12 @@ export const mapLoginUserToSenderFields = () => {
       senderName: customerDetail.name || customerDetail.full_name || customerDetail.customer_name || '',
       senderCompanyName: customerDetail.company_name || customerDetail.name || '',
       senderZipCode: customerDetail.pincode || customerDetail.zip_code || customerDetail.postal_code || '',
+      // Use string values from customer data, API will handle conversion or accept strings
       senderState: customerDetail.state_name || customerDetail.state || '',
       senderCity: customerDetail.city_name || customerDetail.city || '',
-      senderArea: customerDetail.area_name ? { value: customerDetail.area_name, label: customerDetail.area_name } : null,
+      // Set area as null since customer data only has area_name (string) not area_id
+      // User will need to select from dropdown which provides proper ID/label structure
+      senderArea: null,
       senderGstNo: customerDetail.gst_no || customerDetail.gst_number || '',
       senderAddressLine1: customerDetail.reg_address1 || customerDetail.address1 || customerDetail.address || '',
       senderAddressLine2: customerDetail.reg_address2 || customerDetail.address2 || '',
@@ -115,9 +118,12 @@ export const mapCustomerToSenderFields = (customer: Customer | null) => {
       senderName: customer.full_name || '',
       senderCompanyName: customer.company_name || '',
       senderZipCode: customer.pincode || '',
+      // Use string values from customer data, API will handle conversion or accept strings
       senderState: customer.state_name || '',
       senderCity: customer.city_name || '',
-      senderArea: customer.area_name ? { value: customer.area_name, label: customer.area_name } : null,
+      // Set area as null since customer data only has area_name (string) not area_id
+      // User will need to select from dropdown which provides proper ID/label structure
+      senderArea: null,
       senderGstNo: customer.gst_no || '',
       senderAddressLine1: customer.address1 || '',
       senderAddressLine2: customer.address2 || '',
@@ -145,9 +151,12 @@ export const mapCustomerToReceiverFields = (customer: Customer | null) => {
       receiverName: customer.full_name || '',
       receiverCompanyName: customer.company_name || '',
       receiverZipCode: customer.pincode || '',
+      // Use string values from customer data, API will handle conversion or accept strings
       receiverState: customer.state_name || '',
       receiverCity: customer.city_name || '',
-      receiverArea: customer.area_name ? { value: customer.area_name, label: customer.area_name } : null,
+      // Set area as null since customer data only has area_name (string) not area_id
+      // User will need to select from dropdown which provides proper ID/label structure
+      receiverArea: null,
       receiverGstNo: customer.gst_no || '',
       receiverAddressLine1: customer.address1 || '',
       receiverAddressLine2: customer.address2 || '',
@@ -233,8 +242,39 @@ export const getCustomerApiParams = () => {
   return {
     branch_id: userData?.Customerdetail?.branch_id || "1", // Use from user data or default
     m_id: userData?.Customerdetail?.id || "1",             // Use user ID as m_id
-    next_id: "0",                                          // Start from 0 for pagination
+    next_id: "1",                                          // Start from 1 for pagination
   };
+};
+
+/**
+ * Get customer parameters for API call with search query
+ * @param searchQuery Optional search query to filter customers
+ * @returns Object with branch_id, m_id, next_id, and search_query
+ */
+export const getCustomerApiParamsWithSearch = (searchQuery?: string) => {
+  // Import getUserData here to avoid circular dependencies
+  const getUserData = (): any => {
+    const userData = sessionStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
+  };
+
+  const userData = getUserData();
+
+  const params = {
+    branch_id: userData?.Customerdetail?.branch_id || "1",
+    m_id: userData?.Customerdetail?.id || "1",
+    next_id: "1",
+  };
+
+  // Add search_query if provided
+  if (searchQuery && searchQuery.trim() !== '') {
+    return {
+      ...params,
+      search_query: searchQuery.trim()
+    };
+  }
+
+  return params;
 };
 
 /**
@@ -254,6 +294,7 @@ export const clearSenderFields = () => {
     senderAddressLine2: '',
     senderMobile: '',
     senderEmail: '',
+    senderCustomerId: '',
   };
 };
 
@@ -274,6 +315,7 @@ export const clearReceiverFields = () => {
     receiverAddressLine2: '',
     receiverMobile: '',
     receiverEmail: '',
+    receiverCustomerId: '',
   };
 };
 
