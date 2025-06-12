@@ -1,11 +1,15 @@
 import React from "react";
 import "../inner-buttons/InnerButtons.scss";
+
 type ButtonActions = {
   onCopy?: () => void;
   onCSV?: () => void;
   onExcel?: () => void;
   onPDF?: () => void;
   onPrint?: () => void;
+  selectedCount?: number;
+  totalCount?: number;
+  disabled?: boolean;
 };
 
 const InnerButtons: React.FC<ButtonActions> = ({
@@ -14,23 +18,65 @@ const InnerButtons: React.FC<ButtonActions> = ({
   onExcel,
   onPDF,
   onPrint,
+  selectedCount = 0,
+  totalCount = 0,
+  disabled = false,
 }) => {
+  const getTooltipText = (action: string) => {
+    if (selectedCount > 0) {
+      return `${action} ${selectedCount} selected record${selectedCount > 1 ? 's' : ''}`;
+    }
+    return `${action} all ${totalCount} record${totalCount > 1 ? 's' : ''}`;
+  };
+
+  const isDisabled = disabled || totalCount === 0;
+
   return (
     <div className="d-flex gap-2 innerBtnsWrap mb-4">
-      <button className="btn btn-outline-primary btn-sm" onClick={onCopy}>
-        Copy
+      <button
+        className="btn btn-outline-primary btn-sm"
+        onClick={onCopy}
+        disabled={isDisabled}
+        title={getTooltipText('Copy')}
+      >
+        <span className="me-1">📋</span>
+        Copy {selectedCount > 0 ? `(${selectedCount})` : ''}
       </button>
-      <button className="btn btn-outline-secondary btn-sm" onClick={onCSV}>
-        CSV
+      <button
+        className="btn btn-outline-secondary btn-sm"
+        onClick={onCSV}
+        disabled={isDisabled}
+        title={getTooltipText('Export to CSV')}
+      >
+        <span className="me-1">📄</span>
+        CSV {selectedCount > 0 ? `(${selectedCount})` : ''}
       </button>
-      <button className="btn btn-outline-success btn-sm" onClick={onExcel}>
-        Excel
+      <button
+        className="btn btn-outline-success btn-sm"
+        onClick={onExcel}
+        disabled={isDisabled}
+        title={getTooltipText('Export to Excel')}
+      >
+        <span className="me-1">📊</span>
+        Excel {selectedCount > 0 ? `(${selectedCount})` : ''}
       </button>
-      <button className="btn btn-outline-danger btn-sm" onClick={onPDF}>
-        PDF
+      <button
+        className="btn btn-outline-danger btn-sm"
+        onClick={onPDF}
+        disabled={isDisabled}
+        title={getTooltipText('Export to PDF')}
+      >
+        <span className="me-1">📑</span>
+        PDF {selectedCount > 0 ? `(${selectedCount})` : ''}
       </button>
-      <button className="btn btn-outline-dark btn-sm" onClick={onPrint}>
-        Print
+      <button
+        className="btn btn-outline-dark btn-sm"
+        onClick={onPrint}
+        disabled={isDisabled}
+        title={getTooltipText('Print')}
+      >
+        <span className="me-1">🖨️</span>
+        Print {selectedCount > 0 ? `(${selectedCount})` : ''}
       </button>
     </div>
   );

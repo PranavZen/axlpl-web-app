@@ -13,7 +13,7 @@ import StepThreeFormFields from "../components/pagecomponents/addshipmentpage/St
 import StepFourFormFields from "../components/pagecomponents/addshipmentpage/StepFourFormFields";
 import FormNavigation from "../components/pagecomponents/addshipmentpage/FormNavigation";
 import { SidebarContext } from "../contexts/SidebarContext";
-import "../assets/style/AddShipment.scss";
+import "../styles/global/AddShipment.scss";
 
 const steps = [
   {

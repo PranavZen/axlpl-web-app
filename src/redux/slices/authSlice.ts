@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { setUserData, clearUserData } from "../../utils/authUtils";
+import { setUserData, clearUserData, getUserData } from "../../utils/authUtils";
 import { API_BASE_URL } from "../../config";
 
 interface AuthState {
@@ -130,6 +130,22 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    // Restore user data from sessionStorage
+    restoreUser: (state) => {
+      const userData = getUserData();
+      if (userData) {
+        console.log('✅ Redux: Restoring user data from sessionStorage:', {
+          id: userData?.Customerdetail?.id,
+          role: userData?.role || userData?.Customerdetail?.role,
+          company: userData?.Customerdetail?.company_name
+        });
+        state.user = userData;
+        state.loading = false;
+        state.error = null;
+      } else {
+        console.log('❌ Redux: No user data found in sessionStorage');
+      }
+    },
     // Synchronous logout (for immediate local logout)
     logoutLocal: (state) => {
       state.user = null;
@@ -206,5 +222,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logoutLocal } = authSlice.actions;
+export const { restoreUser, logoutLocal } = authSlice.actions;
 export default authSlice.reducer;

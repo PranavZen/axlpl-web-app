@@ -1,0 +1,137 @@
+.inline-logistics-loader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Mini Truck Animation
+.mini-truck {
+  position: relative;
+  animation: miniTruckBounce 1.5s ease-in-out infinite;
+}
+
+.mini-truck-body {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.mini-truck-cab {
+  width: 8px;
+  height: 10px;
+  background: linear-gradient(135deg, #123458 0%, #1e4a73 100%);
+  border-radius: 2px 2px 1px 1px;
+  margin-right: 1px;
+}
+
+.mini-truck-trailer {
+  width: 16px;
+  height: 8px;
+  background: linear-gradient(135deg, #ec6623 0%, #d4551e 100%);
+  border-radius: 1px;
+}
+
+.mini-truck-wheels {
+  position: absolute;
+  bottom: -3px;
+  width: 100%;
+  height: 6px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.mini-wheel {
+  width: 6px;
+  height: 6px;
+  background: #2c3e50;
+  border-radius: 50%;
+  border: 1px solid #34495e;
+  animation: miniWheelRotate 0.8s linear infinite;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 2px;
+    background: #7f8c8d;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.mini-wheel-front {
+  margin-left: 2px;
+}
+
+.mini-wheel-rear {
+  margin-right: 2px;
+}
+
+// Size variants
+.inline-logistics-loader.sm {
+  .mini-truck-cab {
+    width: 6px;
+    height: 8px;
+  }
+  
+  .mini-truck-trailer {
+    width: 12px;
+    height: 6px;
+  }
+  
+  .mini-wheel {
+    width: 4px;
+    height: 4px;
+    
+    &::before {
+      width: 1px;
+      height: 1px;
+    }
+  }
+  
+  .mini-truck-wheels {
+    bottom: -2px;
+    height: 4px;
+  }
+}
+
+.inline-logistics-loader.lg {
+  .mini-truck-cab {
+    width: 12px;
+    height: 14px;
+  }
+  
+  .mini-truck-trailer {
+    width: 24px;
+    height: 12px;
+  }
+  
+  .mini-wheel {
+    width: 8px;
+    height: 8px;
+    
+    &::before {
+      width: 3px;
+      height: 3px;
+    }
+  }
+  
+  .mini-truck-wheels {
+    bottom: -4px;
+    height: 8px;
+  }
+}
+
+// Animations
+@keyframes miniTruckBounce {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes miniWheelRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

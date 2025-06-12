@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap");
-@import "../style/mixin";
+@import "./mixin";
 * {
   margin: 0;
   padding: 0;
@@ -347,17 +347,13 @@ body {
     }
   }
 }
-.loader {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #3498db;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 0.8s linear infinite;
-  margin: 40px auto;
+// Old loader styles removed - now using LogisticsLoader components
+
+// Toast notification styling
+.Toastify__toast {
+  font-size: 16px;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.Toastify__toast-body {
+  font-size: 16px;
 }

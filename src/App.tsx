@@ -3,9 +3,10 @@ import { Suspense, lazy } from "react";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import { ToastContainer } from "react-toastify";
 import { APP_CONFIG } from "./config";
+import { LogisticsLoader } from "./components/ui/spinner";
 import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./assets/style/Global.scss";
+import "./styles/global/Global.scss";
 import ShipmentsPage from "../src/pages/ShipmentsPage";
 import Addresses from "./pages/Addresses";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -13,18 +14,22 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SignIn = lazy(() => import("./pages/SignIn"));
 const AddShipment = lazy(() => import("./pages/AddShipement"));
+const EditProfile = lazy(() => import("./pages/EditProfile"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
 
 const App = () => {
   return (
     <Router>
       <SidebarProvider>
-        <Suspense fallback={<div className="text-center mt-5">Loading...</div>}>
+        <Suspense fallback={<LogisticsLoader />}>
           <Routes>
             <Route path="/" element={<SignIn />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/add-shipment" element={<ProtectedRoute><AddShipment /></ProtectedRoute>} />
             <Route path="/shipments/:shipment_status" element={<ProtectedRoute><ShipmentsPage /></ProtectedRoute>} />
             <Route path="/customer/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
+            <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+            <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
           </Routes>
         </Suspense>
         <ToastContainer
@@ -33,7 +38,7 @@ const App = () => {
           rtl={false}
           pauseOnFocusLoss
         />
-    </SidebarProvider>
+      </SidebarProvider>
     </Router>
   );
 };

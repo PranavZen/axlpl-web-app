@@ -5,5 +5,110 @@
     font-weight: 500;
     padding: 0 1.5rem;
     border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    // Icon styling (for both SVG and emoji)
+    svg, span.me-1 {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    // Emoji icon specific styling
+    span.me-1 {
+      display: inline-block;
+      line-height: 1;
+    }
+
+    // Specific button colors
+    &.btn-outline-primary {
+      &:hover:not(:disabled) {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+      }
+    }
+
+    &.btn-outline-secondary {
+      &:hover:not(:disabled) {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+      }
+    }
+
+    &.btn-outline-success {
+      &:hover:not(:disabled) {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+      }
+    }
+
+    &.btn-outline-danger {
+      &:hover:not(:disabled) {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+      }
+    }
+
+    &.btn-outline-dark {
+      &:hover:not(:disabled) {
+        background-color: #343a40;
+        border-color: #343a40;
+        color: white;
+      }
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+
+    .btn {
+      font-size: 1.2rem;
+      padding: 0 1rem;
+      height: 2.8rem;
+
+      // Hide text on mobile, show only icons
+      span:not(.me-1):not(.sr-only) {
+        display: none;
+      }
+
+      svg, span.me-1 {
+        margin: 0 !important;
+      }
+    }
+  }
+
+  @media (max-width: 576px) {
+    justify-content: center;
+
+    .btn {
+      flex: 1;
+      min-width: 0;
+      max-width: 60px;
+    }
   }
 }

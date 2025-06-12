@@ -4,6 +4,14 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
+import { restoreUser } from "./redux/slices/authSlice";
+import { isAuthenticated } from "./utils/authUtils";
+
+// Restore user data from sessionStorage on app startup
+if (isAuthenticated()) {
+  console.log('🔄 App Startup: Restoring user from sessionStorage...');
+  store.dispatch(restoreUser());
+}
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement

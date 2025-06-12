@@ -10,6 +10,7 @@ import { RootState, AppDispatch } from "../../../redux/store";
 import { fetchCustomers, searchCustomers } from "../../../redux/slices/customerSlice";
 import { fetchPincodeDetail, fetchAreasByPincode, addAreaToList } from "../../../redux/slices/pincodeSlice";
 import { getUserData } from "../../../utils/authUtils";
+import { InlineLogisticsLoader } from "../../ui/spinner";
 import {
   findCustomerByName,
   mapLoginUserToSenderFields,
@@ -870,9 +871,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
               />
               {pincodeLoading && values.senderZipCode?.length === 6 && (
                 <div className="position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)' }}>
-                  <div className="spinner-border spinner-border-sm text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
+                  <InlineLogisticsLoader size="sm" />
                 </div>
               )}
             </div>
@@ -1108,9 +1107,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
               />
               {pincodeLoading && values.receiverZipCode?.length === 6 && (
                 <div className="position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)' }}>
-                  <div className="spinner-border spinner-border-sm text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
+                  <InlineLogisticsLoader size="sm" />
                 </div>
               )}
             </div>

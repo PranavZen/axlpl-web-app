@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "../button/Button";
 import Modal from "./Modal";
+import { InlineLogisticsLoader } from "../spinner";
 
 interface FormModalProps {
   isOpen: boolean;
@@ -44,11 +45,9 @@ const FormModal: React.FC<FormModalProps> = ({
             disabled={isSubmitting}
           />
           {isSubmitting && (
-            <span
-              className="spinner-border spinner-border-sm ms-2"
-              role="status"
-              aria-hidden="true"
-            ></span>
+            <span className="ms-2">
+              <InlineLogisticsLoader size="sm" />
+            </span>
           )}
         </div>
       </form>

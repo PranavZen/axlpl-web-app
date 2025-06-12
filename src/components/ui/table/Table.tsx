@@ -6,6 +6,16 @@ import InnerButtons from "../common/inner-buttons/InnerButtons";
 import Checkbox from "../checkbox/Checkbox";
 import Modal from "../modals/Modal";
 import Button from "../button/Button";
+import {
+  copyToClipboard,
+  exportToCSV,
+  exportToExcel,
+  exportToPDF,
+  printData,
+  getExportStats,
+  ExportColumn
+} from "../../../utils/exportUtils";
+import { showSuccess, showError } from "../../../utils/toastUtils";
 
 export interface Column<T> {
   header: string;
@@ -76,29 +86,124 @@ function Table<T extends Record<string, any>>({
       setCurrentPage(page);
     }
   };
-  const handleCopy = () => {
-    alert("Copy clicked!");
-    // You can add logic here to copy table/text content
+  // Export functionality
+  const getDataToExport = () => {
+    return currentSelectedRows.length > 0 ? currentSelectedRows : filteredData;
+  };
+
+  const getExportColumns = (): ExportColumn<T>[] => {
+    return columns.map(col => ({
+      header: col.header,
+      accessor: col.accessor as string,
+      width: 15
+    }));
+  };
+
+  const getExportFilename = () => {
+    const timestamp = new Date().toISOString().split('T')[0];
+    const prefix = sectionTitle ? sectionTitle.toLowerCase().replace(/\s+/g, '_') : 'export';
+    return `${prefix}_${timestamp}`;
+  };
+
+  const handleCopy = async () => {
+    try {
+      const dataToExport = getDataToExport();
+      const exportColumns = getExportColumns();
+      const stats = getExportStats(filteredData, currentSelectedRows);
+
+      await copyToClipboard({
+        data: dataToExport,
+        columns: exportColumns,
+        title: sectionTitle
+      });
+
+      showSuccess(`✅ Copied ${stats} to clipboard`);
+    } catch (error) {
+      showError('❌ Failed to copy data to clipboard');
+      console.error('Copy error:', error);
+    }
   };
 
   const handleCSV = () => {
-    alert("CSV clicked!");
-    // Convert data to CSV and trigger download
+    try {
+      const dataToExport = getDataToExport();
+      const exportColumns = getExportColumns();
+      const filename = getExportFilename();
+      const stats = getExportStats(filteredData, currentSelectedRows);
+
+      exportToCSV({
+        data: dataToExport,
+        columns: exportColumns,
+        filename,
+        title: sectionTitle
+      });
+
+      showSuccess(`✅ Downloaded CSV file with ${stats}`);
+    } catch (error) {
+      showError('❌ Failed to export CSV file');
+      console.error('CSV export error:', error);
+    }
   };
 
   const handleExcel = () => {
-    alert("Excel clicked!");
-    // Export to Excel using xlsx library
+    try {
+      const dataToExport = getDataToExport();
+      const exportColumns = getExportColumns();
+      const filename = getExportFilename();
+      const stats = getExportStats(filteredData, currentSelectedRows);
+
+      exportToExcel({
+        data: dataToExport,
+        columns: exportColumns,
+        filename,
+        title: sectionTitle
+      });
+
+      showSuccess(`✅ Downloaded Excel file with ${stats}`);
+    } catch (error) {
+      showError('❌ Failed to export Excel file');
+      console.error('Excel export error:', error);
+    }
   };
 
   const handlePDF = () => {
-    alert("PDF clicked!");
-    // Use jsPDF to generate PDF
+    try {
+      const dataToExport = getDataToExport();
+      const exportColumns = getExportColumns();
+      const filename = getExportFilename();
+      const stats = getExportStats(filteredData, currentSelectedRows);
+
+      exportToPDF({
+        data: dataToExport,
+        columns: exportColumns,
+        filename,
+        title: sectionTitle
+      });
+
+      showSuccess(`✅ Downloaded PDF file with ${stats}`);
+    } catch (error) {
+      showError('❌ Failed to export PDF file');
+      console.error('PDF export error:', error);
+    }
   };
 
   const handlePrint = () => {
-    alert("Print clicked!");
-    window.print(); // or custom print logic
+    try {
+      const dataToExport = getDataToExport();
+      const exportColumns = getExportColumns();
+      const stats = getExportStats(filteredData, currentSelectedRows);
+
+      printData({
+        data: dataToExport,
+        columns: exportColumns,
+        title: sectionTitle
+      });
+
+      showSuccess(`✅ Print dialog opened for ${stats}`);
+    } catch (error) {
+      showError('❌ Failed to print data');
+      console.error('Print error:', error);
+    }
   };
 
   // Row selection handlers
@@ -171,6 +276,8 @@ function Table<T extends Record<string, any>>({
         onExcel={handleExcel}
         onPDF={handlePDF}
         onPrint={handlePrint}
+        selectedCount={currentSelectedRows.length}
+        totalCount={filteredData.length}
       />
       <div className="table">
         <div className="table-responsive">

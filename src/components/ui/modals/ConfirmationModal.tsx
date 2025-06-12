@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "../button/Button";
 import Modal from "./Modal";
+import { InlineLogisticsLoader } from "../spinner";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -42,11 +43,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         disabled={isLoading}
       />
       {isLoading && (
-        <span
-          className="spinner-border spinner-border-sm ms-2"
-          role="status"
-          aria-hidden="true"
-        ></span>
+        <span className="ms-2">
+          <InlineLogisticsLoader size="sm" />
+        </span>
       )}
     </>
   );

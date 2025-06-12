@@ -1,0 +1,271 @@
+.logistics-loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(245, 247, 250, 0.95);
+  z-index: 9999;
+}
+
+.logistics-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+}
+
+// Truck Animation
+.truck {
+  position: relative;
+  width: 120px;
+  height: 60px;
+  animation: truckBounce 2s ease-in-out infinite;
+}
+
+.truck-body {
+  position: relative;
+  width: 100%;
+  height: 40px;
+}
+
+.truck-cab {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 35px;
+  height: 40px;
+  background: linear-gradient(135deg, #123458 0%, #1e4a73 100%);
+  border-radius: 8px 8px 4px 4px;
+  box-shadow: 0 2px 8px rgba(18, 52, 88, 0.3);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 5px;
+    width: 25px;
+    height: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+  }
+}
+
+.truck-trailer {
+  position: absolute;
+  right: 0;
+  top: 5px;
+  width: 80px;
+  height: 35px;
+  background: linear-gradient(135deg, #ec6623 0%, #d4551e 100%);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(236, 102, 35, 0.3);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    width: 60px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 10px;
+    width: 45px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+}
+
+.truck-wheels {
+  position: absolute;
+  bottom: -10px;
+  width: 100%;
+  height: 20px;
+}
+
+.wheel {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #2c3e50;
+  border-radius: 50%;
+  border: 3px solid #34495e;
+  animation: wheelRotate 1s linear infinite;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: #7f8c8d;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.wheel-front {
+  left: 15px;
+}
+
+.wheel-rear1 {
+  right: 45px;
+}
+
+.wheel-rear2 {
+  right: 15px;
+}
+
+// Road Animation
+.road {
+  width: 300px;
+  height: 4px;
+  background: #34495e;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.road-line {
+  position: absolute;
+  top: 50%;
+  width: 30px;
+  height: 2px;
+  background: #f39c12;
+  border-radius: 1px;
+  transform: translateY(-50%);
+  animation: roadMove 1.5s linear infinite;
+  
+  &:nth-child(1) { left: -30px; animation-delay: 0s; }
+  &:nth-child(2) { left: -30px; animation-delay: 0.375s; }
+  &:nth-child(3) { left: -30px; animation-delay: 0.75s; }
+  &:nth-child(4) { left: -30px; animation-delay: 1.125s; }
+}
+
+// Loading Text Animation
+.loading-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #123458;
+}
+
+.dots {
+  display: flex;
+  gap: 0.2rem;
+  
+  span {
+    animation: dotBounce 1.4s ease-in-out infinite;
+    
+    &:nth-child(1) { animation-delay: 0s; }
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+  }
+}
+
+// Animations
+@keyframes truckBounce {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes wheelRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes roadMove {
+  0% { left: -30px; }
+  100% { left: 300px; }
+}
+
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .truck {
+    width: 100px;
+    height: 50px;
+  }
+  
+  .truck-cab {
+    width: 30px;
+    height: 35px;
+  }
+  
+  .truck-trailer {
+    width: 65px;
+    height: 30px;
+  }
+  
+  .wheel {
+    width: 16px;
+    height: 16px;
+    
+    &::before {
+      width: 6px;
+      height: 6px;
+    }
+  }
+  
+  .road {
+    width: 250px;
+  }
+  
+  .loading-text {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .truck {
+    width: 80px;
+    height: 40px;
+  }
+  
+  .truck-cab {
+    width: 25px;
+    height: 28px;
+  }
+  
+  .truck-trailer {
+    width: 50px;
+    height: 25px;
+  }
+  
+  .wheel {
+    width: 14px;
+    height: 14px;
+    
+    &::before {
+      width: 5px;
+      height: 5px;
+    }
+  }
+  
+  .road {
+    width: 200px;
+  }
+  
+  .loading-text {
+    font-size: 1.4rem;
+  }
+}

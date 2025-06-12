@@ -1,0 +1,15 @@
+// ===================================================================
+// MAIN STYLES INDEX
+// ===================================================================
+
+// Global styles (order matters)
+@import './global/_mixin.scss';
+@import './global/Global.scss';
+@import './global/AddShipment.scss';
+
+// Page-specific styles
+@import './pages/EditProfile.scss';
+@import './pages/ChangePassword.scss';
+
+// Component styles can be imported here if needed
+// @import './components/ComponentName.scss';

@@ -12,6 +12,7 @@ import {
 import { areasToOptions } from "../../../utils/customerUtils";
 import AddAreaButton from "../../ui/button/AddAreaButton";
 import AddAreaModal from "../../ui/modal/AddAreaModal";
+import { InlineLogisticsLoader } from "../../ui/spinner";
 
 interface StepThreeFormFieldsProps {
   values: any;
@@ -234,12 +235,7 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
                           transform: "translateY(-50%)",
                         }}
                       >
-                        <div
-                          className="spinner-border spinner-border-sm text-primary"
-                          role="status"
-                        >
-                          <span className="visually-hidden">Loading...</span>
-                        </div>
+                        <InlineLogisticsLoader size="sm" />
                       </div>
                     )}
                   </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { InlineLogisticsLoader } from '../../ui/spinner';
 
 interface FormNavigationProps {
   step: number;
@@ -42,9 +43,9 @@ const FormNavigation: React.FC<FormNavigationProps> = ({
           <>
             {isSubmitting ? (
               <>
-                <div className="spinner-border spinner-border-sm me-2" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
+                <span className="me-2">
+                  <InlineLogisticsLoader size="sm" />
+                </span>
                 Submitting...
               </>
             ) : (

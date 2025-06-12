@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { showSuccess, showError } from "../utils/toastUtils";
 import { isAuthenticated } from "../utils/authUtils";
 import { useConfig } from "../hooks";
+import { InlineLogisticsLoader } from "../components/ui/spinner";
 const SignIn = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.auth);
@@ -147,10 +148,8 @@ const SignIn = () => {
                     disabled={loading}
                   />
                   {loading && (
-                    <div className="spinner-container mt-2 text-center">
-                      <div className="spinner-border spinner-border-sm text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </div>
+                    <div className="mt-2 text-center">
+                      <InlineLogisticsLoader size="sm" />
                     </div>
                   )}
                   <span className="dividerLine">or</span>

@@ -9,6 +9,7 @@ import FormModal from "../components/ui/modals/FormModal";
 import MainBody from "../components/ui/mainbody/MainBody";
 import Sidebar from "../components/ui/sidebar/Sidebar";
 import Table, { Column } from "../components/ui/table/Table";
+import { LogisticsLoader } from "../components/ui/spinner";
 import {
   addAddress,
   deleteAddress,
@@ -232,12 +233,7 @@ const Addresses: React.FC = () => {
                   </div>
                 </div>
                 {loading ? (
-                  <div
-                    className="d-flex justify-content-center align-items-center"
-                    style={{ height: "80vh" }}
-                  >
-                    <div className="loader" />
-                  </div>
+                  <LogisticsLoader />
                 ) : error ? (
                   <p>Error: {error}</p>
                 ) : (

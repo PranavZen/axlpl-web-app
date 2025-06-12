@@ -6,6 +6,7 @@ import Table, { Column } from "../components/ui/table/Table";
 import Sidebar from "../components/ui/sidebar/Sidebar";
 import MainBody from "../components/ui/mainbody/MainBody";
 import { fetchAllShipments } from "../redux/slices/activeShipmentSlice";
+import { LogisticsLoader } from "../components/ui/spinner";
 
 const statusTitleMap: Record<string, string> = {
   pending: "Pending Shipments",
@@ -120,25 +121,28 @@ const ShipmentsPage: React.FC = () => {
                   <div className="alert alert-info mb-3">
                     <div className="d-flex justify-content-between align-items-center">
                       <div>
-                        <strong>{selectedShipments.length} shipment(s) selected</strong>
-                        <ul className="mb-0 mt-2">
-                          {selectedShipments.slice(0, 3).map(shipment => (
-                            <li key={shipment.shipment_id}>
-                              {shipment.shipment_id} - {shipment.sender_company_name} → {shipment.receiver_company_name}
-                            </li>
-                          ))}
-                          {selectedShipments.length > 3 && (
-                            <li>... and {selectedShipments.length - 3} more</li>
-                          )}
-                        </ul>
+                        <strong>📋 {selectedShipments.length} shipment(s) selected</strong>
+                        <p className="mb-2 mt-2 text-muted">
+                          Use the export buttons below to download or print the selected records in your preferred format.
+                        </p>
+                        <details className="mt-2">
+                          <summary className="text-primary" style={{ cursor: 'pointer' }}>
+                            View selected shipments ({selectedShipments.length})
+                          </summary>
+                          <ul className="mb-0 mt-2 small">
+                            {selectedShipments.slice(0, 5).map(shipment => (
+                              <li key={shipment.shipment_id}>
+                                <strong>{shipment.shipment_id}</strong> - {shipment.sender_company_name} → {shipment.receiver_company_name}
+                                <span className="text-muted"> ({shipment.shipment_status})</span>
+                              </li>
+                            ))}
+                            {selectedShipments.length > 5 && (
+                              <li className="text-muted">... and {selectedShipments.length - 5} more shipments</li>
+                            )}
+                          </ul>
+                        </details>
                       </div>
                       <div className="d-flex gap-2">
-                        <button
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={() => alert(`Exporting ${selectedShipments.length} shipments...`)}
-                        >
-                          Export Selected
-                        </button>
                         <button
                           className="btn btn-sm btn-outline-warning"
                           onClick={() => {
@@ -161,18 +165,19 @@ const ShipmentsPage: React.FC = () => {
                         >
                           Delete Selected
                         </button>
+                        <button
+                          className="btn btn-sm btn-outline-secondary"
+                          onClick={() => setSelectedShipments([])}
+                        >
+                          Clear Selection
+                        </button>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {loading ? (
-                  <div
-                    className="d-flex justify-content-center align-items-center"
-                    style={{ height: "80vh" }}
-                  >
-                    <div className="loader" />
-                  </div>
+                  <LogisticsLoader />
                 ) : error ? (
                   <p>Error: {error}</p>
                 ) : (
