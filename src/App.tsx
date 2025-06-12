@@ -16,6 +16,7 @@ const SignIn = lazy(() => import("./pages/SignIn"));
 const AddShipment = lazy(() => import("./pages/AddShipement"));
 const EditProfile = lazy(() => import("./pages/EditProfile"));
 const ChangePassword = lazy(() => import("./pages/ChangePassword"));
+const PageNotFound = lazy(() => import("./pages/PageNotFound"));
 
 const App = () => {
   return (
@@ -30,6 +31,8 @@ const App = () => {
             <Route path="/customer/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
             <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
             <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
+            {/* Catch-all route for 404 pages */}
+            <Route path="*" element={<PageNotFound />} />
           </Routes>
         </Suspense>
         <ToastContainer

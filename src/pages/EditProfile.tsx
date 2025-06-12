@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/ui/button/Button';
 import Input from '../components/ui/input/Input';
@@ -9,55 +9,30 @@ import SingleSelect from '../components/ui/select/SingleSelect';
 import Sidebar from '../components/ui/sidebar/Sidebar';
 import SwitchButton from '../components/ui/switch/SwitchButton';
 import { LogisticsLoader, InlineLogisticsLoader } from '../components/ui/spinner';
-import { RootState } from '../redux/store';
-import { isAuthenticated } from '../utils/authUtils';
+import { RootState, AppDispatch } from '../redux/store';
+import { isAuthenticated, getUserData } from '../utils/authUtils';
 import { showError, showSuccess } from '../utils/toastUtils';
+import { API_BASE_URL } from '../config';
+import {
+  fetchProfileData,
+  updateProfileData,
+  updateProfileDataLocal,
+  clearProfileError,
+  selectProfileData,
+  selectProfileLoading,
+  selectProfileSaving,
+  selectProfileError,
+  selectCountries,
+  selectStates,
+  selectCities,
+  selectAreas,
+  selectBranches,
+  ProfileData
+} from '../redux/slices/profileSlice';
 import '../styles/pages/EditProfile.scss';
 import '../styles/global/AddShipment.scss';
 
-// Profile data interface
-interface ProfileData {
-  id: string;
-  company_name: string;
-  full_name: string;
-  category: string;
-  nature_business: string;
-  country_id: string;
-  state_id: string;
-  city_id: string;
-  area_id: string;
-  branch_id: string;
-  country_name: string;
-  state_name: string;
-  city_name: string;
-  area_name: string;
-  branch_name: string;
-  reg_address1: string;
-  reg_address2: string;
-  pincode: string;
-  mobile_no: string;
-  tel_no: string;
-  fax_no: string;
-  email: string;
-  pan_no: string;
-  gst_no: string;
-  reg_certi: string;
-  p_o_attorney: string;
-  tel_bill: string;
-  pan_card: string;
-  gst_certi: string;
-  cust_profile_img: string;
-  path: string;
-  axlpl_insurance_value: string;
-  third_party_insurance_value: string;
-  third_party_policy_no: string;
-  third_party_exp_date: string;
-  is_shipment_approve: string;
-  is_send_mail: string;
-  is_send_sms: string;
-  token: string;
-}
-
+// Location option interface (keeping local for now)
 interface LocationOption {
   id: string;
   name: string;
@@ -65,28 +40,27 @@ interface LocationOption {
 
 const EditProfile: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
   // Get user data from Redux store
   const { user } = useSelector((state: RootState) => state.auth);
 
-  // Local state for profile data and UI
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Get profile data from Redux store
+  const profileData = useSelector(selectProfileData);
+  const loading = useSelector(selectProfileLoading);
+  const saving = useSelector(selectProfileSaving);
+  const error = useSelector(selectProfileError);
+  const countries = useSelector(selectCountries);
+  const states = useSelector(selectStates);
+  const cities = useSelector(selectCities);
+  const areas = useSelector(selectAreas);
+  const branches = useSelector(selectBranches);
 
-  // File upload states
+  // File upload states (keeping local as they're temporary)
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [panCard, setPanCard] = useState<File | null>(null);
   const [gstCertificate, setGstCertificate] = useState<File | null>(null);
   const [regCertificate, setRegCertificate] = useState<File | null>(null);
-
-  // Location data states
-  const [countries, setCountries] = useState<LocationOption[]>([]);
-  const [states, setStates] = useState<LocationOption[]>([]);
-  const [cities, setCities] = useState<LocationOption[]>([]);
-  const [areas, setAreas] = useState<LocationOption[]>([]);
-  const [branches, setBranches] = useState<LocationOption[]>([]);
 
   // Category and nature of business options
   const categoryOptions = [
@@ -136,54 +110,17 @@ const EditProfile: React.FC = () => {
     return colors[charCode % colors.length];
   };
 
-  // Fetch profile data from API
-  const fetchProfileDataFromAPI = useCallback(async (forceRefresh = false) => {
+  // Fetch profile data using Redux
+  const fetchProfileDataFromRedux = useCallback(async () => {
     if (!user?.Customerdetail?.id) {
       showError('❌ User data not found. Please login again.');
       navigate('/');
       return;
     }
 
-    try {
-      setLoading(true);
-      setError(null);
-
-      console.log('🔄 Fetching profile data for user:', {
-        id: user.Customerdetail.id,
-        role: user.role || 'customer',
-        forceRefresh
-      });
-
-      const formData = new FormData();
-      formData.append('id', user.Customerdetail.id);
-      formData.append('user_role', user.role || 'customer');
-
-      const response = await fetch('https://new.axlpl.com/messenger/services_v6/editProfile', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('✅ Profile data fetched successfully:', data);
-
-      if (data?.Customerdetail) {
-        setProfileData(data.Customerdetail);
-        await loadLocationData(data.Customerdetail);
-      } else {
-        throw new Error('Invalid response format');
-      }
-    } catch (error: any) {
-      console.error('❌ Profile fetch error:', error);
-      setError(error.message || 'Failed to fetch profile data');
-      showError('❌ Failed to load profile data. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }, [user, navigate]);
+    console.log('🔄 Redux: Dispatching fetchProfileData action...');
+    dispatch(fetchProfileData());
+  }, [user, navigate, dispatch]);
 
   // Check user authentication and fetch profile data on component mount
   useEffect(() => {
@@ -197,28 +134,14 @@ const EditProfile: React.FC = () => {
     }
 
     console.log('✅ User authenticated, fetching profile data...');
-    fetchProfileDataFromAPI();
-  }, [user, fetchProfileDataFromAPI, navigate]);
-
-  const loadLocationData = async (profile: ProfileData) => {
-    try {
-      // For now, we'll create mock data based on the current profile
-      setCountries([{ id: profile.country_id, name: profile.country_name }]);
-      setStates([{ id: profile.state_id, name: profile.state_name }]);
-      setCities([{ id: profile.city_id, name: profile.city_name }]);
-      setAreas([{ id: profile.area_id, name: profile.area_name }]);
-      setBranches([{ id: profile.branch_id, name: profile.branch_name }]);
-    } catch (error) {
-      console.error('❌ Location data load error:', error);
-    }
-  };
+    fetchProfileDataFromRedux();
+  }, [user, fetchProfileDataFromRedux, navigate]);
 
   const handleInputChange = (field: keyof ProfileData, value: string) => {
     if (profileData) {
-      setProfileData({
-        ...profileData,
+      dispatch(updateProfileDataLocal({
         [field]: value
-      });
+      }));
     }
   };
 
@@ -240,63 +163,56 @@ const EditProfile: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!profileData || !user?.Customerdetail?.id) {
-      showError('❌ No profile data to save or user not found');
+    console.log('💾 EditProfile: Save button clicked');
+    console.log('💾 EditProfile: Profile data:', profileData);
+    console.log('💾 EditProfile: User data:', user?.Customerdetail);
+
+    if (!profileData) {
+      console.error('❌ EditProfile: No profile data available');
+      showError('❌ No profile data to save');
+      return;
+    }
+
+    if (!user?.Customerdetail?.id) {
+      console.error('❌ EditProfile: User not authenticated');
+      showError('❌ User not authenticated. Please login again.');
+      return;
+    }
+
+    // Validate required fields
+    const requiredFields = ['company_name', 'full_name', 'mobile_no', 'email'];
+    const missingFields = requiredFields.filter(field => !profileData[field]);
+
+    if (missingFields.length > 0) {
+      console.error('❌ EditProfile: Missing required fields:', missingFields);
+      showError(`❌ Please fill in required fields: ${missingFields.join(', ')}`);
       return;
     }
 
     try {
-      setSaving(true);
-      console.log('💾 Starting profile update process...');
+      console.log('💾 EditProfile: Starting profile update process...');
 
-      const formData = new FormData();
+      const files = {
+        profileImage,
+        panCard,
+        gstCertificate,
+        regCertificate
+      };
 
-      // Add user identification
-      formData.append('id', user.Customerdetail.id);
-      formData.append('user_role', user.role || 'customer');
-
-      // Add profile data - all fields from ProfileData interface
-      Object.entries(profileData).forEach(([key, value]) => {
-        if (key !== 'id' && value !== null && value !== undefined) {
-          const stringValue = String(value);
-          formData.append(key, stringValue);
-        }
+      console.log('💾 EditProfile: Files to upload:', {
+        profileImage: profileImage?.name || 'None',
+        panCard: panCard?.name || 'None',
+        gstCertificate: gstCertificate?.name || 'None',
+        regCertificate: regCertificate?.name || 'None'
       });
 
-      // Add files if provided
-      if (profileImage) {
-        formData.append('cust_profile_img', profileImage);
-      }
-      if (panCard) {
-        formData.append('pan_card', panCard);
-      }
-      if (gstCertificate) {
-        formData.append('gst_certi', gstCertificate);
-      }
-      if (regCertificate) {
-        formData.append('reg_certi', regCertificate);
-      }
+      const result = await dispatch(updateProfileData({ profileData, files }));
 
-      const response = await fetch('https://new.axlpl.com/messenger/services_v6/updateProfile', {
-        method: 'POST',
-        body: formData
-      });
+      console.log('💾 EditProfile: Update result:', result);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('💾 Profile update response:', data);
-
-      // Check for successful response
-      const isSuccess = data.status === 'success' ||
-                       data.status === 1 ||
-                       data.message ||
-                       response.status === 200;
-
-      if (isSuccess) {
-        const successMessage = data.message || data.msg || '✅ Profile updated successfully!';
+      if (updateProfileData.fulfilled.match(result)) {
+        const successMessage = result.payload.message || '✅ Profile updated successfully!';
+        console.log('✅ EditProfile: Update successful:', successMessage);
         showSuccess(successMessage);
 
         // Clear file selections after successful update
@@ -306,25 +222,65 @@ const EditProfile: React.FC = () => {
         setRegCertificate(null);
 
         // Add a small delay to ensure server has processed the update
-        console.log('🔄 Waiting for server to process update...');
+        console.log('🔄 EditProfile: Waiting for server to process update...');
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Refresh the profile data to get the latest from server
-        console.log('🔄 Fetching fresh profile data...');
-        await fetchProfileDataFromAPI(true); // Force refresh
+        console.log('🔄 EditProfile: Fetching fresh profile data...');
+        dispatch(fetchProfileData());
+      } else if (updateProfileData.rejected.match(result)) {
+        const errorMessage = result.payload as string || 'Failed to update profile';
+        console.error('❌ EditProfile: Update rejected:', errorMessage);
+        showError(`❌ ${errorMessage}`);
       } else {
-        throw new Error(data.message || data.msg || data.error || 'Failed to update profile');
+        console.error('❌ EditProfile: Unknown result type:', result);
+        showError('❌ Unknown error occurred. Please try again.');
       }
     } catch (error: any) {
-      console.error('❌ Profile update error:', error);
-      showError('❌ Failed to update profile. Please try again.');
-    } finally {
-      setSaving(false);
+      console.error('❌ EditProfile: Profile update error:', error);
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update profile. Please try again.';
+      showError(`❌ ${errorMessage}`);
     }
   };
 
   const handleCancel = () => {
     navigate('/dashboard');
+  };
+
+  // Debug function to test API connectivity
+  const testApiConnection = async () => {
+    try {
+      console.log('🔧 Testing API connection...');
+      const userData = getUserData();
+      console.log('🔧 User data for test:', userData);
+
+      if (!userData?.Customerdetail?.id) {
+        showError('❌ No user data found for API test');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('id', userData.Customerdetail.id);
+      formData.append('user_role', userData.role || 'customer');
+
+      const response = await fetch(`${API_BASE_URL}/editProfile`, {
+        method: 'POST',
+        body: formData
+      });
+
+      console.log('🔧 API test response status:', response.status);
+      const data = await response.json();
+      console.log('🔧 API test response data:', data);
+
+      if (response.ok) {
+        showSuccess('✅ API connection test successful!');
+      } else {
+        showError(`❌ API test failed: ${response.status} ${response.statusText}`);
+      }
+    } catch (error: any) {
+      console.error('🔧 API test error:', error);
+      showError(`❌ API test error: ${error.message}`);
+    }
   };
 
   if (loading) {
@@ -341,7 +297,7 @@ const EditProfile: React.FC = () => {
             <p>{error || 'Unable to load profile data. Please try again.'}</p>
             <Button
               text="Retry"
-              onClick={() => fetchProfileDataFromAPI()}
+              onClick={() => fetchProfileDataFromRedux()}
               className="btn btn-next"
             />
           </div>
@@ -537,8 +493,8 @@ const EditProfile: React.FC = () => {
                     />
                     <SingleSelect
                       id="country_id"
-                      options={countries.map(country => ({ value: country.id, label: country.name }))}
-                      value={profileData.country_id ? countries.find(c => c.id === profileData.country_id) ? { value: profileData.country_id, label: countries.find(c => c.id === profileData.country_id)?.name || '' } : null : null}
+                      options={countries.map((country: any) => ({ value: country.id, label: country.name }))}
+                      value={profileData.country_id ? countries.find((c: any) => c.id === profileData.country_id) ? { value: profileData.country_id, label: countries.find((c: any) => c.id === profileData.country_id)?.name || '' } : null : null}
                       onChange={(selected) => handleInputChange('country_id', selected?.value || '')}
                       placeholder="Select Country"
                     />
@@ -552,8 +508,8 @@ const EditProfile: React.FC = () => {
                     />
                     <SingleSelect
                       id="state_id"
-                      options={states.map(state => ({ value: state.id, label: state.name }))}
-                      value={profileData.state_id ? states.find(s => s.id === profileData.state_id) ? { value: profileData.state_id, label: states.find(s => s.id === profileData.state_id)?.name || '' } : null : null}
+                      options={states.map((state: any) => ({ value: state.id, label: state.name }))}
+                      value={profileData.state_id ? states.find((s: any) => s.id === profileData.state_id) ? { value: profileData.state_id, label: states.find((s: any) => s.id === profileData.state_id)?.name || '' } : null : null}
                       onChange={(selected) => handleInputChange('state_id', selected?.value || '')}
                       placeholder="Select State"
                     />
@@ -569,8 +525,8 @@ const EditProfile: React.FC = () => {
                     />
                     <SingleSelect
                       id="city_id"
-                      options={cities.map(city => ({ value: city.id, label: city.name }))}
-                      value={profileData.city_id ? cities.find(c => c.id === profileData.city_id) ? { value: profileData.city_id, label: cities.find(c => c.id === profileData.city_id)?.name || '' } : null : null}
+                      options={cities.map((city: any) => ({ value: city.id, label: city.name }))}
+                      value={profileData.city_id ? cities.find((c: any) => c.id === profileData.city_id) ? { value: profileData.city_id, label: cities.find((c: any) => c.id === profileData.city_id)?.name || '' } : null : null}
                       onChange={(selected) => handleInputChange('city_id', selected?.value || '')}
                       placeholder="Select City"
                     />
@@ -584,8 +540,8 @@ const EditProfile: React.FC = () => {
                     />
                     <SingleSelect
                       id="area_id"
-                      options={areas.map(area => ({ value: area.id, label: area.name }))}
-                      value={profileData.area_id ? areas.find(a => a.id === profileData.area_id) ? { value: profileData.area_id, label: areas.find(a => a.id === profileData.area_id)?.name || '' } : null : null}
+                      options={areas.map((area: any) => ({ value: area.id, label: area.name }))}
+                      value={profileData.area_id ? areas.find((a: any) => a.id === profileData.area_id) ? { value: profileData.area_id, label: areas.find((a: any) => a.id === profileData.area_id)?.name || '' } : null : null}
                       onChange={(selected) => handleInputChange('area_id', selected?.value || '')}
                       placeholder="Select Area"
                     />
@@ -601,8 +557,8 @@ const EditProfile: React.FC = () => {
                     />
                     <SingleSelect
                       id="branch_id"
-                      options={branches.map(branch => ({ value: branch.id, label: branch.name }))}
-                      value={profileData.branch_id ? branches.find(b => b.id === profileData.branch_id) ? { value: profileData.branch_id, label: branches.find(b => b.id === profileData.branch_id)?.name || '' } : null : null}
+                      options={branches.map((branch: any) => ({ value: branch.id, label: branch.name }))}
+                      value={profileData.branch_id ? branches.find((b: any) => b.id === profileData.branch_id) ? { value: profileData.branch_id, label: branches.find((b: any) => b.id === profileData.branch_id)?.name || '' } : null : null}
                       onChange={(selected) => handleInputChange('branch_id', selected?.value || '')}
                       placeholder="Select Branch"
                     />
@@ -1055,6 +1011,14 @@ const EditProfile: React.FC = () => {
                       className="btn btn-outline-secondary btn-back"
                     >
                       Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={testApiConnection}
+                      className="btn btn-warning me-2"
+                      title="Test API Connection"
+                    >
+                      🔧 Test API
                     </button>
                     <button
                       type="button"

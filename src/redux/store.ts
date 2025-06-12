@@ -10,6 +10,7 @@ import serviceTypeReducer from "./slices/serviceTypeSlice";
 import customerReducer from "./slices/customerSlice";
 import pincodeReducer from "./slices/pincodeSlice";
 import changePasswordReducer from "./slices/changePasswordSlice";
+import profileReducer from "./slices/profileSlice";
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     customer: customerReducer,
     pincode: pincodeReducer,
     changePassword: changePasswordReducer,
+    profile: profileReducer,
   },
 });
 

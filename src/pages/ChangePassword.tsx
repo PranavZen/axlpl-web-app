@@ -146,11 +146,11 @@ const ChangePassword: React.FC = () => {
                   <form onSubmit={formik.handleSubmit}>
                     <div className="row flex-column justify-content-center align-items-center">
                       {/* Current Password */}
-                      <div className="col-md-6 col-12 mb-4">
+                      <div className="col-md-8 col-12 mb-4">
                         <Label
                           htmlFor="currentPassword"
                           text="Current Password *"
-                          className="form-label"
+                          className="form-label innerLabel"
                         />
                         <Input
                           type="password"
@@ -168,11 +168,11 @@ const ChangePassword: React.FC = () => {
                       </div>
 
                       {/* New Password */}
-                      <div className="col-md-6 col-12 mb-4">
+                      <div className="col-md-8 col-12 mb-4">
                         <Label
                           htmlFor="newPassword"
                           text="New Password *"
-                          className="form-label"
+                          className="form-label innerLabel"
                         />
                         <Input
                           type="password"
@@ -190,11 +190,11 @@ const ChangePassword: React.FC = () => {
                       </div>
 
                       {/* Confirm Password */}
-                      <div className="col-md-6 col-12 mb-4">
+                      <div className="col-md-8 col-12 mb-4">
                         <Label
                           htmlFor="confirmPassword"
                           text="Confirm New Password *"
-                          className="form-label"
+                          className="form-label innerLabel"
                         />
                         <Input
                           type="password"
