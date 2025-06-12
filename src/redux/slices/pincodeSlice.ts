@@ -160,7 +160,6 @@ export const addNewArea = createAsyncThunk(
       // Simulate successful response for now
       if (!response.ok) {
         // For now, we'll simulate a successful response
-        console.log('Simulating successful area addition');
       }
 
       // Return the new area data

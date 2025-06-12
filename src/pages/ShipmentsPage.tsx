@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../redux/store";
-import Table, { Column } from "../components/ui/table/Table";
-import Sidebar from "../components/ui/sidebar/Sidebar";
+import { useParams } from "react-router-dom";
 import MainBody from "../components/ui/mainbody/MainBody";
-import { fetchAllShipments } from "../redux/slices/activeShipmentSlice";
+import Sidebar from "../components/ui/sidebar/Sidebar";
 import { LogisticsLoader } from "../components/ui/spinner";
+import Table, { Column } from "../components/ui/table/Table";
+import { fetchAllShipments } from "../redux/slices/activeShipmentSlice";
+import { AppDispatch, RootState } from "../redux/store";
 
 const statusTitleMap: Record<string, string> = {
   pending: "Pending Shipments",
@@ -17,7 +17,6 @@ const statusTitleMap: Record<string, string> = {
 
 const ShipmentsPage: React.FC = () => {
   const { shipment_status } = useParams();
-  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { shipments, loading, error } = useSelector(
     (state: RootState) => state.activeShipment
@@ -40,12 +39,10 @@ const ShipmentsPage: React.FC = () => {
   // Handle row selection change
   const handleShipmentSelectionChange = (newSelectedShipments: any[]) => {
     setSelectedShipments(newSelectedShipments);
-    console.log("Selected shipments:", newSelectedShipments);
   };
 
   // Handle view shipment (will open modal automatically)
   const handleViewShipment = (shipment: any) => {
-    console.log("View shipment:", shipment);
     // The view modal will automatically open with shipment details
   };
 
@@ -53,7 +50,6 @@ const ShipmentsPage: React.FC = () => {
 
   // Handle delete shipment
   const handleDeleteShipment = (shipment: any) => {
-    console.log("Delete shipment:", shipment);
     if (window.confirm(`Are you sure you want to delete shipment ${shipment.shipment_id}?`)) {
       alert(`Shipment ${shipment.shipment_id} deleted successfully!`);
       // Here you would typically call an API to delete the shipment
@@ -62,7 +58,6 @@ const ShipmentsPage: React.FC = () => {
 
   // Handle edit shipment
   const handleEditShipment = (shipment: any) => {
-    console.log("Edit shipment:", shipment);
 
     // Check if shipment is active/approved (only allow editing active shipments)
     if (shipment.shipment_status?.toLowerCase() !== 'approved') {

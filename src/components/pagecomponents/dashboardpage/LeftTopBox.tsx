@@ -9,8 +9,6 @@ const LeftTopBox = () => {
     // Get user data using the utility function
     const user = getUserData();
     setUserData(user);
-    // Log user data structure to understand where the role property is
-    // console.log('User data structure:', user);
   }, []);
   return (
     <div className="leftTopBox box">

@@ -46,14 +46,10 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      console.log("🔄 Starting logout process...");
-
       // Call the logout API
       const result = await dispatch(logoutUser());
 
       if (logoutUser.fulfilled.match(result)) {
-        console.log("✅ Logout API successful");
-
         // Show success toast message from API response
         const message = result.payload?.message || "Logout Successfully";
         showSuccess(message);
@@ -63,8 +59,6 @@ const Sidebar = () => {
           navigate("/");
         }, 1000);
       } else {
-        console.warn("⚠️ Logout API failed, but proceeding with local logout");
-
         // Show warning toast for API failure
         showError("Logout API failed, but you have been logged out locally");
 
@@ -74,8 +68,6 @@ const Sidebar = () => {
         }, 1000);
       }
     } catch (error) {
-      console.error("❌ Logout error:", error);
-
       // Fallback to local logout if API completely fails
       dispatch(logoutLocal());
 

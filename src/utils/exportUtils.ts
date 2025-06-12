@@ -41,9 +41,7 @@ export const copyToClipboard = async <T>(options: ExportOptions<T>): Promise<voi
     const textData = formattedData.map(row => row.join('\t')).join('\n');
     
     await navigator.clipboard.writeText(textData);
-    console.log('✅ Data copied to clipboard');
   } catch (error) {
-    console.error('❌ Failed to copy to clipboard:', error);
     throw new Error('Failed to copy data to clipboard');
   }
 };
@@ -67,10 +65,8 @@ export const exportToCSV = <T>(options: ExportOptions<T>): void => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
-    console.log('✅ CSV file downloaded');
+
   } catch (error) {
-    console.error('❌ Failed to export CSV:', error);
     throw new Error('Failed to export CSV file');
   }
 };
@@ -99,9 +95,7 @@ export const exportToExcel = <T>(options: ExportOptions<T>): void => {
     link.click();
     document.body.removeChild(link);
 
-    console.log('✅ Excel file downloaded (CSV format)');
   } catch (error) {
-    console.error('❌ Failed to export Excel:', error);
     throw new Error('Failed to export Excel file');
   }
 };
@@ -169,9 +163,7 @@ export const exportToPDF = <T>(options: ExportOptions<T>): void => {
       printWindow.focus();
     }
 
-    console.log('✅ PDF print dialog opened');
   } catch (error) {
-    console.error('❌ Failed to export PDF:', error);
     throw new Error('Failed to export PDF file');
   }
 };
@@ -234,10 +226,8 @@ export const printData = <T>(options: ExportOptions<T>): void => {
         printWindow.close();
       }, 250);
     }
-    
-    console.log('✅ Print dialog opened');
+
   } catch (error) {
-    console.error('❌ Failed to print:', error);
     throw new Error('Failed to print data');
   }
 };

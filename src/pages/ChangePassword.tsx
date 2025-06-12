@@ -87,11 +87,7 @@ const ChangePassword: React.FC = () => {
         const userRole = user?.Customerdetail?.role || user?.role || "";
         const userToken = user?.Customerdetail?.token || user?.token || "";
 
-        console.log('🔄 Change Password - User data:', {
-          userId: userId ? '***' + userId.slice(-4) : 'missing',
-          userRole,
-          hasToken: !!userToken
-        });
+
 
         if (!userId || !userRole) {
           showError("User information not found. Please login again.");
@@ -116,7 +112,6 @@ const ChangePassword: React.FC = () => {
         formik.resetForm();
       } catch (error: any) {
         // Error is handled in useEffect
-        console.error("Change password error:", error);
       }
     },
   });

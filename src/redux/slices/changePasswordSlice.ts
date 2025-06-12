@@ -47,7 +47,7 @@ export const changePassword = createAsyncThunk(
       formData.append("new_password", new_password);
       formData.append("user_type", user_type);
 
-      console.log('🔄 Change Password API - Sending request with token:', token ? '***' + token.slice(-4) : 'missing');
+
 
       const response = await axios.post(
         `${API_BASE_URL}/changePassword`,

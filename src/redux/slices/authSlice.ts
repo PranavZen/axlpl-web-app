@@ -31,8 +31,7 @@ export const loginUser = createAsyncThunk(
         });
 
         if (response.data.status === "success") {
-          // Log the response data to understand its structure
-          console.log('Login response data:', JSON.stringify(response.data, null, 2));
+
 
           // Check if the user has the role "messenger"
           // Try different paths to find the role
@@ -44,11 +43,8 @@ export const loginUser = createAsyncThunk(
             ''
           ).toString().toLowerCase();
 
-          // console.log('User role:', userRole);
-
           // Check for variations of "messenger"
           if (userRole === "messenger" || userRole === "messanger" || userRole.includes("mess")) {
-            // console.log('Blocking messenger account');
             return rejectWithValue("Messenger accounts are not allowed to access this application. Please contact support.");
           }
 
@@ -75,16 +71,14 @@ export const logoutUser = createAsyncThunk(
       const role = userData?.Customerdetail?.role || userData?.role || '';
       const token = userData?.Customerdetail?.token || userData?.token || '';
 
-      console.log('🔍 Logout API - User data:', { m_id, role, token: token ? '***' + token.slice(-4) : 'missing' });
+
 
       // Check if we have required data
       if (!m_id || !role) {
-        console.warn('⚠️ Missing required logout data:', { m_id: !!m_id, role: !!role });
         return rejectWithValue("Missing user ID or role for logout");
       }
 
       if (!token) {
-        console.warn('⚠️ Missing authentication token for logout');
         return rejectWithValue("Missing authentication token");
       }
 
@@ -93,9 +87,7 @@ export const logoutUser = createAsyncThunk(
       formData.append("m_id", m_id);
       formData.append("role", role);
 
-      console.log('📤 Logout API - Sending request to:', 'https://new.axlpl.com/messenger/services_v6/logout');
-      console.log('📤 Logout API - FormData:', { m_id, role });
-      console.log('📤 Logout API - Token:', token ? 'Bearer ***' + token.slice(-4) : 'missing');
+
 
       // Call the logout API with authentication token
       const response = await axios.post(
@@ -109,7 +101,7 @@ export const logoutUser = createAsyncThunk(
         }
       );
 
-      console.log('✅ Logout API Response:', response.data);
+
 
       // Check if logout was successful
       if (response.data.status === "success") {
@@ -118,8 +110,6 @@ export const logoutUser = createAsyncThunk(
         return rejectWithValue(response.data.message || "Logout failed");
       }
     } catch (error: any) {
-      console.error('❌ Logout API Error:', error);
-      console.error('❌ Error response:', error.response?.data);
       // Even if API fails, we should still log out locally
       return rejectWithValue(error.response?.data?.message || error.message || "Logout API failed");
     }
@@ -134,16 +124,9 @@ const authSlice = createSlice({
     restoreUser: (state) => {
       const userData = getUserData();
       if (userData) {
-        console.log('✅ Redux: Restoring user data from sessionStorage:', {
-          id: userData?.Customerdetail?.id,
-          role: userData?.role || userData?.Customerdetail?.role,
-          company: userData?.Customerdetail?.company_name
-        });
         state.user = userData;
         state.loading = false;
         state.error = null;
-      } else {
-        console.log('❌ Redux: No user data found in sessionStorage');
       }
     },
     // Synchronous logout (for immediate local logout)
@@ -207,7 +190,6 @@ const authSlice = createSlice({
         state.error = null;
         // Clear user data from session storage
         clearUserData();
-        console.log('✅ Logout successful:', action.payload.message);
         // Toast message will be shown in the component
       })
       .addCase(logoutUser.rejected, (state, action) => {
@@ -216,7 +198,6 @@ const authSlice = createSlice({
         state.user = null;
         // Clear user data from session storage
         clearUserData();
-        console.warn('⚠️ Logout API failed but logged out locally:', action.payload);
         // Don't set error for logout failures - just log them
       });
   },

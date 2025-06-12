@@ -48,9 +48,7 @@ const AddAreaModal: React.FC<AddAreaModalProps> = ({
       setError("");
       onClose();
 
-      console.log("✅ New area added successfully:", newArea);
     } catch (error) {
-      console.error("❌ Unexpected error adding area:", error);
       setError("Failed to add area. Please try again.");
     } finally {
       setIsSubmitting(false);

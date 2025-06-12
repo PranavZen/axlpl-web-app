@@ -46,11 +46,6 @@ const Addresses: React.FC = () => {
   // Update form data when editing an address
   useEffect(() => {
     if (editingAddress) {
-      console.log("🔍 EditingAddress data:", editingAddress);
-      console.log("📍 Available fields:");
-      console.log("  - state_id:", editingAddress.state_id, "| state_name:", editingAddress.state_name);
-      console.log("  - city_id:", editingAddress.city_id, "| city_name:", editingAddress.city_name);
-      console.log("  - area_id:", editingAddress.area_id, "| area_name:", editingAddress.area_name);
 
       const formDataToSet = {
         name: editingAddress.name || "",
@@ -67,7 +62,6 @@ const Addresses: React.FC = () => {
         sender_gst_no: editingAddress.sender_gst_no || "",
       };
 
-      console.log("✅ Form data being set:", formDataToSet);
       setFormData(formDataToSet);
     }
   }, [editingAddress]);
@@ -140,7 +134,6 @@ const Addresses: React.FC = () => {
       }
       handleCloseForm();
     } catch (error) {
-      console.error("Error saving address:", error);
       showError("Failed to save address. Please try again.");
     } finally {
       setFormSubmitting(false);
@@ -181,7 +174,6 @@ const Addresses: React.FC = () => {
       await dispatch(deleteAddress(addressToDelete));
       showSuccess("Address deleted successfully!");
     } catch (error) {
-      console.error("Error deleting address:", error);
       showError("Failed to delete address. Please try again.");
     } finally {
       setDeletingId(null);
@@ -192,7 +184,6 @@ const Addresses: React.FC = () => {
 
   // Handle view address (will open modal automatically)
   const handleViewAddress = (address: any) => {
-    console.log("View address:", address);
     // The view modal will automatically open with address details
   };
 

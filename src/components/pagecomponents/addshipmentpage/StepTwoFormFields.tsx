@@ -143,8 +143,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   // Core pincode fetch function for sender
   const fetchSenderPincodeData = useCallback(async (pincode: string) => {
     try {
-      console.log('🔍 Fetching data for Sender Pincode:', pincode);
-
       // Fetch pincode details first
       const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
@@ -154,29 +152,17 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         // Auto-populate state and city with proper select objects containing IDs
         setFieldValue('senderState', { value: state_id, label: state_name });
         setFieldValue('senderCity', { value: city_id, label: city_name });
-
-        console.log('✅ Sender Pincode details fetched:', {
-          state: state_name,
-          city: city_name,
-          area: area_name
-        });
-      } else {
-        console.warn('❌ Failed to fetch pincode details for sender');
       }
 
       // Fetch areas for the pincode
       const areasResult = await dispatch(fetchAreasByPincode(pincode));
 
       if (fetchAreasByPincode.fulfilled.match(areasResult)) {
-        console.log('✅ Sender Areas fetched:', areasResult.payload.length, 'areas available');
-
         // Clear any previously selected area since we have new options
         setFieldValue('senderArea', null);
-      } else {
-        console.warn('❌ Failed to fetch areas for sender pincode');
       }
     } catch (error) {
-      console.error('❌ Error fetching sender pincode data:', error);
+      // Error handling can be added here if needed
     }
   }, [dispatch, setFieldValue]);
 
@@ -216,28 +202,17 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         setFieldValue('receiverState', { value: state_id, label: state_name });
         setFieldValue('receiverCity', { value: city_id, label: city_name });
 
-        console.log('✅ Receiver Pincode details fetched:', {
-          state: state_name,
-          city: city_name,
-          area: area_name
-        });
-      } else {
-        console.warn('❌ Failed to fetch pincode details for receiver');
       }
 
       // Fetch areas for the pincode
       const areasResult = await dispatch(fetchAreasByPincode(pincode));
 
       if (fetchAreasByPincode.fulfilled.match(areasResult)) {
-        console.log('✅ Receiver Areas fetched:', areasResult.payload.length, 'areas available');
-
         // Clear any previously selected area since we have new options
         setFieldValue('receiverArea', null);
-      } else {
-        console.warn('❌ Failed to fetch areas for receiver pincode');
       }
     } catch (error) {
-      console.error('❌ Error fetching receiver pincode data:', error);
+      // Error handling can be added here if needed
     }
   }, [dispatch, setFieldValue]);
 
@@ -278,10 +253,9 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         ...baseParams,
         search_query: searchQuery.trim()
       };
-      console.log('🔍 Searching customers with query:', searchQuery);
       await dispatch(searchCustomers(searchParams));
     } catch (error) {
-      console.error('❌ Error searching customers:', error);
+      // Error handling can be added here if needed
     } finally {
       setIsSearching(false);
     }
@@ -296,7 +270,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
     // Expose debug function to window for easy access in browser console
     (window as any).debugLoginUserData = debugLoginUserData;
-    console.log('Debug function available: window.debugLoginUserData()');
   }, [dispatch, handleCustomerSearch]);
 
   // Cleanup timeouts on unmount
@@ -479,7 +452,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           senderCustomerId: userId || ""
         };
         populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
-        console.log("✅ Login user selected as sender, ID:", userId);
       } else {
         // Use selected customer data
         const customer = findCustomerByName(customers, selectedOption.value);
@@ -491,7 +463,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             senderCustomerId: customer.id
           };
           populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
-          console.log("✅ Sender customer selected:", customer.full_name, "ID:", customer.id);
         }
       }
     } else {
@@ -526,14 +497,10 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             receiverCustomerId: customer.id
           };
           populateReceiverFieldsAndClearErrors(fieldsWithCustomerId);
-          console.log("✅ Receiver customer selected:", customer.full_name, "ID:", customer.id);
         } catch (error) {
-          console.error("Error mapping customer fields:", error);
           // Show user-friendly error message
           // You could add a toast notification here if needed
         }
-      } else {
-        console.warn("Customer not found:", selectedOption.value);
       }
     } else {
       // Clear receiver fields if no customer selected

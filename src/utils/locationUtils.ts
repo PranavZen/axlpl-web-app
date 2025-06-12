@@ -129,42 +129,35 @@ export const extractLocationId = (
   defaultValue: string = ""
 ): string => {
   if (field === null || field === undefined) {
-    console.log(`📍 ${fieldName} is null/undefined, using default: "${defaultValue}"`);
     return defaultValue;
   }
 
   // If it's a select object with value property, extract the value (ID)
   if (typeof field === 'object' && field.value !== undefined) {
-    console.log(`📍 ${fieldName} object found, extracting ID: "${field.value}" (label: "${field.label}")`);
     return String(field.value);
   }
 
   // If it's a string, try to convert to ID using lookup tables (for state/city only)
   if (typeof field === 'string' && field.trim() !== '') {
     const trimmedField = field.trim();
-    
+
     if (fieldType === 'state' || fieldType === 'city') {
       const id = getLocationId(field, fieldType);
       if (id !== trimmedField) {
-        console.log(`📍 ${fieldName} string "${trimmedField}" converted to ID: "${id}"`);
         return id;
       } else {
-        console.log(`📍 ${fieldName} string "${trimmedField}" - no ID mapping found, using as-is`);
         return trimmedField;
       }
     } else {
-      console.log(`📍 ${fieldName} string found: "${trimmedField}" (area field, using as-is)`);
       return trimmedField;
     }
   }
 
   // If it's a number, return as string
   if (typeof field === 'number') {
-    console.log(`📍 ${fieldName} number found: "${field}"`);
     return String(field);
   }
 
   // Fallback to default value
-  console.log(`📍 ${fieldName} fallback to default: "${defaultValue}"`);
   return defaultValue;
 };

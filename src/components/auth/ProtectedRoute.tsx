@@ -20,30 +20,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Restore user data from sessionStorage if Redux state is empty but sessionStorage has data
   useEffect(() => {
-    console.log('🔍 ProtectedRoute useEffect:', {
-      hasUser: !!user,
-      restorationAttempted,
-      isAuthenticated: isAuthenticated(),
-      userIdFromRedux: user?.Customerdetail?.id
-    });
-
     if (!user && !restorationAttempted && isAuthenticated()) {
-      console.log('🔄 ProtectedRoute: Restoring user from sessionStorage...');
       setIsRestoring(true);
       dispatch(restoreUser());
       setRestorationAttempted(true);
       // Give a small delay to ensure the Redux state is updated
       setTimeout(() => {
         setIsRestoring(false);
-        console.log('✅ ProtectedRoute: User restoration completed');
       }, 100);
     } else if (!user && !isAuthenticated()) {
       // No user data in sessionStorage, mark restoration as attempted
-      console.log('❌ ProtectedRoute: No authentication data found');
       setRestorationAttempted(true);
     } else if (user && !restorationAttempted) {
       // User already exists in Redux, no need to restore
-      console.log('✅ ProtectedRoute: User already exists in Redux');
       setRestorationAttempted(true);
     }
   }, [user, dispatch, restorationAttempted]);
@@ -58,7 +47,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Only check authentication after restoration has been attempted
   if (restorationAttempted && !userAuthenticated) {
-    console.log('❌ ProtectedRoute: User not authenticated after restoration attempt');
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 

@@ -9,7 +9,6 @@ import { isAuthenticated } from "./utils/authUtils";
 
 // Restore user data from sessionStorage on app startup
 if (isAuthenticated()) {
-  console.log('🔄 App Startup: Restoring user from sessionStorage...');
   store.dispatch(restoreUser());
 }
 

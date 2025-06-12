@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/ui/button/Button';
 import Input from '../components/ui/input/Input';
@@ -7,36 +7,30 @@ import Label from '../components/ui/label/Label';
 import MainBody from '../components/ui/mainbody/MainBody';
 import SingleSelect from '../components/ui/select/SingleSelect';
 import Sidebar from '../components/ui/sidebar/Sidebar';
+import { InlineLogisticsLoader, LogisticsLoader } from '../components/ui/spinner';
 import SwitchButton from '../components/ui/switch/SwitchButton';
-import { LogisticsLoader, InlineLogisticsLoader } from '../components/ui/spinner';
-import { RootState, AppDispatch } from '../redux/store';
-import { isAuthenticated, getUserData } from '../utils/authUtils';
-import { showError, showSuccess } from '../utils/toastUtils';
 import { API_BASE_URL } from '../config';
 import {
   fetchProfileData,
-  updateProfileData,
-  updateProfileDataLocal,
-  clearProfileError,
-  selectProfileData,
-  selectProfileLoading,
-  selectProfileSaving,
-  selectProfileError,
-  selectCountries,
-  selectStates,
-  selectCities,
+  ProfileData,
   selectAreas,
   selectBranches,
-  ProfileData
+  selectCities,
+  selectCountries,
+  selectProfileData,
+  selectProfileError,
+  selectProfileLoading,
+  selectProfileSaving,
+  selectStates,
+  updateProfileData,
+  updateProfileDataLocal
 } from '../redux/slices/profileSlice';
-import '../styles/pages/EditProfile.scss';
+import { AppDispatch, RootState } from '../redux/store';
 import '../styles/global/AddShipment.scss';
+import '../styles/pages/EditProfile.scss';
+import { getUserData } from '../utils/authUtils';
+import { showError, showSuccess } from '../utils/toastUtils';
 
-// Location option interface (keeping local for now)
-interface LocationOption {
-  id: string;
-  name: string;
-}
 
 const EditProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -118,22 +112,17 @@ const EditProfile: React.FC = () => {
       return;
     }
 
-    console.log('🔄 Redux: Dispatching fetchProfileData action...');
     dispatch(fetchProfileData());
   }, [user, navigate, dispatch]);
 
   // Check user authentication and fetch profile data on component mount
   useEffect(() => {
     if (!user?.Customerdetail?.id) {
-      console.log('❌ User not authenticated in EditProfile');
-      console.log('Redux user:', user?.Customerdetail?.id ? 'Present' : 'Missing');
-      console.log('SessionStorage auth:', isAuthenticated() ? 'Valid' : 'Invalid');
       showError('❌ User not authenticated. Please login again.');
       navigate('/');
       return;
     }
 
-    console.log('✅ User authenticated, fetching profile data...');
     fetchProfileDataFromRedux();
   }, [user, fetchProfileDataFromRedux, navigate]);
 
@@ -163,18 +152,12 @@ const EditProfile: React.FC = () => {
   };
 
   const handleSave = async () => {
-    console.log('💾 EditProfile: Save button clicked');
-    console.log('💾 EditProfile: Profile data:', profileData);
-    console.log('💾 EditProfile: User data:', user?.Customerdetail);
-
     if (!profileData) {
-      console.error('❌ EditProfile: No profile data available');
       showError('❌ No profile data to save');
       return;
     }
 
     if (!user?.Customerdetail?.id) {
-      console.error('❌ EditProfile: User not authenticated');
       showError('❌ User not authenticated. Please login again.');
       return;
     }
@@ -184,14 +167,11 @@ const EditProfile: React.FC = () => {
     const missingFields = requiredFields.filter(field => !profileData[field]);
 
     if (missingFields.length > 0) {
-      console.error('❌ EditProfile: Missing required fields:', missingFields);
       showError(`❌ Please fill in required fields: ${missingFields.join(', ')}`);
       return;
     }
 
     try {
-      console.log('💾 EditProfile: Starting profile update process...');
-
       const files = {
         profileImage,
         panCard,
@@ -199,20 +179,10 @@ const EditProfile: React.FC = () => {
         regCertificate
       };
 
-      console.log('💾 EditProfile: Files to upload:', {
-        profileImage: profileImage?.name || 'None',
-        panCard: panCard?.name || 'None',
-        gstCertificate: gstCertificate?.name || 'None',
-        regCertificate: regCertificate?.name || 'None'
-      });
-
       const result = await dispatch(updateProfileData({ profileData, files }));
-
-      console.log('💾 EditProfile: Update result:', result);
 
       if (updateProfileData.fulfilled.match(result)) {
         const successMessage = result.payload.message || '✅ Profile updated successfully!';
-        console.log('✅ EditProfile: Update successful:', successMessage);
         showSuccess(successMessage);
 
         // Clear file selections after successful update
@@ -222,22 +192,17 @@ const EditProfile: React.FC = () => {
         setRegCertificate(null);
 
         // Add a small delay to ensure server has processed the update
-        console.log('🔄 EditProfile: Waiting for server to process update...');
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Refresh the profile data to get the latest from server
-        console.log('🔄 EditProfile: Fetching fresh profile data...');
         dispatch(fetchProfileData());
       } else if (updateProfileData.rejected.match(result)) {
         const errorMessage = result.payload as string || 'Failed to update profile';
-        console.error('❌ EditProfile: Update rejected:', errorMessage);
         showError(`❌ ${errorMessage}`);
       } else {
-        console.error('❌ EditProfile: Unknown result type:', result);
         showError('❌ Unknown error occurred. Please try again.');
       }
     } catch (error: any) {
-      console.error('❌ EditProfile: Profile update error:', error);
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update profile. Please try again.';
       showError(`❌ ${errorMessage}`);
     }
@@ -250,9 +215,7 @@ const EditProfile: React.FC = () => {
   // Debug function to test API connectivity
   const testApiConnection = async () => {
     try {
-      console.log('🔧 Testing API connection...');
       const userData = getUserData();
-      console.log('🔧 User data for test:', userData);
 
       if (!userData?.Customerdetail?.id) {
         showError('❌ No user data found for API test');
@@ -268,9 +231,7 @@ const EditProfile: React.FC = () => {
         body: formData
       });
 
-      console.log('🔧 API test response status:', response.status);
-      const data = await response.json();
-      console.log('🔧 API test response data:', data);
+      await response.json();
 
       if (response.ok) {
         showSuccess('✅ API connection test successful!');
@@ -278,7 +239,6 @@ const EditProfile: React.FC = () => {
         showError(`❌ API test failed: ${response.status} ${response.statusText}`);
       }
     } catch (error: any) {
-      console.error('🔧 API test error:', error);
       showError(`❌ API test error: ${error.message}`);
     }
   };

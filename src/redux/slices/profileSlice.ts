@@ -85,10 +85,7 @@ export const fetchProfileData = createAsyncThunk(
         return rejectWithValue("User data not found. Please login again.");
       }
 
-      console.log('🔄 Redux: Fetching profile data for user:', {
-        id: userData.Customerdetail.id,
-        role: userData.role || 'customer'
-      });
+
 
       const formData = new FormData();
       formData.append('id', userData.Customerdetail.id);
@@ -104,7 +101,7 @@ export const fetchProfileData = createAsyncThunk(
         }
       );
 
-      console.log('✅ Redux: Profile data fetched successfully:', response.data);
+
 
       if (response.data?.Customerdetail) {
         return response.data.Customerdetail;
@@ -112,7 +109,6 @@ export const fetchProfileData = createAsyncThunk(
         return rejectWithValue('Invalid response format');
       }
     } catch (error: any) {
-      console.error('❌ Redux: Profile fetch error:', error);
       return rejectWithValue(
         error.response?.data?.message || error.message || "Failed to fetch profile data"
       );
@@ -144,9 +140,7 @@ export const updateProfileData = createAsyncThunk(
         return rejectWithValue("User data not found. Please login again.");
       }
 
-      console.log('💾 Redux: Starting profile update process...');
-      console.log('💾 Redux: User data:', { id: userData.Customerdetail.id, role: userData.role });
-      console.log('💾 Redux: Profile data to update:', profileData);
+
 
       const formData = new FormData();
 
@@ -159,29 +153,22 @@ export const updateProfileData = createAsyncThunk(
         if (key !== 'id' && value !== null && value !== undefined && value !== '') {
           const stringValue = String(value);
           formData.append(key, stringValue);
-          console.log(`💾 Redux: Adding field ${key}:`, stringValue);
         }
       });
 
       // Add files if provided
       if (files.profileImage) {
         formData.append('cust_profile_img', files.profileImage);
-        console.log('💾 Redux: Adding profile image:', files.profileImage.name);
       }
       if (files.panCard) {
         formData.append('pan_card', files.panCard);
-        console.log('💾 Redux: Adding PAN card:', files.panCard.name);
       }
       if (files.gstCertificate) {
         formData.append('gst_certi', files.gstCertificate);
-        console.log('💾 Redux: Adding GST certificate:', files.gstCertificate.name);
       }
       if (files.regCertificate) {
         formData.append('reg_certi', files.regCertificate);
-        console.log('💾 Redux: Adding registration certificate:', files.regCertificate.name);
       }
-
-      console.log('💾 Redux: Making API call to:', `${API_BASE_URL}/updateProfile`);
 
       const response = await axios.post(
         `${API_BASE_URL}/updateProfile`,
@@ -193,9 +180,6 @@ export const updateProfileData = createAsyncThunk(
         }
       );
 
-      console.log('💾 Redux: Profile update response:', response.data);
-      console.log('💾 Redux: Response status:', response.status);
-
       // More flexible success check
       const isSuccess = response.status === 200 ||
                        response.data?.status === 'success' ||
@@ -205,25 +189,15 @@ export const updateProfileData = createAsyncThunk(
 
       if (isSuccess) {
         const successMessage = response.data?.message || response.data?.msg || '✅ Profile updated successfully!';
-        console.log('💾 Redux: Update successful:', successMessage);
         return {
           message: successMessage,
           data: response.data
         };
       } else {
         const errorMessage = response.data?.message || response.data?.msg || response.data?.error || 'Failed to update profile';
-        console.error('💾 Redux: Update failed:', errorMessage);
         return rejectWithValue(errorMessage);
       }
     } catch (error: any) {
-      console.error('❌ Redux: Profile update error:', error);
-      console.error('❌ Redux: Error details:', {
-        message: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        url: error.config?.url
-      });
 
       // Handle different types of errors
       if (error.response) {

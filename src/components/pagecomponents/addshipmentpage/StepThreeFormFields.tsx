@@ -55,8 +55,6 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
   const fetchDeliveryPincodeData = useCallback(
     async (pincode: string) => {
       try {
-        console.log("🔍 Fetching data for Delivery Pincode:", pincode);
-
         // Fetch pincode details first
         const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
@@ -66,33 +64,17 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
           // Auto-populate state and city
           setFieldValue("deliveryState", state_name);
           setFieldValue("deliveryCity", city_name);
-
-          console.log("✅ Delivery Pincode details fetched:", {
-            state: state_name,
-            city: city_name,
-            area: area_name,
-          });
-        } else {
-          console.warn("❌ Failed to fetch pincode details for delivery");
         }
 
         // Fetch areas for the pincode
         const areasResult = await dispatch(fetchAreasByPincode(pincode));
 
         if (fetchAreasByPincode.fulfilled.match(areasResult)) {
-          console.log(
-            "✅ Delivery Areas fetched:",
-            areasResult.payload.length,
-            "areas available"
-          );
-
           // Clear any previously selected area since we have new options
           setFieldValue("deliveryArea", null);
-        } else {
-          console.warn("❌ Failed to fetch areas for delivery pincode");
         }
       } catch (error) {
-        console.error("❌ Error fetching delivery pincode data:", error);
+        // Error handling can be added here if needed
       }
     },
     [dispatch, setFieldValue]
@@ -181,7 +163,6 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
 
     // Select the new area in the delivery area field
     setFieldValue('deliveryArea', areaOption);
-    console.log('✅ New area added and selected for delivery:', areaOption);
 
     // Close the modal
     handleCloseAddAreaModal();

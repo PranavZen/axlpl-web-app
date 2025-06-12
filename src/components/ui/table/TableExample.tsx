@@ -70,24 +70,20 @@ const TableExample: React.FC = () => {
   // Row action handlers
   const handleEdit = (row: ExampleData) => {
     alert(`Edit clicked for: ${row.name}`);
-    console.log("Edit row:", row);
   };
 
   const handleDelete = (row: ExampleData) => {
     if (window.confirm(`Are you sure you want to delete ${row.name}?`)) {
       alert(`Delete clicked for: ${row.name}`);
-      console.log("Delete row:", row);
     }
   };
 
   const handleView = (row: ExampleData) => {
-    console.log("View row:", row);
     // The view modal will automatically open with row details
   };
 
   const handleRowSelectionChange = (newSelectedRows: ExampleData[]) => {
     setSelectedRows(newSelectedRows);
-    console.log("Selected rows:", newSelectedRows);
   };
 
   return (

@@ -222,15 +222,12 @@ const AddShipment = () => {
   ];
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
-    console.log("🚀 handleSubmit called with values:", values);
     try {
       // Show loading toast
       const loadingToast = toast.loading("Submitting shipment...");
 
-      console.log("📤 Dispatching submitShipment...");
       // Submit the shipment
       const result = await dispatch(submitShipment(values));
-      console.log("📥 submitShipment result:", result);
 
       // Dismiss loading toast
       toast.dismiss(loadingToast);
@@ -332,22 +329,16 @@ const AddShipment = () => {
                   initialValues={initialValues}
                   validationSchema={validationSchemas[step]}
                   onSubmit={async (values, formikHelpers) => {
-                    console.log("📝 Formik onSubmit called - Step:", step, "Values:", values);
-                    console.log("🔍 Current validation schema:", validationSchemas[step]);
+
+
 
                     // Check for validation errors
                     try {
                       await validationSchemas[step].validate(values, { abortEarly: false });
-                      console.log("✅ Validation passed for step", step);
                     } catch (validationError: any) {
-                      console.log("❌ Validation failed for step", step, "Errors:", validationError.errors);
-                      console.log("❌ Validation error details:", validationError);
-                      console.log("❌ Current form values:", values);
-
                       // Show validation errors to user
                       if (validationError.errors && validationError.errors.length > 0) {
                         const errorMessage = `Please fix the following errors:\n${validationError.errors.join('\n')}`;
-                        console.error("Validation errors:", errorMessage);
                         // Show toast with validation errors
                         toast.error(errorMessage);
                       }
@@ -356,10 +347,8 @@ const AddShipment = () => {
 
                     dispatch(setFormData(values));
                     if (step === steps.length - 1) {
-                      console.log("✅ Last step reached, calling handleSubmit");
                       await handleSubmit(values, formikHelpers);
                     } else {
-                      console.log("➡️ Moving to next step:", step + 1);
                       setStep(step + 1);
                     }
                   }}

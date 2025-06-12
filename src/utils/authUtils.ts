@@ -67,7 +67,6 @@ export const setUserData = (userData: any): boolean => {
 
   // Don't store messenger accounts
   if (userRole === "messenger" || userRole === "messanger" || userRole.includes("mess")) {
-    console.log('Preventing storage of messenger account');
     return false;
   }
 

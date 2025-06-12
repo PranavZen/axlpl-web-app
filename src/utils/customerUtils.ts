@@ -11,20 +11,8 @@ import { getUserData } from './authUtils';
 export const debugLoginUserData = () => {
   try {
     const userData = getUserData();
-    console.log('=== LOGIN USER DATA DEBUG ===');
-    console.log('Full userData:', userData);
-    console.log('Customerdetail:', userData?.Customerdetail);
-
-    if (userData?.Customerdetail) {
-      console.log('Available fields in Customerdetail:');
-      Object.keys(userData.Customerdetail).forEach(key => {
-        console.log(`  ${key}:`, userData.Customerdetail[key]);
-      });
-    }
-    console.log('=== END DEBUG ===');
     return userData;
   } catch (error) {
-    console.error('Error in debugLoginUserData:', error);
     return null;
   }
 };
@@ -69,13 +57,8 @@ export const mapLoginUserToSenderFields = () => {
     const customerDetail = userData?.Customerdetail;
 
     if (!customerDetail) {
-      console.log('No customerDetail found in userData');
       return {};
     }
-
-    // Debug: Log all available fields in customerDetail
-    console.log('Available customerDetail fields:', Object.keys(customerDetail));
-    console.log('CustomerDetail data:', customerDetail);
 
     // Map fields based on actual login response structure
     const mappedFields = {
@@ -95,10 +78,8 @@ export const mapLoginUserToSenderFields = () => {
       senderEmail: customerDetail.email || customerDetail.email_id || '',
     };
 
-    console.log('Mapped fields for sender:', mappedFields);
     return mappedFields;
   } catch (error) {
-    console.error('Error mapping login user to sender fields:', error);
     return {};
   }
 };
@@ -131,7 +112,6 @@ export const mapCustomerToSenderFields = (customer: Customer | null) => {
       senderEmail: customer.email || '',
     };
   } catch (error) {
-    console.error('Error mapping customer to sender fields:', error);
     return {};
   }
 };
@@ -164,7 +144,6 @@ export const mapCustomerToReceiverFields = (customer: Customer | null) => {
       receiverEmail: customer.email || '',
     };
   } catch (error) {
-    console.error('Error mapping customer to receiver fields:', error);
     return {};
   }
 };
@@ -216,7 +195,7 @@ export const customersToOptionsWithLoginUser = (customers: Customer[]) => {
       options.push(...customerOptions);
     }
   } catch (error) {
-    console.error('Error creating customer options with login user:', error);
+    // Error handling can be added here if needed
   }
 
   return options;

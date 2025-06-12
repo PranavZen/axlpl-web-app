@@ -49,22 +49,16 @@ const initialState: ShipmentState = {
 export const submitShipment = createAsyncThunk(
   "shipment/submit",
   async (formValues: any, { rejectWithValue }) => {
-    console.log("🔄 submitShipment thunk called with form values:");
-    console.log("📋 Raw form values:", JSON.stringify(formValues, null, 2));
-
     try {
       const userData = getUserData();
       const token = userData?.Customerdetail?.token;
       const userId = userData?.Customerdetail?.id;
 
-      console.log("🔐 Auth check - Token:", !!token, "UserId:", userId);
-
       if (!token || !userId) {
-        console.log("❌ Authentication failed");
         return rejectWithValue("Authentication required");
       }
 
-      console.log("🔄 Building dynamic FormData from form values...");
+
 
       // Transform form data to match API requirements dynamically
       const formData = new FormData();
@@ -113,7 +107,6 @@ export const submitShipment = createAsyncThunk(
       // Generate dynamic shipment ID or use provided one
       const dynamicShipmentId = getFieldValue(formValues.shipmentId) ||
                                String(Date.now() + Math.floor(Math.random() * 100000000000));
-      console.log("dynamicShipmentId", dynamicShipmentId);
       formData.append("shipment_id", dynamicShipmentId);
 
       // Sender details - dynamic values from form
@@ -221,56 +214,21 @@ export const submitShipment = createAsyncThunk(
       formData.append("fragile", getBooleanValue(formValues.fragile || false));
       formData.append("dangerous_goods", getBooleanValue(formValues.dangerousGoods || false));
 
-      console.log("✅ Fully Dynamic FormData built successfully!");
 
-      // Debug: Log raw form values for location fields
-      console.log("🔍 RAW FORM VALUES DEBUG:");
-      console.log("  - formValues.senderState:", formValues.senderState, "(type:", typeof formValues.senderState, ")");
-      console.log("  - formValues.senderCity:", formValues.senderCity, "(type:", typeof formValues.senderCity, ")");
-      console.log("  - formValues.senderArea:", formValues.senderArea, "(type:", typeof formValues.senderArea, ")");
-      console.log("  - formValues.receiverState:", formValues.receiverState, "(type:", typeof formValues.receiverState, ")");
-      console.log("  - formValues.receiverCity:", formValues.receiverCity, "(type:", typeof formValues.receiverCity, ")");
-      console.log("  - formValues.receiverArea:", formValues.receiverArea, "(type:", typeof formValues.receiverArea, ")");
 
-      console.log("📊 Key dynamic values extracted:");
-      console.log("  - Customer ID:", getFieldValue(formValues.customerId, String(userId)));
-      console.log("  - Category:", getFieldValue(formValues.category));
-      console.log("  - Commodity:", commodityIds);
-      console.log("  - Payment Mode:", getFieldValue(formValues.paymentMode));
-      console.log("  - Service Type:", getFieldValue(formValues.serviceType));
-      console.log("  - Insurance:", getBooleanValue(formValues.insurance));
-      console.log("  - Sender Name:", getFieldValue(formValues.senderName));
-      console.log("  - Sender State:", extractLocationId(formValues.senderState, "sender_state", "state", "21"));
-      console.log("  - Sender City:", extractLocationId(formValues.senderCity, "sender_city", "city", "817"));
-      console.log("  - Sender Area:", extractLocationId(formValues.senderArea, "sender_area", "area", "1"));
-      console.log("  - Sender Customer ID:", getFieldValue(formValues.senderCustomerId, String(userId)));
-      console.log("  - Receiver Name:", getFieldValue(formValues.receiverName));
-      console.log("  - Receiver State:", extractLocationId(formValues.receiverState, "receiver_state", "state", "21"));
-      console.log("  - Receiver City:", extractLocationId(formValues.receiverCity, "receiver_city", "city", "817"));
-      console.log("  - Receiver Area:", extractLocationId(formValues.receiverArea, "receiver_area", "area", "1"));
-      console.log("  - Receiver Customer ID:", getFieldValue(formValues.receiverCustomerId));
-      console.log("  - Different Delivery:", getBooleanValue(formValues.isDifferentDeliveryAddress));
-      console.log("  - Shipment ID:", dynamicShipmentId);
-      console.log("  - Grand Total:", getFieldValue(formValues.grandTotal, "0"));
-      console.log("  - Special Instructions:", getFieldValue(formValues.specialInstructions, ""));
-      console.log("  - Priority:", getFieldValue(formValues.priority, "normal"));
 
-      console.log("📋 Making API call to:", `${API_BASE_URL}/insertShipment`);
 
-      // Log ALL form data for debugging
-      console.log("📊 Complete FormData contents:");
-      const formDataEntries = Array.from(formData.entries());
-      formDataEntries.forEach(([key, value]) => {
-        console.log(`  ${key}: ${value}`);
-      });
+
+
+
+
 
       // Try both FormData and JSON approaches
-      console.log("📤 Attempting API call...");
 
       let response;
       try {
         // First try with FormData (like Postman form-data)
-        console.log("🔄 Trying FormData approach...");
+
         response = await axios.post(
           `${API_BASE_URL}/insertShipment`,
           formData,
@@ -281,21 +239,18 @@ export const submitShipment = createAsyncThunk(
             }
           }
         );
-        console.log("✅ FormData approach succeeded");
+
       } catch (formDataError: any) {
-        console.log("❌ FormData approach failed:", formDataError?.response?.status);
-        console.log("� FormData Error Response:", formDataError?.response?.data);
 
         try {
-          console.log("🔄 Trying URLSearchParams approach...");
+          // Get form data entries for conversion
+          const formDataEntries = Array.from(formData.entries());
 
           // Convert FormData to URLSearchParams (application/x-www-form-urlencoded)
           const urlParams = new URLSearchParams();
           formDataEntries.forEach(([key, value]) => {
             urlParams.append(key, String(value));
           });
-
-          console.log("📤 Sending URLSearchParams data");
 
           response = await axios.post(
             `${API_BASE_URL}/insertShipment`,
@@ -307,19 +262,15 @@ export const submitShipment = createAsyncThunk(
               }
             }
           );
-          console.log("✅ URLSearchParams approach succeeded");
         } catch (urlParamsError: any) {
-          console.log("❌ URLSearchParams approach failed:", urlParamsError?.response?.status);
-          console.log("💥 URLSearchParams Error Response:", urlParamsError?.response?.data);
-          console.log("�🔄 Trying JSON approach...");
+          // Get form data entries for conversion
+          const formDataEntries = Array.from(formData.entries());
 
           // Convert FormData to regular object for JSON
           const postData: Record<string, any> = {};
           formDataEntries.forEach(([key, value]) => {
             postData[key] = value;
           });
-
-          console.log("📤 Sending JSON data:", postData);
 
           response = await axios.post(
             `${API_BASE_URL}/insertShipment`,
@@ -331,11 +282,8 @@ export const submitShipment = createAsyncThunk(
               }
             }
           );
-          console.log("✅ JSON approach succeeded");
         }
       }
-
-      console.log("📥 API Response:", response.data);
 
       if (response.data && response.data.status === "success") {
         return {
@@ -345,13 +293,9 @@ export const submitShipment = createAsyncThunk(
           data: response.data
         };
       } else {
-        console.log("❌ API returned non-success status:", response.data);
         return rejectWithValue(response.data?.message || "Failed to submit shipment");
       }
     } catch (error: any) {
-      console.log("💥 API Error:", error);
-      console.log("💥 Error Response:", error?.response?.data);
-      console.log("💥 Error Status:", error?.response?.status);
       return rejectWithValue(error?.response?.data?.message || error.message || "Failed to submit shipment");
     }
   }

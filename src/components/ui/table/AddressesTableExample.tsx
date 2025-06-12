@@ -80,13 +80,11 @@ const AddressesTableExample: React.FC = () => {
 
   // Row action handlers
   const handleEditAddress = (address: Address) => {
-    console.log("Edit address:", address);
     alert(`Edit address for: ${address.company_name}`);
     // Here you would typically open an edit modal or navigate to edit page
   };
 
   const handleDeleteAddress = (address: Address) => {
-    console.log("Delete address:", address);
     if (window.confirm(`Are you sure you want to delete the address for ${address.company_name}?`)) {
       setDeletingId(address.id);
       
@@ -100,13 +98,11 @@ const AddressesTableExample: React.FC = () => {
   };
 
   const handleViewAddress = (address: Address) => {
-    console.log("View address details:", address);
     // The view modal will automatically open with all address details
   };
 
   const handleAddressSelectionChange = (newSelectedAddresses: Address[]) => {
     setSelectedAddresses(newSelectedAddresses);
-    console.log("Selected addresses:", newSelectedAddresses);
   };
 
   // Bulk actions for selected addresses
@@ -117,7 +113,6 @@ const AddressesTableExample: React.FC = () => {
     }
     
     if (window.confirm(`Are you sure you want to delete ${selectedAddresses.length} selected address(es)?`)) {
-      console.log("Bulk delete addresses:", selectedAddresses);
       alert(`${selectedAddresses.length} addresses deleted successfully!`);
       setSelectedAddresses([]);
     }
@@ -128,8 +123,7 @@ const AddressesTableExample: React.FC = () => {
       alert("Please select addresses to export");
       return;
     }
-    
-    console.log("Bulk export addresses:", selectedAddresses);
+
     alert(`Exporting ${selectedAddresses.length} selected addresses...`);
   };
 

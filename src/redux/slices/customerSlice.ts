@@ -59,7 +59,7 @@ export const fetchCustomers = createAsyncThunk(
         requestParams.search_query = search_query.trim();
       }
 
-      console.log('🔍 Fetching customers with params:', requestParams);
+
 
       const response = await axios.get(
         `${API_BASE_URL}/getCustomers`,
@@ -109,7 +109,7 @@ export const searchCustomers = createAsyncThunk(
         return rejectWithValue("search_query is required");
       }
 
-      console.log('🔍 Searching customers with query:', search_query);
+
 
       const response = await axios.get(
         `${API_BASE_URL}/getCustomers`,
@@ -127,20 +127,16 @@ export const searchCustomers = createAsyncThunk(
       // Handle different response formats
       if (response.data && response.data.status === "success") {
         if (response.data.Customers && Array.isArray(response.data.Customers)) {
-          console.log('✅ Found customers:', response.data.Customers.length);
           return response.data.Customers;
         } else if (response.data.customers && Array.isArray(response.data.customers)) {
-          console.log('✅ Found customers:', response.data.customers.length);
           return response.data.customers;
         } else {
-          console.log('⚠️ No customers found in response');
           return [];
         }
       } else {
         return rejectWithValue(response.data?.message || "Failed to search customers");
       }
     } catch (error: any) {
-      console.error('❌ Error searching customers:', error);
       return rejectWithValue(error?.response?.data?.message || error.message);
     }
   }

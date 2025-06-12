@@ -120,7 +120,6 @@ function Table<T extends Record<string, any>>({
       showSuccess(`✅ Copied ${stats} to clipboard`);
     } catch (error) {
       showError('❌ Failed to copy data to clipboard');
-      console.error('Copy error:', error);
     }
   };
 
@@ -141,7 +140,6 @@ function Table<T extends Record<string, any>>({
       showSuccess(`✅ Downloaded CSV file with ${stats}`);
     } catch (error) {
       showError('❌ Failed to export CSV file');
-      console.error('CSV export error:', error);
     }
   };
 
@@ -162,7 +160,6 @@ function Table<T extends Record<string, any>>({
       showSuccess(`✅ Downloaded Excel file with ${stats}`);
     } catch (error) {
       showError('❌ Failed to export Excel file');
-      console.error('Excel export error:', error);
     }
   };
 
@@ -183,7 +180,6 @@ function Table<T extends Record<string, any>>({
       showSuccess(`✅ Downloaded PDF file with ${stats}`);
     } catch (error) {
       showError('❌ Failed to export PDF file');
-      console.error('PDF export error:', error);
     }
   };
 
@@ -202,7 +198,6 @@ function Table<T extends Record<string, any>>({
       showSuccess(`✅ Print dialog opened for ${stats}`);
     } catch (error) {
       showError('❌ Failed to print data');
-      console.error('Print error:', error);
     }
   };
 
