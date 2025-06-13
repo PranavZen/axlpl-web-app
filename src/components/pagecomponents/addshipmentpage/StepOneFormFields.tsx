@@ -31,7 +31,7 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
 
   // Get logged-in user data
   const userData = getUserData();
-  const loggedInUserName = userData?.Customerdetail?.full_name || userData?.Customerdetail?.name || "User";
+  const loggedInUserCompanyName = userData?.Customerdetail?.company_name || userData?.Customerdetail?.full_name || userData?.Customerdetail?.name || "User";
 
   // Track previous category to detect changes
   const prevCategoryRef = useRef<string | null>(null);
@@ -43,13 +43,13 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
     dispatch(fetchServiceTypes());
   }, [dispatch]);
 
-  // Set the logged-in user's name when component mounts (only for new shipments, not edit)
+  // Set the logged-in user's company name when component mounts (only for new shipments, not edit)
   useEffect(() => {
     // Only set default name if it's empty and we're not editing (no existing name value)
-    if (loggedInUserName && !values.name) {
-      setFieldValue("name", loggedInUserName);
+    if (loggedInUserCompanyName && !values.name) {
+      setFieldValue("name", loggedInUserCompanyName);
     }
-  }, [loggedInUserName, values.name, setFieldValue]);
+  }, [loggedInUserCompanyName, values.name, setFieldValue]);
 
   // Fetch commodities when category changes and clear selected commodities
   useEffect(() => {

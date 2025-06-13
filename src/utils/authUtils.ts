@@ -76,6 +76,53 @@ export const setUserData = (userData: any): boolean => {
 };
 
 /**
+ * Update user data in session storage with new profile information
+ * @param updatedProfileData The updated profile data to merge with existing user data
+ * @returns True if the update was successful, false otherwise
+ */
+export const updateUserDataInSession = (updatedProfileData: any): boolean => {
+  try {
+    const currentUserData = getUserData();
+    if (!currentUserData) {
+      return false;
+    }
+
+    // Create updated user data by merging the profile data into Customerdetail
+    const updatedUserData = {
+      ...currentUserData,
+      Customerdetail: {
+        ...currentUserData.Customerdetail,
+        // Map the updated profile fields to the session storage structure
+        company_name: updatedProfileData.company_name || currentUserData.Customerdetail?.company_name,
+        full_name: updatedProfileData.full_name || updatedProfileData.name || currentUserData.Customerdetail?.full_name,
+        name: updatedProfileData.full_name || updatedProfileData.name || currentUserData.Customerdetail?.name,
+        email: updatedProfileData.email || currentUserData.Customerdetail?.email,
+        mobile: updatedProfileData.mobile_no || currentUserData.Customerdetail?.mobile,
+        mobile_no: updatedProfileData.mobile_no || currentUserData.Customerdetail?.mobile_no,
+        // Add other relevant fields that might be updated
+        pincode: updatedProfileData.pincode || currentUserData.Customerdetail?.pincode,
+        state_name: updatedProfileData.state_name || currentUserData.Customerdetail?.state_name,
+        city_name: updatedProfileData.city_name || currentUserData.Customerdetail?.city_name,
+        area_name: updatedProfileData.area_name || currentUserData.Customerdetail?.area_name,
+        gst_no: updatedProfileData.gst_no || currentUserData.Customerdetail?.gst_no,
+        reg_address1: updatedProfileData.reg_address1 || currentUserData.Customerdetail?.reg_address1,
+        reg_address2: updatedProfileData.reg_address2 || currentUserData.Customerdetail?.reg_address2,
+        // Profile image path
+        cust_profile_img: updatedProfileData.cust_profile_img || currentUserData.Customerdetail?.cust_profile_img,
+        path: updatedProfileData.path || currentUserData.Customerdetail?.path,
+      }
+    };
+
+    // Store the updated user data
+    sessionStorage.setItem('user', JSON.stringify(updatedUserData));
+    return true;
+  } catch (error) {
+    console.error('Error updating user data in session storage:', error);
+    return false;
+  }
+};
+
+/**
  * Clear the authentication token from session storage
  */
 export const clearUserData = (): void => {

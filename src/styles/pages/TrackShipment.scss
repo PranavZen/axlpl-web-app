@@ -1,0 +1,1798 @@
+// Track Shipment Page Styles - Matching Application Design System
+// ================================================================
+
+#mainBodySection {
+  .trackShipmentGrid {
+    padding: 3rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.7rem;
+
+    @media (max-width: 768px) {
+      padding: 1.5rem;
+      gap: 2rem;
+    }
+
+    @media (max-width: 480px) {
+      padding: 1rem;
+      gap: 1rem;
+    }
+
+    // Search Form Box
+    .searchFormBox {
+      .trackingForm {
+        .formLabel {
+          font-size: 1.6rem;
+          font-weight: 600;
+          color: #7d7d7d;
+          margin-bottom: 0.8rem;
+          display: block;
+        }
+
+        .helpSection {
+          margin-top: 1.5rem;
+          padding: 1rem;
+          background-color: #f5f7fa;
+          border-radius: 10px;
+          border-left: 4px solid #123458;
+
+          .helpText {
+            font-size: 1.4rem;
+            color: #7d7d7d;
+            margin: 0;
+            line-height: 1.5;
+          }
+        }
+
+        .trackBtn {
+          background-color: #123458;
+          border-color: #123458;
+          font-size: 1.6rem;
+          font-weight: 600;
+          height: 5rem;
+          border-radius: 1.2rem;
+          transition: all 0.3s ease;
+
+          &:hover:not(:disabled) {
+            background-color: #0a2848;
+            border-color: #0a2848;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(18, 52, 88, 0.3);
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+
+    // Loading Box
+    .loadingBox {
+      text-align: center;
+      padding: 4rem 2rem;
+
+      p {
+        font-size: 1.6rem;
+        color: #7d7d7d;
+        font-weight: 500;
+      }
+    }
+
+    // Error Box
+    .errorBox {
+      .errorMessage {
+        font-size: 1.6rem;
+        color: #dc3545;
+        margin-bottom: 1.5rem;
+      }
+
+      .errorSuggestions {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        border-left: 4px solid #dc3545;
+
+        p {
+          font-size: 1.5rem;
+          color: #7d7d7d;
+          margin-bottom: 1rem;
+        }
+
+        ul {
+          margin: 0;
+          padding-left: 2rem;
+
+          li {
+            font-size: 1.4rem;
+            color: #7d7d7d;
+            margin-bottom: 0.5rem;
+          }
+        }
+      }
+    }
+
+    // Empty State Box
+    .emptyStateBox {
+      text-align: center;
+      padding: 4rem 2rem;
+
+      .emptyState {
+        .emptyIcon {
+          margin-bottom: 2rem;
+          opacity: 0.7;
+        }
+
+        p {
+          font-size: 1.6rem;
+          color: #7d7d7d;
+          margin: 0;
+        }
+      }
+    }
+
+    // Tracking Results Grid
+    .trackingResultsGrid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.7rem;
+
+      // Results Header Box
+      .resultsHeaderBox {
+        .resultsHeader {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          @media (max-width: 768px) {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+          }
+
+          .shipmentIdText {
+            font-size: 1.4rem;
+            color: #7d7d7d;
+            margin: 0;
+            margin-top: 0.5rem;
+          }
+
+          .statusBadge {
+            .status {
+              padding: 0.8rem 1.5rem;
+              border-radius: 2rem;
+              font-size: 1.3rem;
+              font-weight: 600;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+
+              &.approved {
+                background-color: #28a745;
+                color: white;
+              }
+
+              &.pending {
+                background-color: #ffc107;
+                color: #212529;
+              }
+
+              &.delivered {
+                background-color: #28a745;
+                color: white;
+              }
+
+              &.transit {
+                background-color: #17a2b8;
+                color: white;
+              }
+            }
+          }
+        }
+      }
+
+      // Grid Layout for larger screens
+      @media (min-width: 1200px) {
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-areas:
+          "header header header"
+          "timeline sender receiver"
+          "shipment shipment shipment";
+
+        .resultsHeaderBox { grid-area: header; }
+        .timelineBox { grid-area: timeline; }
+        .senderBox { grid-area: sender; }
+        .receiverBox { grid-area: receiver; }
+        .shipmentBox { grid-area: shipment; }
+      }
+
+      @media (min-width: 768px) and (max-width: 1199px) {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "header header"
+          "timeline timeline"
+          "sender receiver"
+          "shipment shipment";
+
+        .resultsHeaderBox { grid-area: header; }
+        .timelineBox { grid-area: timeline; }
+        .senderBox { grid-area: sender; }
+        .receiverBox { grid-area: receiver; }
+        .shipmentBox { grid-area: shipment; }
+      }
+    }
+  }
+}
+
+// Timeline Component Styles
+.timelineContainer {
+  position: relative;
+  padding-left: 3rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e9ecef;
+  }
+
+  .timelineItem {
+    position: relative;
+    margin-bottom: 2rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .timelineMarker {
+      position: absolute;
+      left: -3rem;
+      top: 0.5rem;
+
+      .timelineIcon {
+        width: 3rem;
+        height: 3rem;
+        background-color: white;
+        border: 2px solid #e9ecef;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+
+        i {
+          font-size: 1.2rem;
+          color: #6c757d;
+        }
+      }
+    }
+
+    &.latest .timelineMarker .timelineIcon {
+      border-color: #ec6623;
+      background-color: #ec6623;
+
+      i {
+        color: white;
+      }
+    }
+
+    .timelineContent {
+      .timelineCard {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        border-left: 4px solid #e9ecef;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background-color: white;
+          box-shadow: 0px 0px 2px 1px #d3def9;
+          transform: translateY(-2px);
+        }
+
+        .timelineHeader {
+          margin-bottom: 1rem;
+
+          .timelineTitle {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #123458;
+            margin: 0;
+          }
+
+          .latestBadge {
+            background-color: #ec6623;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-left: 1rem;
+          }
+        }
+
+        .timelineMeta {
+          display: flex;
+          gap: 1.5rem;
+
+          @media (max-width: 576px) {
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+
+          .metaItem {
+            display: flex;
+            align-items: center;
+            font-size: 1.3rem;
+            color: #7d7d7d;
+
+            i {
+              margin-right: 0.5rem;
+              color: #ec6623;
+            }
+          }
+        }
+      }
+    }
+
+    &.latest .timelineContent .timelineCard {
+      border-left-color: #ec6623;
+      background-color: #fff5f0;
+    }
+  }
+
+  .noDataText {
+    font-size: 1.5rem;
+    color: #7d7d7d;
+    text-align: center;
+    padding: 2rem;
+    margin: 0;
+  }
+}
+
+// Address Card Component Styles
+.addressContent {
+  .contactInfo {
+    margin-bottom: 2rem;
+
+    .infoRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid #f0f0f0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .infoLabel {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #7d7d7d;
+        flex: 0 0 40%;
+      }
+
+      .infoValue {
+        font-size: 1.4rem;
+        color: #123458;
+        font-weight: 500;
+        flex: 1;
+        text-align: right;
+      }
+    }
+  }
+
+  .addressInfo {
+    .addressHeader {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #123458;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .addressDetails {
+      .addressLine {
+        font-size: 1.4rem;
+        color: #7d7d7d;
+        margin-bottom: 0.8rem;
+        line-height: 1.5;
+      }
+
+      .locationInfo {
+        margin-top: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+
+        .locationItem {
+          background-color: #f5f7fa;
+          padding: 0.8rem 1rem;
+          border-radius: 0.8rem;
+          font-size: 1.3rem;
+          color: #7d7d7d;
+          text-align: center;
+          border: 1px solid #e9ecef;
+        }
+      }
+    }
+  }
+}
+
+// Shipment Details Component Styles
+.shipmentContent {
+  .infoSection {
+    margin-bottom: 2rem;
+
+    .sectionTitle {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #123458;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .infoList {
+      .infoRow {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f0f0f0;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .infoLabel {
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: #7d7d7d;
+          flex: 0 0 50%;
+        }
+
+        .infoValue {
+          font-size: 1.4rem;
+          color: #123458;
+          font-weight: 500;
+          flex: 1;
+          text-align: right;
+
+          &.highlight {
+            color: #28a745;
+            font-weight: 600;
+          }
+
+          &.success {
+            color: #28a745;
+            font-weight: 600;
+          }
+
+          &.warning {
+            color: #ffc107;
+            font-weight: 600;
+          }
+
+          &.muted {
+            color: #6c757d;
+          }
+        }
+      }
+    }
+
+    .chargesList {
+      .chargeRow {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f0f0f0;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        &.totalRow {
+          background-color: #f5f7fa;
+          margin: 1rem -1.5rem -1.5rem;
+          padding: 1.5rem;
+          border-radius: 0 0 1.2rem 1.2rem;
+          border-bottom: none;
+
+          .chargeLabel,
+          .chargeValue {
+            font-weight: 700;
+            font-size: 1.5rem;
+          }
+
+          .totalAmount {
+            color: #28a745;
+          }
+        }
+
+        .chargeLabel {
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: #7d7d7d;
+        }
+
+        .chargeValue {
+          font-size: 1.4rem;
+          color: #123458;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design Adjustments
+@media (max-width: 768px) {
+  #mainBodySection .trackShipmentGrid {
+    .trackingResultsGrid {
+      .resultsHeaderBox .resultsHeader {
+        .statusBadge .status {
+          padding: 0.6rem 1.2rem;
+          font-size: 1.2rem;
+        }
+      }
+    }
+  }
+
+  .timelineContainer {
+    padding-left: 2.5rem;
+
+    &::before {
+      left: 1.25rem;
+    }
+
+    .timelineItem .timelineMarker {
+      left: -2.5rem;
+
+      .timelineIcon {
+        width: 2.5rem;
+        height: 2.5rem;
+
+        i {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  .addressContent .contactInfo .infoRow,
+  .shipmentContent .infoSection .infoList .infoRow,
+  .shipmentContent .infoSection .chargesList .chargeRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+
+    .infoLabel,
+    .chargeLabel {
+      flex: none;
+    }
+
+    .infoValue,
+    .chargeValue {
+      flex: none;
+      text-align: left;
+    }
+  }
+}
+
+
+
+// Form Section
+.track-shipment-form-section {
+  margin-bottom: 3rem;
+}
+
+.track-shipment-form {
+  max-width: 800px;
+  margin: 0 auto;
+
+  .form-container {
+    background: var(--track-bg);
+    border-radius: var(--track-radius-lg);
+    box-shadow: var(--track-shadow-lg);
+    overflow: hidden;
+    border: 1px solid var(--track-border);
+  }
+
+  .tracking-form {
+    padding: 3rem;
+
+    @media (max-width: 768px) {
+      padding: 2rem;
+    }
+  }
+
+  .form-header {
+    text-align: center;
+    margin-bottom: 3rem;
+
+    .search-icon {
+      width: 5rem;
+      height: 5rem;
+      background: linear-gradient(135deg, var(--track-accent) 0%, var(--track-accent-hover) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      box-shadow: var(--track-shadow-accent);
+
+      svg {
+        width: 2.5rem;
+        height: 2.5rem;
+        color: white;
+      }
+    }
+
+    h3 {
+      font-size: 2.4rem;
+      font-weight: 600;
+      color: var(--track-text);
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1.6rem;
+      color: var(--track-text-secondary);
+      margin: 0;
+    }
+  }
+
+  .form-content {
+    .input-group {
+      margin-bottom: 2rem;
+    }
+
+    .input-wrapper {
+      position: relative;
+
+      .tracking-input {
+        padding-right: 5rem;
+        font-size: 1.8rem;
+        height: 5.5rem;
+      }
+
+      .input-icon {
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--track-text-muted);
+
+        svg {
+          width: 2rem;
+          height: 2rem;
+        }
+      }
+    }
+
+    .form-actions {
+      text-align: center;
+
+      .track-btn {
+        background: linear-gradient(135deg, var(--track-accent) 0%, var(--track-accent-hover) 100%);
+        border: none;
+        color: white;
+        padding: 1.2rem 3rem;
+        font-size: 1.8rem;
+        font-weight: 600;
+        border-radius: var(--track-radius);
+        box-shadow: var(--track-shadow-accent);
+        transition: var(--track-transition);
+        min-width: 20rem;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(237, 103, 35, 0.3);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+
+  .form-footer {
+    background: var(--track-bg-tertiary);
+    padding: 2rem 3rem;
+    margin: 0 -3rem -3rem;
+
+    @media (max-width: 768px) {
+      padding: 2rem;
+      margin: 0 -2rem -2rem;
+    }
+
+    .help-text {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .help-icon {
+        width: 4rem;
+        height: 4rem;
+        background: var(--track-info);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        svg {
+          width: 2rem;
+          height: 2rem;
+          color: white;
+        }
+      }
+
+      .help-content {
+        flex: 1;
+
+        p {
+          font-size: 1.6rem;
+          font-weight: 600;
+          color: var(--track-text);
+          margin-bottom: 1rem;
+        }
+
+        ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+
+          li {
+            font-size: 1.4rem;
+            color: var(--track-text-secondary);
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+
+            &:before {
+              content: "•";
+              color: var(--track-accent);
+              position: absolute;
+              left: 0;
+              font-weight: bold;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Loading State
+.track-shipment-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 40rem;
+}
+
+// Error State
+.track-shipment-error {
+  max-width: 600px;
+  margin: 0 auto;
+  background: var(--track-bg);
+  border-radius: var(--track-radius-lg);
+  padding: 4rem 3rem;
+  text-align: center;
+  box-shadow: var(--track-shadow-lg);
+  border: 1px solid var(--track-border);
+
+  .error-icon {
+    width: 6rem;
+    height: 6rem;
+    background: var(--track-danger);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+
+    svg {
+      width: 3rem;
+      height: 3rem;
+      color: white;
+    }
+  }
+
+  h3 {
+    font-size: 2.4rem;
+    font-weight: 600;
+    color: var(--track-text);
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1.6rem;
+    color: var(--track-text-secondary);
+    margin-bottom: 2rem;
+  }
+
+  .error-suggestions {
+    background: var(--track-bg-tertiary);
+    border-radius: var(--track-radius);
+    padding: 2rem;
+    text-align: left;
+
+    h4 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--track-text);
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        font-size: 1.4rem;
+        color: var(--track-text-secondary);
+        margin-bottom: 0.5rem;
+        position: relative;
+        padding-left: 1.5rem;
+
+        &:before {
+          content: "✓";
+          color: var(--track-success);
+          position: absolute;
+          left: 0;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}
+
+// Empty State
+.track-shipment-empty {
+  max-width: 500px;
+  margin: 0 auto;
+  background: var(--track-bg);
+  border-radius: var(--track-radius-lg);
+  padding: 4rem 3rem;
+  text-align: center;
+  box-shadow: var(--track-shadow-lg);
+  border: 1px solid var(--track-border);
+
+  .empty-icon {
+    width: 8rem;
+    height: 8rem;
+    background: linear-gradient(135deg, var(--track-accent) 0%, var(--track-accent-hover) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    box-shadow: var(--track-shadow-accent);
+
+    svg {
+      width: 4rem;
+      height: 4rem;
+      color: white;
+    }
+  }
+
+  h3 {
+    font-size: 2.4rem;
+    font-weight: 600;
+    color: var(--track-text);
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1.6rem;
+    color: var(--track-text-secondary);
+    margin: 0;
+  }
+}
+
+// Results Section
+.track-shipment-results {
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: var(--track-bg);
+    border-radius: var(--track-radius-lg);
+    box-shadow: var(--track-shadow-md);
+    border: 1px solid var(--track-border);
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 2.4rem;
+      font-weight: 600;
+      color: var(--track-text);
+      margin: 0;
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
+
+    .shipment-status-badge {
+      .status-badge {
+        padding: 0.8rem 1.5rem;
+        border-radius: 2rem;
+        font-size: 1.4rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        &.status-approved {
+          background: linear-gradient(135deg, var(--track-success) 0%, #059669 100%);
+          color: white;
+        }
+
+        &.status-pending {
+          background: linear-gradient(135deg, var(--track-warning) 0%, #d97706 100%);
+          color: white;
+        }
+
+        &.status-delivered {
+          background: linear-gradient(135deg, var(--track-success) 0%, #047857 100%);
+          color: white;
+        }
+
+        &.status-transit {
+          background: linear-gradient(135deg, var(--track-info) 0%, #1d4ed8 100%);
+          color: white;
+        }
+      }
+    }
+  }
+
+  .tracking-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+
+    @media (max-width: 1200px) {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  .timeline-section {
+    order: 1;
+
+    @media (max-width: 1200px) {
+      order: 2;
+    }
+  }
+
+  .details-section {
+    order: 2;
+
+    @media (max-width: 1200px) {
+      order: 1;
+    }
+
+    .details-grid {
+      display: grid;
+      gap: 2rem;
+
+      @media (min-width: 1200px) {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+
+      .shipment-details-card {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+}
+
+// Timeline Styles
+.tracking-timeline {
+  background: var(--track-bg);
+  border-radius: var(--track-radius-lg);
+  box-shadow: var(--track-shadow-lg);
+  border: 1px solid var(--track-border);
+  overflow: hidden;
+
+  .timeline-header {
+    background: linear-gradient(135deg, var(--track-bg-tertiary) 0%, var(--track-bg-secondary) 100%);
+    padding: 2rem;
+    border-bottom: 1px solid var(--track-border);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .timeline-icon {
+      width: 4rem;
+      height: 4rem;
+      background: var(--track-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 2rem;
+        height: 2rem;
+        color: white;
+      }
+    }
+
+    h3 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--track-text);
+      margin: 0;
+    }
+
+    p {
+      font-size: 1.4rem;
+      color: var(--track-text-secondary);
+      margin: 0;
+    }
+  }
+
+  .timeline-container {
+    padding: 3rem 2rem;
+    position: relative;
+
+    .timeline-line {
+      position: absolute;
+      left: 4rem;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--track-accent) 0%, var(--track-border) 100%);
+
+      @media (max-width: 768px) {
+        left: 3rem;
+      }
+    }
+  }
+
+  .timeline-item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 3rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 768px) {
+      gap: 1.5rem;
+    }
+
+    .timeline-marker {
+      position: relative;
+      z-index: 2;
+
+      .marker-outer {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 50%;
+        background: var(--track-bg);
+        border: 3px solid var(--track-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--track-transition);
+
+        @media (max-width: 768px) {
+          width: 3.5rem;
+          height: 3.5rem;
+        }
+
+        .marker-inner {
+          width: 2.5rem;
+          height: 2.5rem;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: var(--track-transition);
+
+          @media (max-width: 768px) {
+            width: 2rem;
+            height: 2rem;
+          }
+
+          .status-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+
+            @media (max-width: 768px) {
+              width: 1.2rem;
+              height: 1.2rem;
+            }
+
+            &.delivered {
+              color: var(--track-success);
+            }
+
+            &.approved {
+              color: var(--track-success);
+            }
+
+            &.transit {
+              color: var(--track-info);
+            }
+
+            &.pending {
+              color: var(--track-warning);
+            }
+
+            &.default {
+              color: var(--track-text-muted);
+            }
+          }
+        }
+      }
+
+      .pulse-ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 6rem;
+        height: 6rem;
+        border: 2px solid var(--track-accent);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+        opacity: 0.6;
+
+        @media (max-width: 768px) {
+          width: 5rem;
+          height: 5rem;
+        }
+      }
+    }
+
+    &.latest {
+      .marker-outer {
+        border-color: var(--track-accent);
+        background: var(--track-accent);
+        box-shadow: var(--track-shadow-accent);
+
+        .marker-inner {
+          background: white;
+        }
+      }
+    }
+
+    &.approved {
+      .marker-outer {
+        border-color: var(--track-success);
+
+        .marker-inner {
+          background: var(--track-success);
+
+          .status-icon {
+            color: white;
+          }
+        }
+      }
+    }
+
+    &.delivered {
+      .marker-outer {
+        border-color: var(--track-success);
+
+        .marker-inner {
+          background: var(--track-success);
+
+          .status-icon {
+            color: white;
+          }
+        }
+      }
+    }
+
+    &.transit {
+      .marker-outer {
+        border-color: var(--track-info);
+
+        .marker-inner {
+          background: var(--track-info);
+
+          .status-icon {
+            color: white;
+          }
+        }
+      }
+    }
+
+    &.pending {
+      .marker-outer {
+        border-color: var(--track-warning);
+
+        .marker-inner {
+          background: var(--track-warning);
+
+          .status-icon {
+            color: white;
+          }
+        }
+      }
+    }
+  }
+
+  .timeline-content {
+    flex: 1;
+
+    .status-card {
+      background: var(--track-bg-secondary);
+      border-radius: var(--track-radius);
+      padding: 2rem;
+      border: 1px solid var(--track-border);
+      transition: var(--track-transition);
+
+      &:hover {
+        box-shadow: var(--track-shadow-md);
+        transform: translateY(-2px);
+      }
+
+      .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+
+        @media (max-width: 768px) {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: flex-start;
+        }
+
+        .status-title {
+          font-size: 1.8rem;
+          font-weight: 600;
+          color: var(--track-text);
+          margin: 0;
+        }
+
+        .latest-badge {
+          background: linear-gradient(135deg, var(--track-accent) 0%, var(--track-accent-hover) 100%);
+          color: white;
+          padding: 0.4rem 1rem;
+          border-radius: 1rem;
+          font-size: 1.2rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      .status-datetime {
+        display: flex;
+        gap: 2rem;
+
+        @media (max-width: 768px) {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .datetime-item {
+          display: flex;
+          align-items: center;
+          gap: 0.8rem;
+
+          .datetime-icon {
+            width: 1.8rem;
+            height: 1.8rem;
+            color: var(--track-text-muted);
+
+            svg {
+              width: 100%;
+              height: 100%;
+            }
+          }
+
+          span {
+            font-size: 1.4rem;
+            color: var(--track-text-secondary);
+            font-weight: 500;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Pulse Animation
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+}
+
+// Address Cards
+.address-card {
+  background: var(--track-bg);
+  border-radius: var(--track-radius-lg);
+  box-shadow: var(--track-shadow-lg);
+  border: 1px solid var(--track-border);
+  overflow: hidden;
+  transition: var(--track-transition);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--track-shadow-lg);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, var(--track-bg-tertiary) 0%, var(--track-bg-secondary) 100%);
+    padding: 2rem;
+    border-bottom: 1px solid var(--track-border);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .header-icon {
+      width: 4rem;
+      height: 4rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .card-icon {
+        width: 2rem;
+        height: 2rem;
+
+        &.sender {
+          color: var(--track-accent);
+        }
+
+        &.receiver {
+          color: var(--track-info);
+        }
+      }
+    }
+
+    .header-content {
+      flex: 1;
+
+      h3 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--track-text);
+        margin: 0 0 0.5rem 0;
+      }
+
+      .card-type-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 1rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        &.sender {
+          background: linear-gradient(135deg, var(--track-accent) 0%, var(--track-accent-hover) 100%);
+          color: white;
+        }
+
+        &.receiver {
+          background: linear-gradient(135deg, var(--track-info) 0%, #1d4ed8 100%);
+          color: white;
+        }
+      }
+    }
+  }
+
+  .card-body {
+    padding: 2rem;
+
+    .contact-info {
+      margin-bottom: 2rem;
+
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background: var(--track-bg-secondary);
+        border-radius: var(--track-radius);
+        margin-bottom: 1rem;
+        border: 1px solid var(--track-border);
+        transition: var(--track-transition);
+
+        &:hover {
+          background: var(--track-bg-tertiary);
+        }
+
+        &.primary {
+          background: linear-gradient(135deg, var(--track-accent) 0%, var(--track-accent-hover) 100%);
+          color: white;
+
+          .info-icon svg {
+            color: white;
+          }
+
+          .info-content label {
+            color: rgba(255, 255, 255, 0.8);
+          }
+
+          .info-value {
+            color: white;
+          }
+        }
+
+        .info-icon {
+          width: 2rem;
+          height: 2rem;
+          color: var(--track-text-muted);
+
+          svg {
+            width: 100%;
+            height: 100%;
+          }
+        }
+
+        .info-content {
+          flex: 1;
+
+          label {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--track-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+          }
+
+          .info-value {
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: var(--track-text);
+          }
+        }
+      }
+    }
+
+    .address-info {
+      .address-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--track-border);
+
+        .address-icon {
+          width: 2rem;
+          height: 2rem;
+          color: var(--track-accent);
+
+          svg {
+            width: 100%;
+            height: 100%;
+          }
+        }
+
+        h4 {
+          font-size: 1.8rem;
+          font-weight: 600;
+          color: var(--track-text);
+          margin: 0;
+        }
+      }
+
+      .address-content {
+        .address-line {
+          margin-bottom: 1rem;
+
+          span {
+            font-size: 1.5rem;
+            color: var(--track-text-secondary);
+            line-height: 1.5;
+          }
+        }
+
+        .location-details {
+          margin-top: 1.5rem;
+
+          .location-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+
+            @media (max-width: 768px) {
+              grid-template-columns: 1fr;
+            }
+
+            .location-item {
+              background: var(--track-bg-tertiary);
+              padding: 1rem;
+              border-radius: var(--track-radius-sm);
+              border: 1px solid var(--track-border);
+
+              label {
+                display: block;
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: var(--track-text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 0.3rem;
+              }
+
+              span {
+                font-size: 1.4rem;
+                font-weight: 500;
+                color: var(--track-text);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Shipment Details Card
+.shipment-details-card {
+  background: var(--track-bg);
+  border-radius: var(--track-radius-lg);
+  box-shadow: var(--track-shadow-lg);
+  border: 1px solid var(--track-border);
+  overflow: hidden;
+  transition: var(--track-transition);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--track-shadow-lg);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, var(--track-primary) 0%, var(--track-secondary) 100%);
+    padding: 2rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .header-icon {
+      width: 4rem;
+      height: 4rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+
+      .card-icon {
+        width: 2rem;
+        height: 2rem;
+        color: white;
+      }
+    }
+
+    .header-content {
+      flex: 1;
+
+      h3 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: white;
+        margin: 0 0 0.5rem 0;
+      }
+
+      .shipment-id-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.4rem 1rem;
+        border-radius: 1rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: white;
+        backdrop-filter: blur(10px);
+      }
+    }
+  }
+
+  .card-body {
+    padding: 2rem;
+
+    .details-section {
+      margin-bottom: 3rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--track-border);
+
+        .section-icon {
+          width: 2.5rem;
+          height: 2.5rem;
+          color: var(--track-accent);
+
+          svg {
+            width: 100%;
+            height: 100%;
+          }
+        }
+
+        h4 {
+          font-size: 1.8rem;
+          font-weight: 600;
+          color: var(--track-text);
+          margin: 0;
+        }
+      }
+
+      .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+
+        .detail-item {
+          background: var(--track-bg-secondary);
+          padding: 1.5rem;
+          border-radius: var(--track-radius);
+          border: 1px solid var(--track-border);
+          transition: var(--track-transition);
+
+          &:hover {
+            background: var(--track-bg-tertiary);
+          }
+
+          &.full-width {
+            grid-column: 1 / -1;
+          }
+
+          label {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--track-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+          }
+
+          span {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--track-text);
+
+            &.payment-mode {
+              padding: 0.3rem 0.8rem;
+              border-radius: 0.5rem;
+              font-size: 1.3rem;
+              font-weight: 600;
+              text-transform: uppercase;
+
+              &.prepaid {
+                background: var(--track-success);
+                color: white;
+              }
+
+              &.cod {
+                background: var(--track-warning);
+                color: white;
+              }
+            }
+
+            &.insurance-status {
+              padding: 0.3rem 0.8rem;
+              border-radius: 0.5rem;
+              font-size: 1.3rem;
+              font-weight: 600;
+
+              &.active {
+                background: var(--track-success);
+                color: white;
+              }
+
+              &.inactive {
+                background: var(--track-text-muted);
+                color: white;
+              }
+            }
+          }
+        }
+      }
+
+      &.charges-section {
+        .charges-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 1rem;
+
+          .charge-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: var(--track-bg-secondary);
+            border-radius: var(--track-radius);
+            border: 1px solid var(--track-border);
+            transition: var(--track-transition);
+
+            &:hover {
+              background: var(--track-bg-tertiary);
+            }
+
+            &.total {
+              background: linear-gradient(135deg, var(--track-accent) 0%, var(--track-accent-hover) 100%);
+              color: white;
+              font-weight: 600;
+              grid-column: 1 / -1;
+
+              .total-amount {
+                font-size: 1.8rem;
+                font-weight: 700;
+              }
+            }
+
+            label {
+              font-size: 1.4rem;
+              font-weight: 500;
+              color: var(--track-text-secondary);
+            }
+
+            span {
+              font-size: 1.4rem;
+              font-weight: 600;
+              color: var(--track-text);
+            }
+          }
+        }
+      }
+    }
+  }
+}

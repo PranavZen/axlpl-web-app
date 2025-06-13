@@ -148,6 +148,7 @@ const Sidebar = () => {
             onToggle={() => toggleDropdown("shipments")}
             items={[
               { label: "Add Shipment", to: "/add-shipment" },
+              { label: "Track Shipment", to: "/track-shipment" },
               { label: "Pending Shipments", to: "/shipments/pending" },
               { label: "Active Shipments", to: "/shipments/approved" },
               { label: "Hold Shipments", to: "/shipments/hold" },

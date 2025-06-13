@@ -176,6 +176,84 @@ export interface SearchFilters {
   [key: string]: any;
 }
 
+// Tracking Types
+export interface TrackingStatus {
+  status: string;
+  date_time: string;
+}
+
+export interface SenderData {
+  sender_name: string;
+  company_name: string;
+  mobile: string;
+  address1: string;
+  address2: string;
+  state: string;
+  city: string;
+  area: string;
+  pincode: string;
+}
+
+export interface ReceiverData {
+  receiver_name: string;
+  company_name: string;
+  mobile: string;
+  address1: string;
+  address2: string;
+  state: string;
+  city: string;
+  area: string;
+  pincode: string;
+}
+
+export interface ShipmentDetails {
+  shipment_id: string;
+  cust_id: string;
+  parcel_detail: string;
+  category_id: string;
+  net_weight: string;
+  gross_weight: string;
+  payment_mode: string;
+  service_id: string;
+  invoice_value: string;
+  axlpl_insurance: string;
+  policy_no: string;
+  exp_date: string;
+  insurance_value: string;
+  remark: string;
+  bill_to: string;
+  number_of_parcel: string;
+  additional_axlpl_insurance: string;
+  shipment_charges: string;
+  insurance_charges: string;
+  invoice_charges: string;
+  handling_charges: string;
+  tax: string;
+  total_charges: string;
+}
+
+export interface TrackingData {
+  TrackingStatus: TrackingStatus[];
+  SenderData?: SenderData;
+  ReceiverData?: ReceiverData;
+  ShipmentDetails?: ShipmentDetails;
+}
+
+export interface TrackingResponse {
+  tracking: TrackingData[];
+  error: boolean;
+  code: number;
+  type: string;
+  message: string;
+}
+
+export interface TrackingState {
+  trackingData: TrackingData | null;
+  loading: boolean;
+  error: string | null;
+  searchedShipmentId: string | null;
+}
+
 // Component Props Types
 export interface BaseComponentProps {
   className?: string;

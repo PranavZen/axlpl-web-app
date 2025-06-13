@@ -67,6 +67,31 @@ const LeftTopBox = () => {
                 </div>
               </Link>
             </div>
+            <div className="cubeBox">
+              <Link to="/track-shipment">
+                <p>Track Shipment</p>
+                <div className="btmWrap">
+                  <span className="iconWrap">
+                    <img
+                      src="https://beta.axlpl.com/admin/template/assets/images/dashboard/consignment.png"
+                      alt="consignment"
+                      className="img-fluid"
+                      width="60"
+                      height="60"
+                    />
+                  </span>
+                  <span className="rightArrowWrap">
+                    <img
+                      src="https://beta.axlpl.com/admin/template/assets/images/dashboard/rightArrow.png"
+                      alt="right arrow"
+                      className="img-fluid"
+                      width="12"
+                      height="12"
+                    />
+                  </span>
+                </div>
+              </Link>
+            </div>
           </>
         )}
       </div>

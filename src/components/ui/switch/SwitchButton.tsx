@@ -7,6 +7,7 @@ interface SwitchButtonProps {
   checked: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
+  disabled?: boolean;
 }
 
 const SwitchButton: React.FC<SwitchButtonProps> = ({
@@ -14,8 +15,9 @@ const SwitchButton: React.FC<SwitchButtonProps> = ({
   name,
   label,
   checked,
-  onChange, 
+  onChange,
   className = "",
+  disabled = false,
 }) => {
   // Use provided id or fallback to name
   const switchId = id || name;
@@ -30,6 +32,7 @@ const SwitchButton: React.FC<SwitchButtonProps> = ({
         id={switchId}
         checked={checked}
         onChange={onChange}
+        disabled={disabled}
       />
       <label className="form-check-label" htmlFor={switchId}>
         {label}

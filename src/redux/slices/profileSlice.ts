@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { getUserData } from "../../utils/authUtils";
+import { getUserData, updateUserDataInSession } from "../../utils/authUtils";
 import { API_BASE_URL } from "../../config";
 
 // Profile Data Interface
@@ -152,7 +152,9 @@ export const updateProfileData = createAsyncThunk(
       Object.entries(profileData).forEach(([key, value]) => {
         if (key !== 'id' && value !== null && value !== undefined && value !== '') {
           const stringValue = String(value);
-          formData.append(key, stringValue);
+          // Map full_name to name for API submission
+          const apiKey = key === 'full_name' ? 'name' : key;
+          formData.append(apiKey, stringValue);
         }
       });
 
@@ -256,7 +258,12 @@ const profileSlice = createSlice({
         state.loading = false;
         state.profileData = action.payload;
         state.error = null;
-        
+
+        // Update session storage with the latest profile data
+        if (action.payload) {
+          updateUserDataInSession(action.payload);
+        }
+
         // Set location data based on profile data
         if (action.payload) {
           state.countries = action.payload.country_name ? [{ id: action.payload.country_id, name: action.payload.country_name }] : [];
@@ -278,6 +285,16 @@ const profileSlice = createSlice({
       .addCase(updateProfileData.fulfilled, (state, action) => {
         state.saving = false;
         state.error = null;
+
+        // Update session storage with the updated profile data
+        if (action.payload?.data?.Customerdetail) {
+          // If the API response contains updated customer details, use them
+          updateUserDataInSession(action.payload.data.Customerdetail);
+        } else if (state.profileData) {
+          // Otherwise, use the current profile data from state
+          updateUserDataInSession(state.profileData);
+        }
+
         // The component will handle success message and refresh
       })
       .addCase(updateProfileData.rejected, (state, action) => {

@@ -11,6 +11,7 @@ import customerReducer from "./slices/customerSlice";
 import pincodeReducer from "./slices/pincodeSlice";
 import changePasswordReducer from "./slices/changePasswordSlice";
 import profileReducer from "./slices/profileSlice";
+import trackingReducer from "./slices/trackingSlice";
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
     pincode: pincodeReducer,
     changePassword: changePasswordReducer,
     profile: profileReducer,
+    tracking: trackingReducer,
   },
 });
 

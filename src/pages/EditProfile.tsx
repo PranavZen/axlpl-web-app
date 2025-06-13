@@ -9,7 +9,7 @@ import SingleSelect from '../components/ui/select/SingleSelect';
 import Sidebar from '../components/ui/sidebar/Sidebar';
 import { InlineLogisticsLoader, LogisticsLoader } from '../components/ui/spinner';
 import SwitchButton from '../components/ui/switch/SwitchButton';
-import { API_BASE_URL } from '../config';
+
 import {
   fetchProfileData,
   ProfileData,
@@ -28,7 +28,6 @@ import {
 import { AppDispatch, RootState } from '../redux/store';
 import '../styles/global/AddShipment.scss';
 import '../styles/pages/EditProfile.scss';
-import { getUserData } from '../utils/authUtils';
 import { showError, showSuccess } from '../utils/toastUtils';
 
 
@@ -162,12 +161,9 @@ const EditProfile: React.FC = () => {
       return;
     }
 
-    // Validate required fields
-    const requiredFields = ['company_name', 'full_name', 'mobile_no', 'email'];
-    const missingFields = requiredFields.filter(field => !profileData[field]);
-
-    if (missingFields.length > 0) {
-      showError(`❌ Please fill in required fields: ${missingFields.join(', ')}`);
+    // Validate required fields - only full_name is editable
+    if (!profileData.full_name || profileData.full_name.trim() === '') {
+      showError('❌ Please fill in the Full Name field');
       return;
     }
 
@@ -212,36 +208,7 @@ const EditProfile: React.FC = () => {
     navigate('/dashboard');
   };
 
-  // Debug function to test API connectivity
-  const testApiConnection = async () => {
-    try {
-      const userData = getUserData();
 
-      if (!userData?.Customerdetail?.id) {
-        showError('❌ No user data found for API test');
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('id', userData.Customerdetail.id);
-      formData.append('user_role', userData.role || 'customer');
-
-      const response = await fetch(`${API_BASE_URL}/editProfile`, {
-        method: 'POST',
-        body: formData
-      });
-
-      await response.json();
-
-      if (response.ok) {
-        showSuccess('✅ API connection test successful!');
-      } else {
-        showError(`❌ API test failed: ${response.status} ${response.statusText}`);
-      }
-    } catch (error: any) {
-      showError(`❌ API test error: ${error.message}`);
-    }
-  };
 
   if (loading) {
     return <LogisticsLoader />;
@@ -310,11 +277,13 @@ const EditProfile: React.FC = () => {
                     accept="image/*"
                     onChange={(e) => handleFileChange('profile', e.target.files?.[0] || null)}
                     className="d-none"
+                    disabled={true}
                   />
                   <label
                     htmlFor="profileImageInput"
-                    className="btn btn-outline-secondary btn-back camera-btn"
-                    title="Change Profile Picture"
+                    className="btn btn-outline-secondary btn-back camera-btn disabled"
+                    title="Profile Picture Upload Disabled"
+                    style={{ pointerEvents: 'none', opacity: 0.6 }}
                   >
                     <svg
                       width="20"
@@ -379,6 +348,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder="Enter company name"
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
 
@@ -414,6 +384,7 @@ const EditProfile: React.FC = () => {
                       value={profileData.category ? { value: profileData.category, label: profileData.category } : null}
                       onChange={(selected) => handleInputChange('category', selected?.value || '')}
                       placeholder="Select Category"
+                      isDisabled={true}
                     />
                   </div>
 
@@ -429,6 +400,7 @@ const EditProfile: React.FC = () => {
                       value={profileData.nature_business ? { value: profileData.nature_business, label: profileData.nature_business } : null}
                       onChange={(selected) => handleInputChange('nature_business', selected?.value || '')}
                       placeholder="Select Nature of Business"
+                      isDisabled={true}
                     />
                   </div>
                 </div>
@@ -457,6 +429,7 @@ const EditProfile: React.FC = () => {
                       value={profileData.country_id ? countries.find((c: any) => c.id === profileData.country_id) ? { value: profileData.country_id, label: countries.find((c: any) => c.id === profileData.country_id)?.name || '' } : null : null}
                       onChange={(selected) => handleInputChange('country_id', selected?.value || '')}
                       placeholder="Select Country"
+                      isDisabled={true}
                     />
                   </div>
 
@@ -472,6 +445,7 @@ const EditProfile: React.FC = () => {
                       value={profileData.state_id ? states.find((s: any) => s.id === profileData.state_id) ? { value: profileData.state_id, label: states.find((s: any) => s.id === profileData.state_id)?.name || '' } : null : null}
                       onChange={(selected) => handleInputChange('state_id', selected?.value || '')}
                       placeholder="Select State"
+                      isDisabled={true}
                     />
                   </div>
                 </div>
@@ -489,6 +463,7 @@ const EditProfile: React.FC = () => {
                       value={profileData.city_id ? cities.find((c: any) => c.id === profileData.city_id) ? { value: profileData.city_id, label: cities.find((c: any) => c.id === profileData.city_id)?.name || '' } : null : null}
                       onChange={(selected) => handleInputChange('city_id', selected?.value || '')}
                       placeholder="Select City"
+                      isDisabled={true}
                     />
                   </div>
 
@@ -504,6 +479,7 @@ const EditProfile: React.FC = () => {
                       value={profileData.area_id ? areas.find((a: any) => a.id === profileData.area_id) ? { value: profileData.area_id, label: areas.find((a: any) => a.id === profileData.area_id)?.name || '' } : null : null}
                       onChange={(selected) => handleInputChange('area_id', selected?.value || '')}
                       placeholder="Select Area"
+                      isDisabled={true}
                     />
                   </div>
                 </div>
@@ -521,6 +497,7 @@ const EditProfile: React.FC = () => {
                       value={profileData.branch_id ? branches.find((b: any) => b.id === profileData.branch_id) ? { value: profileData.branch_id, label: branches.find((b: any) => b.id === profileData.branch_id)?.name || '' } : null : null}
                       onChange={(selected) => handleInputChange('branch_id', selected?.value || '')}
                       placeholder="Select Branch"
+                      isDisabled={true}
                     />
                   </div>
 
@@ -539,6 +516,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder="Enter pincode"
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
                 </div>
@@ -559,6 +537,7 @@ const EditProfile: React.FC = () => {
                       onChange={(e) => handleInputChange('reg_address1', e.target.value)}
                       placeholder="Enter registered address"
                       required
+                      disabled={true}
                     />
                   </div>
 
@@ -576,6 +555,7 @@ const EditProfile: React.FC = () => {
                       value={profileData.reg_address2 || ''}
                       onChange={(e) => handleInputChange('reg_address2', e.target.value)}
                       placeholder="Enter additional address (optional)"
+                      disabled={true}
                     />
                   </div>
                 </div>
@@ -607,6 +587,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder="Enter mobile number"
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
 
@@ -625,6 +606,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder="Enter telephone number"
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
                 </div>
@@ -645,6 +627,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder="Enter fax number"
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
 
@@ -663,6 +646,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder="Enter email address"
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
                 </div>
@@ -694,6 +678,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder="Enter PAN number"
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
 
@@ -712,6 +697,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder="Enter GST number"
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
                 </div>
@@ -730,6 +716,7 @@ const EditProfile: React.FC = () => {
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) => handleFileChange('pan', e.target.files?.[0] || null)}
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                     {profileData?.pan_card && (
                       <div className="current-file mt-2">
@@ -761,6 +748,7 @@ const EditProfile: React.FC = () => {
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) => handleFileChange('gst', e.target.files?.[0] || null)}
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                     {profileData?.gst_certi && (
                       <div className="current-file mt-2">
@@ -792,6 +780,7 @@ const EditProfile: React.FC = () => {
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) => handleFileChange('reg', e.target.files?.[0] || null)}
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                     {profileData?.reg_certi && (
                       <div className="current-file mt-2">
@@ -839,6 +828,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder="Enter insurance value"
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
 
@@ -857,6 +847,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder="Enter third party insurance value"
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
                 </div>
@@ -877,6 +868,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder="Enter policy number"
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
 
@@ -895,6 +887,7 @@ const EditProfile: React.FC = () => {
                       onBlur={() => {}}
                       placeHolder=""
                       className="form-control innerFormControll"
+                      disabled={true}
                     />
                   </div>
                 </div>
@@ -923,6 +916,7 @@ const EditProfile: React.FC = () => {
                       label=""
                       checked={profileData.is_shipment_approve === '1'}
                       onChange={(e) => handleInputChange('is_shipment_approve', e.target.checked ? '1' : '0')}
+                      disabled={true}
                     />
                   </div>
 
@@ -938,6 +932,7 @@ const EditProfile: React.FC = () => {
                       label=""
                       checked={profileData.is_send_mail === '1'}
                       onChange={(e) => handleInputChange('is_send_mail', e.target.checked ? '1' : '0')}
+                      disabled={true}
                     />
                   </div>
 
@@ -953,6 +948,7 @@ const EditProfile: React.FC = () => {
                       label=""
                       checked={profileData.is_send_sms === '1'}
                       onChange={(e) => handleInputChange('is_send_sms', e.target.checked ? '1' : '0')}
+                      disabled={true}
                     />
                   </div>
                 </div>
@@ -962,7 +958,7 @@ const EditProfile: React.FC = () => {
             {/* Action Buttons */}
             <div className="card">
               <div className="card-body">
-                <div className="form-navigation">
+                <div className="form-navigation border-top-0">
                   <div className="navigation-buttons">
                     <button
                       type="button"
@@ -971,14 +967,6 @@ const EditProfile: React.FC = () => {
                       className="btn btn-outline-secondary btn-back"
                     >
                       Cancel
-                    </button>
-                    <button
-                      type="button"
-                      onClick={testApiConnection}
-                      className="btn btn-warning me-2"
-                      title="Test API Connection"
-                    >
-                      🔧 Test API
                     </button>
                     <button
                       type="button"

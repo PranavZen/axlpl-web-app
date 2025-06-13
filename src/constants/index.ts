@@ -56,6 +56,7 @@ export const ROUTES = {
   PENDING_SHIPMENTS: '/shipments/pending',
   DELIVERED_SHIPMENTS: '/shipments/delivered',
   ADD_SHIPMENT: '/add-shipment',
+  TRACK_SHIPMENT: '/track-shipment',
   ADDRESSES: '/customer/addresses',
 } as const;
 
