@@ -5,64 +5,119 @@ import Sidebar from "../components/ui/sidebar/Sidebar";
 import { SidebarContext } from "../contexts/SidebarContext";
 import { RootState } from "../redux/store";
 import { TrackingState } from "../types";
-import { LogisticsLoader } from "../components/ui/spinner";
+import { getUserData } from "../utils/authUtils";
+
 import TrackShipmentForm from "../components/pagecomponents/trackshipmentpage/TrackShipmentForm";
 import TrackingTimeline from "../components/pagecomponents/trackshipmentpage/TrackingTimeline";
 import AddressCard from "../components/pagecomponents/trackshipmentpage/AddressCard";
 import ShipmentDetailsCard from "../components/pagecomponents/trackshipmentpage/ShipmentDetailsCard";
-// import "../styles/pages/TrackShipment.scss";
+import SecurityNotice from "../components/ui/security/SecurityNotice";
+import AuthGuard from "../components/guards/AuthGuard";
+import "../styles/pages/TrackShipment.scss";
+import "../components/guards/AuthGuard.scss";
 
 const TrackShipment: React.FC = () => {
   const { isSidebarCollapsed } = useContext(SidebarContext);
   const trackingState = useSelector((state: RootState) => state.tracking) as TrackingState;
   const { trackingData, loading, error, searchedShipmentId } = trackingState;
 
+  // Get current user information for personalized messages
+  const userData = getUserData();
+  const userName = userData?.Customerdetail?.name || userData?.Customerdetail?.company_name || "User";
+
   return (
-    <section id="trackShipmentSection">
-      <div className="container-fluid p-0">
-        <section className={`bodyWrap ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-          <Sidebar />
-          <MainBody>
+    <AuthGuard
+      requireAuth={true}
+      redirectTo="/"
+      allowedRoles={['customer', 'admin', 'user']} // Exclude messenger roles
+      showLoadingSpinner={true}
+    >
+      <section id="trackShipmentSection">
+        <div className="container-fluid p-0">
+          <section className={`bodyWrap ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+            <Sidebar />
+            <MainBody>
             <div className="trackShipmentGrid">
+              {/* Security Notice */}
+              <SecurityNotice
+                type="info"
+                title="Secure Shipment Tracking"
+                message="For your privacy and security, you can only track shipments that belong to your account. This ensures your shipment data remains confidential."
+                showUserInfo={true}
+                className="security-notice--compact d-none"
+              />
+
               {/* Search Form Box */}
-              <div className="searchFormBox box">
-                <h4>Track Your Shipment</h4>
+              <div className="searchFormBox">
+                <h4>Track Your Shipment - {userName}</h4>
                 <TrackShipmentForm />
               </div>
 
               {/* Loading State */}
               {loading && (
-                <div className="loadingBox box">
-                  <div className="text-center">
-                    <LogisticsLoader />
-                    <p className="mt-3 mb-0">Fetching tracking information...</p>
+                <div className="loadingBox">
+                  <div className="loading-content">
+                    <div className="loading-icon"></div>
+                    <p>Fetching tracking information...</p>
                   </div>
                 </div>
               )}
 
               {/* Error State */}
               {error && !loading && (
-                <div className="errorBox box">
-                  <h4>Tracking Information Not Found</h4>
-                  <p className="errorMessage">{error}</p>
-                  <div className="errorSuggestions">
-                    <p><strong>Please check:</strong></p>
-                    <ul>
-                      <li>Your shipment ID is correct</li>
-                      <li>The shipment has been processed</li>
-                      <li>Try again in a few minutes</li>
-                    </ul>
+                <>
+                  {/* Show security notice for authorization errors */}
+                  {(error.includes("not authorized") || error.includes("Access denied") || error.includes("permission")) && (
+                    <SecurityNotice
+                      type="warning"
+                      title="Access Restricted"
+                      message="You can only track shipments that belong to your account. Please verify the shipment ID and ensure you're logged in with the correct account."
+                      showUserInfo={true}
+                    />
+                  )}
+
+                  <div className="errorBox">
+                    <div className="error-header">
+                      <h4>
+                        {error.includes("not authorized") || error.includes("Access denied")
+                          ? "Access Denied"
+                          : "Tracking Information Not Found"
+                        }
+                      </h4>
+                    </div>
+                    <div className="error-content">
+                      <p className="errorMessage">{error}</p>
+                      <div className="errorSuggestions">
+                        <p><strong>Please check:</strong></p>
+                        <ul>
+                          <li>Your shipment ID is correct and belongs to your account</li>
+                          <li>The shipment has been processed and is in the system</li>
+                          <li>You are logged in with the correct account</li>
+                          <li>You have permission to access this shipment</li>
+                          <li>Try again in a few minutes if the issue persists</li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </>
               )}
 
               {/* Tracking Results */}
               {trackingData && !loading && !error && (
                 <div className="trackingResultsGrid">
+                  {/* Success Security Notice */}
+                  <SecurityNotice
+                    type="success"
+                    title="Shipment Access Verified"
+                    message={`Successfully retrieved tracking information for shipment ${searchedShipmentId}. This shipment belongs to your account and you have full access to its details.`}
+                    showUserInfo={false}
+                    className="security-notice--compact d-none"
+                  />
+
                   {/* Results Header */}
-                  <div className="resultsHeaderBox box">
+                  <div className="resultsHeaderBox">
                     <div className="resultsHeader">
-                      <div>
+                      <div className="header-content">
                         <h4>Tracking Results</h4>
                         <p className="shipmentIdText">Shipment ID: {searchedShipmentId}</p>
                       </div>
@@ -78,7 +133,14 @@ const TrackShipment: React.FC = () => {
 
                   {/* Timeline */}
                   <div className="timelineBox">
-                    <TrackingTimeline trackingStatus={trackingData.TrackingStatus} />
+                    <div className="timelineContainer">
+                      <div className="timeline-header">
+                        <h3>Shipment Journey</h3>
+                      </div>
+                      <div className="timeline-content">
+                        <TrackingTimeline trackingStatus={trackingData.TrackingStatus} />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Sender Details */}
@@ -114,7 +176,7 @@ const TrackShipment: React.FC = () => {
 
               {/* Empty State */}
               {!trackingData && !loading && !error && (
-                <div className="emptyStateBox box">
+                <div className="emptyStateBox">
                   <div className="emptyState">
                     <div className="emptyIcon">
                       <img
@@ -124,8 +186,8 @@ const TrackShipment: React.FC = () => {
                         height="80"
                       />
                     </div>
-                    <h4>Ready to Track</h4>
-                    <p>Enter your shipment ID above to get real-time tracking information</p>
+                    <h4>Ready to Track, {userName}!</h4>
+                    <p>Enter your shipment ID above to get real-time tracking information for shipments belonging to your account</p>
                   </div>
                 </div>
               )}
@@ -134,6 +196,7 @@ const TrackShipment: React.FC = () => {
         </section>
       </div>
     </section>
+    </AuthGuard>
   );
 };
 

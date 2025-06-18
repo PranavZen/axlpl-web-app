@@ -21,6 +21,7 @@ const ShipmentsPage: React.FC = () => {
   const { shipments, loading, error } = useSelector(
     (state: RootState) => state.activeShipment
   );
+  console.log("shipments", shipments)
   const [selectedShipments, setSelectedShipments] = useState<any[]>([]);
 
   useEffect(() => {
@@ -112,7 +113,7 @@ const ShipmentsPage: React.FC = () => {
             <div className="container-fluid">
               <div className="tableWraper">
                 {/* Show selected shipments info */}
-                {selectedShipments.length > 0 && (
+                {/* {selectedShipments.length > 0 && (
                   <div className="alert alert-info mb-3">
                     <div className="d-flex justify-content-between align-items-center">
                       <div>
@@ -169,7 +170,7 @@ const ShipmentsPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {loading ? (
                   <LogisticsLoader />

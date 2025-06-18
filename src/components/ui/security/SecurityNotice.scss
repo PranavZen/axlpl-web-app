@@ -1,0 +1,234 @@
+// Security Notice Component Styles
+.security-notice {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  // Type variations
+  &--info {
+    border-left: 4px solid #3b82f6;
+    
+    .security-notice__icon {
+      color: #3b82f6;
+    }
+    
+    .security-notice__title {
+      color: #1e40af;
+    }
+  }
+
+  &--warning {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    
+    .security-notice__icon {
+      color: #f59e0b;
+    }
+    
+    .security-notice__title {
+      color: #92400e;
+    }
+  }
+
+  &--success {
+    border-left: 4px solid #10b981;
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    
+    .security-notice__icon {
+      color: #10b981;
+    }
+    
+    .security-notice__title {
+      color: #065f46;
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  &__icon {
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+  }
+
+  &__title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+  }
+
+  &__content {
+    .security-notice__message {
+      font-size: 1.4rem;
+      color: #64748b;
+      line-height: 1.6;
+      margin: 0 0 1rem 0;
+    }
+  }
+
+  &__user-info {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    border: 1px solid rgba(226, 232, 240, 0.5);
+    backdrop-filter: blur(10px);
+
+    .user-info__item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .user-info__label {
+        font-size: 1.3rem;
+        color: #64748b;
+        font-weight: 500;
+      }
+
+      .user-info__value {
+        font-size: 1.3rem;
+        color: #1e293b;
+        font-weight: 600;
+      }
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    padding: 1rem;
+    margin: 0.5rem 0;
+
+    &__header {
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    &__icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      font-size: 1.6rem;
+    }
+
+    &__title {
+      font-size: 1.4rem;
+    }
+
+    &__content {
+      .security-notice__message {
+        font-size: 1.3rem;
+      }
+    }
+
+    &__user-info {
+      padding: 0.75rem;
+
+      .user-info__item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+
+        .user-info__label,
+        .user-info__value {
+          font-size: 1.2rem;
+        }
+      }
+    }
+  }
+
+  // Animation for entrance
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  animation: slideInUp 0.4s ease-out;
+}
+
+// Compact variant
+.security-notice--compact {
+  padding: 1rem;
+  margin: 0.5rem 0;
+
+  .security-notice__header {
+    margin-bottom: 0.5rem;
+  }
+
+  .security-notice__icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.4rem;
+  }
+
+  .security-notice__title {
+    font-size: 1.4rem;
+  }
+
+  .security-notice__content {
+    .security-notice__message {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .security-notice__user-info {
+    padding: 0.75rem;
+  }
+}
+
+// Inline variant
+.security-notice--inline {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  border-radius: 0.5rem;
+
+  .security-notice__header {
+    margin-bottom: 0;
+  }
+
+  .security-notice__icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 1.2rem;
+  }
+
+  .security-notice__title {
+    font-size: 1.2rem;
+  }
+
+  .security-notice__content {
+    display: none;
+  }
+}

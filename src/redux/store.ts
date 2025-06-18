@@ -12,6 +12,7 @@ import pincodeReducer from "./slices/pincodeSlice";
 import changePasswordReducer from "./slices/changePasswordSlice";
 import profileReducer from "./slices/profileSlice";
 import trackingReducer from "./slices/trackingSlice";
+import { authMiddleware, securityMiddleware, rateLimitMiddleware } from "../middleware/authMiddleware";
 
 export const store = configureStore({
   reducer: {
@@ -29,6 +30,12 @@ export const store = configureStore({
     profile: profileReducer,
     tracking: trackingReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+      },
+    }).concat(authMiddleware, securityMiddleware, rateLimitMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

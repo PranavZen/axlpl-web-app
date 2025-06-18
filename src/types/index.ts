@@ -178,6 +178,7 @@ export interface SearchFilters {
 
 // Tracking Types
 export interface TrackingStatus {
+  location: any;
   status: string;
   date_time: string;
 }
@@ -230,6 +231,9 @@ export interface ShipmentDetails {
   handling_charges: string;
   tax: string;
   total_charges: string;
+  user_id?: number | string;
+  customer_id?: number | string;
+  sender_id?: number | string;
 }
 
 export interface TrackingData {

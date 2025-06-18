@@ -932,7 +932,7 @@
       &:before {
         content: '';
         position: absolute;
-        top: 0;
+        top: 50%;
         left: 0;
         right: 0;
         bottom: 0;
@@ -941,6 +941,7 @@
         transition: var(--sidebar-transition);
         pointer-events: none;
         border-radius: inherit;
+        transform: translate(-50%, -50%);
       }
 
       &:hover {

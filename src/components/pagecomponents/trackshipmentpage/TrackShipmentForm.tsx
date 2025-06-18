@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { AppDispatch, RootState } from "../../../redux/store";
 import { trackShipment, clearTrackingError } from "../../../redux/slices/trackingSlice";
+import { getUserData } from "../../../utils/authUtils";
+import { useShipmentSecurity, isSecurityError, getSecurityErrorMessage } from "../../../hooks/useShipmentSecurity";
 import Input from "../../ui/input/Input";
 import Button from "../../ui/button/Button";
 
@@ -11,6 +13,13 @@ const TrackShipmentForm: React.FC = () => {
   const [touched, setTouched] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.tracking);
+
+  // Get current user information
+  const userData = getUserData();
+  const userName = userData?.Customerdetail?.name || userData?.Customerdetail?.company_name || "User";
+
+  // Use security hook for validation
+  const { validateShipmentAccess, isValidating } = useShipmentSecurity();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShipmentId(e.target.value);
@@ -32,13 +41,34 @@ const TrackShipmentForm: React.FC = () => {
       return;
     }
 
+    const shipmentIdTrimmed = shipmentId.trim();
+
+    // Pre-validate shipment access using security hook
+    const isAccessValid = await validateShipmentAccess(shipmentIdTrimmed);
+    if (!isAccessValid) {
+      // Error is already handled by the security hook
+      return;
+    }
+
     try {
-      const result = await dispatch(trackShipment(shipmentId.trim()));
-      
+      const result = await dispatch(trackShipment(shipmentIdTrimmed));
+
       if (trackShipment.fulfilled.match(result)) {
-        toast.success("Shipment tracking data retrieved successfully!");
+        toast.success(`🎉 Shipment tracking data retrieved successfully for ${userName}!`);
       } else if (trackShipment.rejected.match(result)) {
-        toast.error(result.payload as string);
+        const errorMessage = result.payload as string;
+
+        // Use security error utilities for better error handling
+        if (isSecurityError(errorMessage)) {
+          const friendlyMessage = getSecurityErrorMessage(errorMessage);
+          toast.error("🔒 " + friendlyMessage, { autoClose: 8000 });
+        } else if (errorMessage.includes("Authentication required")) {
+          toast.error("🔐 " + errorMessage, { autoClose: 6000 });
+        } else if (errorMessage.includes("session has expired")) {
+          toast.error("⏰ " + errorMessage, { autoClose: 6000 });
+        } else {
+          toast.error(errorMessage);
+        }
       }
     } catch (error) {
       toast.error("Failed to track shipment. Please try again.");
@@ -67,7 +97,7 @@ const TrackShipmentForm: React.FC = () => {
                 value={shipmentId}
                 onChange={handleInputChange}
                 onBlur={handleInputBlur}
-                placeHolder="Enter your shipment ID (e.g., 1828030292462)"
+                placeHolder="Enter your shipment ID"
                 className="innerFormControll"
                 error={getError()}
                 touched={touched}
@@ -80,21 +110,27 @@ const TrackShipmentForm: React.FC = () => {
               <label className="formLabel">&nbsp;</label>
               <Button
                 type="submit"
-                text={loading ? "Tracking..." : "Track Shipment"}
-                disabled={loading || !shipmentId.trim()}
+                text={
+                  loading ? "Tracking..." :
+                  isValidating ? "Validating Access..." :
+                  "Track Shipment"
+                }
+                disabled={loading || isValidating || !shipmentId.trim()}
                 className="btn btn-primary btn-block trackBtn"
               />
             </div>
           </div>
         </div>
 
-        <div className="helpSection">
-          <p className="helpText">
-            <strong>Need help?</strong> Your shipment ID is usually 10-13 digits long.
-            Check your booking confirmation email or SMS for the tracking number.
-          </p>
-        </div>
       </form>
+
+      {/* Security Help Section */}
+      <div className="helpSection d-none">
+        <p className="helpText">
+          <strong>Security Notice:</strong> You can only track shipments that belong to your account ({userName}).
+          Enter your shipment ID to track your package in real-time with secure access control.
+        </p>
+      </div>
     </div>
   );
 };
