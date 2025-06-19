@@ -2,6 +2,8 @@
 // EDIT PROFILE PAGE STYLES
 // ===================================================================
 
+@import "../global/_media.scss";
+
 .edit-profile-container {
   padding: 20px;
   max-width: 1200px;
@@ -241,28 +243,32 @@
 
 
   // Responsive Design
-  @media (max-width: 768px) {
+  @include media-down(md) {
     padding: 15px;
-    
+
     .profile-form .card .card-body {
       padding: 15px;
     }
-    
+
     .form-navigation .navigation-buttons {
       flex-direction: column;
-      
+
       .btn {
         width: 100%;
         margin-bottom: 10px;
+        @include media-down(md) {
+          justify-content: center;
+          align-items: center;
+        }
       }
     }
-    
+
     .profile-image-container {
       .profile-image,
       .profile-avatar-placeholder {
         width: 100px;
         height: 100px;
-        
+
         .avatar-text {
           font-size: 1.5rem;
         }
@@ -270,23 +276,23 @@
     }
   }
 
-  @media (max-width: 576px) {
+  @include media-down(sm) {
     padding: 10px;
-    
+
     .profile-form .card {
       .card-header {
         padding: 12px 15px;
-        
+
         .card-title {
           font-size: 1rem;
         }
       }
-      
+
       .card-body {
         padding: 15px;
       }
     }
-    
+
     .row > [class*="col-"] {
       margin-bottom: 15px;
     }

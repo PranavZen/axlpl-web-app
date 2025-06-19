@@ -107,7 +107,7 @@ const TrackShipmentForm: React.FC = () => {
           </div>
           <div className="col-md-4">
             <div className="form-group">
-              <label className="formLabel">&nbsp;</label>
+              <label className="formLabel extraLabel">&nbsp;</label>
               <Button
                 type="submit"
                 text={

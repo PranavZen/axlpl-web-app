@@ -64,6 +64,7 @@ const AddShipment = () => {
     policyNumber: "",
     insuranceValue: "",
     invoiceValue: "",
+    invoiceNumber: "",
     remark: "",
 
     // Step 2: Address Information
@@ -122,6 +123,7 @@ const AddShipment = () => {
       numberOfParcel: Yup.number().positive("Number of parcels must be positive").required("Number of parcels is required"),
       serviceType: Yup.object().nullable().required("Please select service type"),
       invoiceValue: Yup.number().positive("Invoice value must be positive").required("Invoice value is required"),
+      invoiceNumber: Yup.string().required("Invoice number is required"),
     }),
 
     // Step 2: Address Information (Simplified validation)

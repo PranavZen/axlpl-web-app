@@ -1,6 +1,9 @@
 // Track Shipment Page Styles - Enhanced UI Design Following Application Layout
 // ============================================================================
 
+// Import media query mixins
+@import "../global/media";
+
 // CSS Custom Properties for Track Shipment theming
 :root {
   --track-primary: #123458;
@@ -41,12 +44,12 @@
     max-width: 1400px;
     margin: 0 auto;
 
-    @media (max-width: 768px) {
+    @include media-down(md) {
       padding: 1.5rem;
       gap: 2rem;
     }
 
-    @media (max-width: 480px) {
+    @include custom-media-down(mobile) {
       padding: 1rem;
       gap: 1rem;
     }
@@ -85,7 +88,7 @@
           font-size: 2.4rem;
         }
 
-        @media (max-width: 768px) {
+        @include media-down(md) {
           font-size: 1.8rem;
           padding: 1.5rem;
         }
@@ -94,11 +97,11 @@
       .trackingForm {
         padding: 2.5rem;
 
-        @media (max-width: 768px) {
+        @include media-down(md) {
           padding: 2rem;
         }
 
-        @media (max-width: 480px) {
+        @include custom-media-down(mobile) {
           padding: 1.5rem;
         }
 
@@ -108,11 +111,18 @@
           color: var(--track-text);
           margin-bottom: 1rem;
           display: block;
+          &.extraLabel {
+            @media screen and (max-width: 767px) {
+              display: none;
+            }
+          }
         }
 
         .form-group {
           margin-bottom: 2rem;
-
+          @media screen and (max-width: 767px) {
+            margin-bottom: 0rem;
+          }
           .innerFormControll {
             height: 5.5rem;
             border: 2px solid var(--track-border);
@@ -200,7 +210,7 @@
             }
           }
 
-          @media (max-width: 768px) {
+          @include media-down(md) {
             font-size: 1.6rem;
             height: 5rem;
           }
@@ -504,7 +514,7 @@
             var(--track-bg-tertiary) 100%
           );
 
-          @media (max-width: 768px) {
+          @include media-down(md) {
             flex-direction: column;
             gap: 1.5rem;
             text-align: center;
@@ -528,7 +538,7 @@
                 font-size: 2.8rem;
               }
 
-              @media (max-width: 768px) {
+              @include media-down(md) {
                 font-size: 2rem;
                 justify-content: center;
               }
@@ -548,7 +558,7 @@
                 font-size: 1.6rem;
               }
 
-              @media (max-width: 768px) {
+              @include media-down(md) {
                 justify-content: center;
               }
             }
@@ -628,7 +638,7 @@
                 }
               }
 
-              @media (max-width: 768px) {
+              @include media-down(md) {
                 padding: 0.8rem 1.5rem;
                 font-size: 1.2rem;
               }
@@ -638,7 +648,7 @@
       }
 
       // Enhanced Grid Layout for larger screens
-      @media (min-width: 1200px) {
+      @include media-up(xl) {
         grid-template-columns: 1fr 1fr 1fr;
         grid-template-areas:
           "header header header"
@@ -662,7 +672,7 @@
         }
       }
 
-      @media (min-width: 768px) and (max-width: 1199px) {
+      @include media-between(md, xl) {
         grid-template-columns: 1fr 1fr;
         grid-template-areas:
           "header header"
@@ -687,7 +697,7 @@
         }
       }
 
-      @media (max-width: 767px) {
+      @include media-down(md) {
         grid-template-areas:
           "header"
           "timeline"
@@ -805,7 +815,7 @@
       font-weight: 600;
     }
 
-    @media (max-width: 768px) {
+    @include media-down(md) {
       padding: 1.5rem;
       font-size: 1.8rem;
     }
@@ -815,7 +825,7 @@
     padding: 2.5rem;
     position: relative;
 
-    @media (max-width: 768px) {
+    @include media-down(md) {
       padding: 2rem;
     }
 
@@ -833,8 +843,8 @@
       );
       border-radius: 2px;
 
-      @media (max-width: 768px) {
-        left: 3rem;
+      @include media-down(md) {
+        left: 4rem;
         width: 2px;
       }
     }
@@ -854,8 +864,8 @@
         top: 0.5rem;
         z-index: 2;
 
-        @media (max-width: 768px) {
-          left: -2rem;
+        @include media-down(md) {
+          left: -1.5rem;
         }
 
         .timelineIcon {
@@ -871,7 +881,7 @@
           transition: var(--track-transition);
           box-shadow: var(--track-shadow-md);
 
-          @media (max-width: 768px) {
+          @include media-down(md) {
             width: 3rem;
             height: 3rem;
           }
@@ -880,7 +890,7 @@
             content: "📦";
             font-size: 1.8rem;
 
-            @media (max-width: 768px) {
+            @include media-down(md) {
               font-size: 1.4rem;
             }
           }
@@ -898,9 +908,9 @@
           animation: pulse 2s infinite;
           opacity: 0.6;
 
-          @media (max-width: 768px) {
-            width: 5rem;
-            height: 5rem;
+          @include media-down(md) {
+            width: 3.2rem;
+            height: 3.2rem;
           }
         }
       }
@@ -939,8 +949,8 @@
       .timelineContent {
         margin-left: 4rem;
 
-        @media (max-width: 768px) {
-          margin-left: 1.5rem;
+        @include media-down(md) {
+          margin-left: 3.5rem;
         }
 
         .timelineCard {
@@ -1860,6 +1870,26 @@
               label {
                 color: #fff;
                 font-size: 1.6rem;
+              }
+              .total-amount {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #fff;
+              }
+            }
+            &.gTotal {
+              background: linear-gradient(
+                135deg,
+                #0c2b4c 0%,
+                #0c2b4c 100%
+              );
+              color: white;
+              font-weight: 600;
+              grid-column: 1 / -1;
+              label {
+                color: #fff;
+                font-size: 2rem;
+                font-weight: 700;
               }
               .total-amount {
                 font-size: 2rem;

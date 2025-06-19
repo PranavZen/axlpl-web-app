@@ -1,0 +1,316 @@
+// ===================================================================
+// RESPONSIVE MEDIA QUERIES AND BREAKPOINTS
+// ===================================================================
+
+// Breakpoint Variables
+$breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+) !default;
+
+// Custom breakpoints for specific use cases
+$custom-breakpoints: (
+  mobile: 480px,
+  tablet: 768px,
+  desktop: 1024px,
+  wide: 1440px,
+  ultra-wide: 1920px
+) !default;
+
+// ===================================================================
+// MEDIA QUERY MIXINS
+// ===================================================================
+
+// Media query mixin for min-width (mobile-first approach)
+@mixin media-up($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    $value: map-get($breakpoints, $breakpoint);
+    @if $value > 0 {
+      @media (min-width: $value) {
+        @content;
+      }
+    } @else {
+      @content;
+    }
+  } @else {
+    @warn "Breakpoint `#{$breakpoint}` not found in $breakpoints map.";
+  }
+}
+
+// Media query mixin for max-width (desktop-first approach)
+@mixin media-down($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    $value: map-get($breakpoints, $breakpoint);
+    @if $value > 0 {
+      @media (max-width: #{($value - 1px)}) {
+        @content;
+      }
+    } @else {
+      @content;
+    }
+  } @else {
+    @warn "Breakpoint `#{$breakpoint}` not found in $breakpoints map.";
+  }
+}
+
+// Media query mixin for between breakpoints
+@mixin media-between($lower, $upper) {
+  @if map-has-key($breakpoints, $lower) and map-has-key($breakpoints, $upper) {
+    $lower-value: map-get($breakpoints, $lower);
+    $upper-value: map-get($breakpoints, $upper);
+    
+    @media (min-width: $lower-value) and (max-width: #{ $upper-value - 1px }) {
+      @content;
+    }
+  } @else {
+    @warn "Breakpoints `#{$lower}` or `#{$upper}` not found in $breakpoints map.";
+  }
+}
+
+// Media query mixin for only specific breakpoint
+@mixin media-only($breakpoint) {
+  @if $breakpoint == xs {
+    @include media-down(sm) {
+      @content;
+    }
+  } @else if $breakpoint == sm {
+    @include media-between(sm, md) {
+      @content;
+    }
+  } @else if $breakpoint == md {
+    @include media-between(md, lg) {
+      @content;
+    }
+  } @else if $breakpoint == lg {
+    @include media-between(lg, xl) {
+      @content;
+    }
+  } @else if $breakpoint == xl {
+    @include media-between(xl, xxl) {
+      @content;
+    }
+  } @else if $breakpoint == xxl {
+    @include media-up(xxl) {
+      @content;
+    }
+  } @else {
+    @warn "Breakpoint `#{$breakpoint}` not supported for media-only mixin.";
+  }
+}
+
+// Custom media query mixin for custom breakpoints
+@mixin custom-media-up($breakpoint) {
+  @if map-has-key($custom-breakpoints, $breakpoint) {
+    $value: map-get($custom-breakpoints, $breakpoint);
+    @media (min-width: $value) {
+      @content;
+    }
+  } @else {
+    @warn "Custom breakpoint `#{$breakpoint}` not found in $custom-breakpoints map.";
+  }
+}
+
+@mixin custom-media-down($breakpoint) {
+  @if map-has-key($custom-breakpoints, $breakpoint) {
+    $value: map-get($custom-breakpoints, $breakpoint);
+    @media (max-width: #{ $value - 1px }) {
+      @content;
+    }
+  } @else {
+    @warn "Custom breakpoint `#{$breakpoint}` not found in $custom-breakpoints map.";
+  }
+}
+
+// ===================================================================
+// DEVICE-SPECIFIC MEDIA QUERIES
+// ===================================================================
+
+// Mobile devices (portrait and landscape)
+@mixin mobile {
+  @media (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin mobile-portrait {
+  @media (max-width: 767px) and (orientation: portrait) {
+    @content;
+  }
+}
+
+@mixin mobile-landscape {
+  @media (max-width: 767px) and (orientation: landscape) {
+    @content;
+  }
+}
+
+// Tablet devices
+@mixin tablet {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    @content;
+  }
+}
+
+@mixin tablet-portrait {
+  @media (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+    @content;
+  }
+}
+
+@mixin tablet-landscape {
+  @media (min-width: 768px) and (max-width: 1023px) and (orientation: landscape) {
+    @content;
+  }
+}
+
+// Desktop devices
+@mixin desktop {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin desktop-small {
+  @media (min-width: 1024px) and (max-width: 1199px) {
+    @content;
+  }
+}
+
+@mixin desktop-large {
+  @media (min-width: 1200px) {
+    @content;
+  }
+}
+
+// ===================================================================
+// FEATURE-BASED MEDIA QUERIES
+// ===================================================================
+
+// High DPI / Retina displays
+@mixin retina {
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    @content;
+  }
+}
+
+// Touch devices
+@mixin touch {
+  @media (hover: none) and (pointer: coarse) {
+    @content;
+  }
+}
+
+// Non-touch devices (mouse/trackpad)
+@mixin no-touch {
+  @media (hover: hover) and (pointer: fine) {
+    @content;
+  }
+}
+
+// Reduced motion preference
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+// Dark mode preference
+@mixin dark-mode {
+  @media (prefers-color-scheme: dark) {
+    @content;
+  }
+}
+
+// Light mode preference
+@mixin light-mode {
+  @media (prefers-color-scheme: light) {
+    @content;
+  }
+}
+
+// High contrast preference
+@mixin high-contrast {
+  @media (prefers-contrast: high) {
+    @content;
+  }
+}
+
+// ===================================================================
+// PRINT MEDIA QUERIES
+// ===================================================================
+
+@mixin print {
+  @media print {
+    @content;
+  }
+}
+
+// ===================================================================
+// UTILITY FUNCTIONS
+// ===================================================================
+
+// Get breakpoint value
+@function breakpoint($name) {
+  @if map-has-key($breakpoints, $name) {
+    @return map-get($breakpoints, $name);
+  } @else {
+    @warn "Breakpoint `#{$name}` not found in $breakpoints map.";
+    @return null;
+  }
+}
+
+// Get custom breakpoint value
+@function custom-breakpoint($name) {
+  @if map-has-key($custom-breakpoints, $name) {
+    @return map-get($custom-breakpoints, $name);
+  } @else {
+    @warn "Custom breakpoint `#{$name}` not found in $custom-breakpoints map.";
+    @return null;
+  }
+}
+
+// ===================================================================
+// RESPONSIVE HELPER CLASSES (Optional - can be generated)
+// ===================================================================
+
+// Generate responsive utility classes
+@mixin generate-responsive-utilities($property, $values, $prefix: '') {
+  @each $key, $value in $values {
+    .#{$prefix}#{$key} {
+      #{$property}: #{$value};
+    }
+    
+    @each $breakpoint-name, $breakpoint-value in $breakpoints {
+      @if $breakpoint-value > 0 {
+        @include media-up($breakpoint-name) {
+          .#{$prefix}#{$key}-#{$breakpoint-name} {
+            #{$property}: #{$value};
+          }
+        }
+      }
+    }
+  }
+}
+
+// Example usage (uncomment to generate classes):
+// @include generate-responsive-utilities('display', (
+//   'none': none,
+//   'block': block,
+//   'flex': flex,
+//   'grid': grid
+// ), 'd-');
+
+// ===================================================================
+// CONTAINER QUERIES (Future-proofing)
+// ===================================================================
+
+// Container query mixin (when supported)
+@mixin container($size) {
+  @container (min-width: #{$size}) {
+    @content;
+  }
+}

@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 @import "./mixin";
+@import "./media";
 * {
   margin: 0;
   padding: 0;
@@ -45,6 +46,9 @@ body {
         padding: 30px;
         border-radius: 32px;
         width: 60%;
+        @include media-down(sm){
+          width: 95%;
+        }
         .p_formTitle {
           font-weight: 500;
           font-size: 48px;
@@ -181,23 +185,24 @@ body {
   margin-left: 0.5rem;
   font-weight: 500;
   color: #ff0000;
-  @media (max-width: 1200px) {
+
+  @include media-down(xl) {
     font-size: 0.85rem;
   }
 
-  @media (max-width: 992px) {
+  @include media-down(lg) {
     font-size: 0.825rem;
   }
 
-  @media (max-width: 768px) {
+  @include media-down(md) {
     font-size: 0.8rem;
   }
 
-  @media (max-width: 576px) {
+  @include media-down(sm) {
     font-size: 0.775rem;
   }
 
-  @media (max-width: 480px) {
+  @include custom-media-down(mobile) {
     font-size: 0.75rem;
   }
 }
@@ -209,16 +214,16 @@ body {
   overflow: hidden;
 
   // Responsive layout adjustments
-  @media (max-width: 1200px) {
+  @include media-down(xl) {
     flex-direction: row;
   }
 
-  @media (max-width: 768px) {
+  @include media-down(md) {
     flex-direction: row;
     overflow-x: hidden;
   }
 
-  @media (max-width: 576px) {
+  @include media-down(sm) {
     flex-direction: row;
     overflow-x: hidden;
   }
@@ -232,27 +237,27 @@ body {
     min-width: 30rem;
     width: 30rem;
 
-    @media (max-width: 1200px) {
+    @include media-down(xl) {
       min-width: 28rem;
       width: 28rem;
     }
 
-    @media (max-width: 992px) {
+    @include media-down(lg) {
       min-width: 26rem;
       width: 26rem;
     }
 
-    @media (max-width: 768px) {
+    @include media-down(md) {
       min-width: 24rem;
       width: 24rem;
     }
 
-    @media (max-width: 576px) {
+    @include media-down(sm) {
       min-width: 22rem;
       width: 22rem;
     }
 
-    @media (max-width: 480px) {
+    @include custom-media-down(mobile) {
       min-width: 20rem;
       width: 20rem;
     }
@@ -263,17 +268,17 @@ body {
     min-width: 8rem;
     width: 8rem;
 
-    @media (max-width: 768px) {
+    @include media-down(md) {
       min-width: 7rem;
       width: 7rem;
     }
 
-    @media (max-width: 576px) {
+    @include media-down(sm) {
       min-width: 6rem;
       width: 6rem;
     }
 
-    @media (max-width: 480px) {
+    @include custom-media-down(mobile) {
       min-width: 5.5rem;
       width: 5.5rem;
     }
@@ -291,23 +296,23 @@ body {
     // Calculate width based on sidebar width
     width: calc(100% - 30rem); // Default: 100% - 480px
 
-    @media (max-width: 1200px) {
+    @include media-down(xl) {
       width: calc(100% - 28rem); // 100% - 448px
     }
 
-    @media (max-width: 992px) {
+    @include media-down(lg) {
       width: calc(100% - 26rem); // 100% - 416px
     }
 
-    @media (max-width: 768px) {
+    @include media-down(md) {
       width: calc(100% - 24rem); // 100% - 384px
     }
 
-    @media (max-width: 576px) {
+    @include media-down(sm) {
       width: calc(100% - 22rem); // 100% - 352px
     }
 
-    @media (max-width: 480px) {
+    @include custom-media-down(mobile) {
       width: calc(100% - 20rem); // 100% - 320px
     }
   }
@@ -316,15 +321,15 @@ body {
   &.sidebar-collapsed #mainBodySection {
     width: calc(100% - 8rem); // 100% - 128px
 
-    @media (max-width: 768px) {
+    @include media-down(md) {
       width: calc(100% - 7rem); // 100% - 112px
     }
 
-    @media (max-width: 576px) {
+    @include media-down(sm) {
       width: calc(100% - 6rem); // 100% - 96px
     }
 
-    @media (max-width: 480px) {
+    @include custom-media-down(mobile) {
       width: calc(100% - 5.5rem); // 100% - 88px
     }
   }

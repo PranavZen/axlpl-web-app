@@ -28,13 +28,13 @@ const RightTopBox = () => {
               </div>
             </div>
             <div className="row">
-              <div className="col-md-6 col-6">
+              <div className="col-md-6 col-12">
                 <div className="profRateBox">
                   <p>Rating</p>
                   <span>4.5</span>
                 </div>
               </div>
-              <div className="col-md-6 col-6">
+              <div className="col-md-6 col-12">
                 <div className="profRateBox">
                   <p>Delivery’s</p>
                   <span>110</span>

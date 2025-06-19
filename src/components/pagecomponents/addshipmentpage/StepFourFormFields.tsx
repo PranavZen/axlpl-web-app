@@ -529,7 +529,7 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
 
 
         {/* Payment Notes */}
-        <div className="payment-notes mt-3">
+        <div className="payment-notes mt-3 d-none">
           <div className="alert alert-info">
             <h6 className="alert-heading">
               <span className="me-2">ℹ️</span>

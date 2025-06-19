@@ -313,16 +313,26 @@ function Table<T extends Record<string, any>>({
                     )}
                     {columns.map((col, colIdx) => {
                       const value = item[col.accessor];
-                      const isLast = colIdx === columns.length - 1;
                       let cellClass = "";
 
-                      if (isLast && !col.cell && !rowActions) {
-                        const strValue = String(value);
-                        if (strValue.toLowerCase() === "approved") {
+                      // Apply status class if this is the status or shipment_status column
+                      if (col.accessor === "status" || col.accessor === "shipment_status") {
+                        const strValue = String(value).toLowerCase();
+                        if (strValue === "approved") {
                           cellClass = "status-approved";
-                        } else if (strValue.toLowerCase() === "pending") {
+                        } else if (strValue === "pending") {
                           cellClass = "status-pending";
-                        } else if (strValue.toLowerCase() === "rejected") {
+                        } else if (strValue === "waiting for pickup") {
+                          cellClass = "status-waitaing";
+                        } else if (strValue === "hold") {
+                          cellClass = "status-hold";
+                        } else if (strValue === "delivered") {
+                          cellClass = "status-delivered";
+                        } else if (strValue === "cancelled" || strValue === "canceled") {
+                          cellClass = "status-cancelled";
+                        } else if (strValue === "in transit" || strValue === "intransit") {
+                          cellClass = "status-intransit";
+                        } else if (strValue === "rejected") {
                           cellClass = "status-rejected";
                         }
                       }

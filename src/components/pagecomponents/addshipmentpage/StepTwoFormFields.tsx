@@ -48,7 +48,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     loading: customersLoading,
     error: customersError,
   } = useSelector((state: RootState) => state.customer);
-
+  
   const {
     pincodeDetail,
     areas,
@@ -147,7 +147,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
       if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-        const { state_id, state_name, city_id, city_name, area_name } = pincodeResult.payload;
+        const { state_id, state_name, city_id, city_name } = pincodeResult.payload;
 
         // Auto-populate state and city with proper select objects containing IDs
         setFieldValue('senderState', { value: state_id, label: state_name });
@@ -196,7 +196,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
       if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-        const { state_id, state_name, city_id, city_name, area_name } = pincodeResult.payload;
+        const { state_id, state_name, city_id, city_name } = pincodeResult.payload;
 
         // Auto-populate state and city with proper select objects containing IDs
         setFieldValue('receiverState', { value: state_id, label: state_name });
@@ -446,10 +446,15 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const userData = getUserData();
         const userId = userData?.Customerdetail?.id;
         const loginUserFields = mapLoginUserToSenderFields();
-        // Add the login user ID as sender customer ID
+        // Try to match area_name to area option
+        let matchedArea = null;
+        if (areas && Array.isArray(areas) && userData?.Customerdetail?.area_name) {
+          matchedArea = areas.find((a: any) => a.label === userData.Customerdetail.area_name || a.value === userData.Customerdetail.area_name);
+        }
         const fieldsWithCustomerId = {
           ...loginUserFields,
-          senderCustomerId: userId || ""
+          senderCustomerId: userId || "",
+          senderArea: matchedArea || null
         };
         populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
       } else {
@@ -457,10 +462,15 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const customer = findCustomerByName(customers, selectedOption.value);
         if (customer) {
           const mappedFields = mapCustomerToSenderFields(customer);
-          // Add the customer ID to the mapped fields
+          // Try to match area_name to area option
+          let matchedArea = null;
+          if (areas && Array.isArray(areas) && customer.area_name) {
+            matchedArea = areas.find((a: any) => a.label === customer.area_name || a.value === customer.area_name);
+          }
           const fieldsWithCustomerId = {
             ...mappedFields,
-            senderCustomerId: customer.id
+            senderCustomerId: customer.id,
+            senderArea: matchedArea || null
           };
           populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
         }
@@ -491,10 +501,15 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       if (customer) {
         try {
           const mappedFields = mapCustomerToReceiverFields(customer);
-          // Add the customer ID to the mapped fields
+          // Try to match area_name to area option
+          let matchedArea = null;
+          if (areas && Array.isArray(areas) && mappedFields.receiverArea === null && customer.area_name) {
+            matchedArea = areas.find((a: any) => a.label === customer.area_name || a.value === customer.area_name);
+          }
           const fieldsWithCustomerId = {
             ...mappedFields,
-            receiverCustomerId: customer.id
+            receiverCustomerId: customer.id,
+            receiverArea: matchedArea || null
           };
           populateReceiverFieldsAndClearErrors(fieldsWithCustomerId);
         } catch (error) {
@@ -673,7 +688,83 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     }, 200);
   };
 
+  // Auto-select sender area when areas are loaded and senderArea is not set
+  useEffect(() => {
+    if (
+      values.senderAddressType === 'existing' &&
+      selectedSenderCustomer &&
+      areas && Array.isArray(areas) &&
+      !values.senderArea
+    ) {
+      let customer: any = null;
+      if (selectedSenderCustomer.value === 'login_user') {
+        const userData = getUserData();
+        customer = userData?.Customerdetail;
+      } else {
+        customer = findCustomerByName(customers, selectedSenderCustomer.value);
+      }
+      if (customer && customer.area_name) {
+        const areaName = customer.area_name.trim().toLowerCase();
+        const matchedArea = areas.find((a: any) =>
+          (a.name && a.name.trim().toLowerCase() === areaName) ||
+          (a.label && a.label.trim().toLowerCase() === areaName)
+        );
+        if (matchedArea) {
+          setFieldValue('senderArea', { value: matchedArea.id, label: matchedArea.name });
+        }
+      }
+    }
+  }, [areas, values.senderAddressType, selectedSenderCustomer, customers, values.senderArea, setFieldValue]);
 
+  // Robustly auto-select sender area when areas or customer change
+  useEffect(() => {
+    if (
+      values.senderAddressType === 'existing' &&
+      selectedSenderCustomer &&
+      areas && Array.isArray(areas) &&
+      !values.senderArea
+    ) {
+      let customer: any = null;
+      if (selectedSenderCustomer.value === 'login_user') {
+        const userData = getUserData();
+        customer = userData?.Customerdetail;
+      } else {
+        customer = findCustomerByName(customers, selectedSenderCustomer.value);
+      }
+      if (customer && customer.area_name) {
+        const areaName = customer.area_name.trim().toLowerCase();
+        const matchedArea = areas.find((a: any) =>
+          (a.name && a.name.trim().toLowerCase() === areaName) ||
+          (a.label && a.label.trim().toLowerCase() === areaName)
+        );
+        if (matchedArea) {
+          setFieldValue('senderArea', { value: matchedArea.id, label: matchedArea.name });
+        }
+      }
+    }
+  }, [areas, values.senderAddressType, selectedSenderCustomer, customers, values.senderArea, setFieldValue]);
+
+  // Auto-select receiver area when areas are loaded and receiverArea is not set
+  useEffect(() => {
+    if (
+      values.receiverAddressType === 'existing' &&
+      selectedReceiverCustomer &&
+      areas && Array.isArray(areas) &&
+      !values.receiverArea
+    ) {
+      const customer: any = findCustomerByName(customers, selectedReceiverCustomer.value);
+      if (customer && customer.area_name) {
+        const areaName = customer.area_name.trim().toLowerCase();
+        const matchedArea = areas.find((a: any) =>
+          (a.name && a.name.trim().toLowerCase() === areaName) ||
+          (a.label && a.label.trim().toLowerCase() === areaName)
+        );
+        if (matchedArea) {
+          setFieldValue('receiverArea', { value: matchedArea.id, label: matchedArea.name });
+        }
+      }
+    }
+  }, [areas, values.receiverAddressType, selectedReceiverCustomer, customers, values.receiverArea, setFieldValue]);
 
   const handleSameAsPickup = (checked: boolean) => {
     setSameAsPickup(checked);
@@ -750,6 +841,20 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
     // Close the modal
     handleCloseAddAreaModal();
+  };
+
+  // Helper to get area option or fallback to string
+  const getAreaSelectValue = (areaValue: any, areaName: string, areas: any[]) => {
+    if (!areaName) return null;
+    // Try to find matching option
+    const areaNameNorm = areaName.trim().toLowerCase();
+    const matched = areas.find((a: any) =>
+      (a.name && a.name.trim().toLowerCase() === areaNameNorm) ||
+      (a.label && a.label.trim().toLowerCase() === areaNameNorm)
+    );
+    if (matched) return { value: matched.id, label: matched.name };
+    // Fallback: show as string option
+    return { value: areaName, label: areaName };
   };
 
   return (
@@ -886,9 +991,15 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           >
             <SingleSelect
               options={areasToOptions(areas)}
-              value={values.senderArea}
-              onChange={(option) => setFieldValue("senderArea", option)}
-              placeholder={areasLoading ? "Loading areas..." : "Select Area"}
+              value={
+                values.senderAddressType === 'existing' && selectedSenderCustomer
+                  ? getAreaSelectValue(values.senderArea, (selectedSenderCustomer.value === 'login_user'
+                      ? getUserData()?.Customerdetail?.area_name
+                      : findCustomerByName(customers, selectedSenderCustomer.value)?.area_name) || '', areas)
+                  : values.senderArea
+              }
+              onChange={(option) => setFieldValue('senderArea', option)}
+              placeholder={areasLoading ? 'Loading areas...' : 'Select Area'}
               isLoading={areasLoading}
             />
             {areasError && (
@@ -1122,9 +1233,13 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           >
             <SingleSelect
               options={areasToOptions(areas)}
-              value={values.receiverArea}
-              onChange={(option) => setFieldValue("receiverArea", option)}
-              placeholder={areasLoading ? "Loading areas..." : "Select Area"}
+              value={
+                values.receiverAddressType === 'existing' && selectedReceiverCustomer
+                  ? getAreaSelectValue(values.receiverArea, (findCustomerByName(customers, selectedReceiverCustomer.value)?.area_name) || '', areas)
+                  : values.receiverArea
+              }
+              onChange={(option) => setFieldValue('receiverArea', option)}
+              placeholder={areasLoading ? 'Loading areas...' : 'Select Area'}
               isLoading={areasLoading}
             />
             {areasError && (

@@ -23,7 +23,7 @@ const initialState: ShipmentState = {
 
 export const fetchAllShipments = createAsyncThunk(
     "shipments/fetchAll",
-    async (_, { rejectWithValue }) => {
+    async (shipment_status: string | undefined, { rejectWithValue }) => {
       try {
         const userData = getUserData();
         const token = userData?.Customerdetail?.token;
@@ -39,9 +39,11 @@ export const fetchAllShipments = createAsyncThunk(
         formData.append("sender_areaname", "");
         formData.append("receiver_areaname", "");
         formData.append("sender_gst_no", "");
+        formData.append("shipment_status", shipment_status || "");
         formData.append("receiver_gst_no", "");
         formData.append("user_id", user_id);
         formData.append("next_id", next_id);
+        
 
         const response = await axios.post(
           `${API_BASE_URL}/shipmentactivelist`,

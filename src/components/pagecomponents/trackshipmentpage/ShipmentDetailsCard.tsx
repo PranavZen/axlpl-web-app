@@ -81,6 +81,13 @@ const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data }) => {
                 </span>
               </div>
 
+               <div className="detail-item">
+                <label>Invoice Number</label>
+                <span className="highlight">
+                  {data.invoice_number}
+                </span>
+              </div>
+
               <div className="detail-item">
                 <label>Expected Delivery</label>
                 <span>{data.exp_date ? formatDate(data.exp_date) : "N/A"}</span>
@@ -184,7 +191,7 @@ const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data }) => {
                   <path d="M7,15H9C9,16.08 10.37,17 12,17C13.63,17 15,16.08 15,15C15,13.9 13.96,13.5 11.76,12.97C9.64,12.44 7,11.78 7,9C7,7.21 8.47,5.69 10.5,5.18V3H13.5V5.18C15.53,5.69 17,7.21 17,9H15C15,7.92 13.63,7 12,7C10.37,7 9,7.92 9,9C9,10.1 10.04,10.5 12.24,11.03C14.36,11.56 17,12.22 17,15C17,16.79 15.53,18.31 13.5,18.82V21H10.5V18.82C8.47,18.31 7,16.79 7,15Z"/>
                 </svg>
               </div>
-              <h4>Charges Breakdown</h4>
+              <h4>Charges Details</h4>
             </div>
 
             <div className="charges-grid">
@@ -215,10 +222,21 @@ const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data }) => {
                 <span>{formatCurrency(data.tax || "0")}</span>
               </div>
 
+              <div className="charge-item">
+                <label>GST</label>
+                <span>{formatCurrency(data.gst || "0")}</span>
+              </div>
+
               <div className="charge-item total">
                 <label>Total Charges</label>
                 <span className="total-amount">
                   {formatCurrency(data.total_charges || "0")}
+                </span>
+              </div>
+              <div className="charge-item total gTotal">
+                <label>Grand Total</label>
+                <span className="total-amount">
+                  {formatCurrency((data.grand_total ?? "0").toString())}
                 </span>
               </div>
             </div>

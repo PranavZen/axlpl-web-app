@@ -62,7 +62,7 @@ export const ROUTES = {
 
 // Shipment Status
 export const SHIPMENT_STATUS = {
-  ACTIVE: 'active',
+  APPROVED: 'approved',
   PENDING: 'pending',
   IN_TRANSIT: 'in_transit',
   DELIVERED: 'delivered',
@@ -70,9 +70,9 @@ export const SHIPMENT_STATUS = {
 } as const;
 
 export const SHIPMENT_STATUS_LABELS = {
-  [SHIPMENT_STATUS.ACTIVE]: 'Active',
+  [SHIPMENT_STATUS.APPROVED]: 'Approved',
   [SHIPMENT_STATUS.PENDING]: 'Pending',
-  [SHIPMENT_STATUS.IN_TRANSIT]: 'In Transit',
+  [SHIPMENT_STATUS.IN_TRANSIT]: 'Hold',
   [SHIPMENT_STATUS.DELIVERED]: 'Delivered',
   [SHIPMENT_STATUS.CANCELLED]: 'Cancelled',
 } as const;

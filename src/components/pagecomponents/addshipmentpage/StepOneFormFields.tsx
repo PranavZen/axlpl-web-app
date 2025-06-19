@@ -201,6 +201,9 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
         <StepFieldWrapper name="invoiceValue" label="Invoice Value (₹)" />
       </div>
       <div className="col-md-2">
+        <StepFieldWrapper name="invoiceNumber" label="Invoice Number" />
+      </div>
+      <div className="col-md-2">
         <StepFieldWrapper name="remark" label="Remark" />
       </div>
     </>

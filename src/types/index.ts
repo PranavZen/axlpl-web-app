@@ -221,6 +221,7 @@ export interface ShipmentDetails {
   policy_no: string;
   exp_date: string;
   insurance_value: string;
+  invoice_number: string;
   remark: string;
   bill_to: string;
   number_of_parcel: string;
@@ -234,6 +235,8 @@ export interface ShipmentDetails {
   user_id?: number | string;
   customer_id?: number | string;
   sender_id?: number | string;
+  gst?: string;
+  grand_total?: number;
 }
 
 export interface TrackingData {

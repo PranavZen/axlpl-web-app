@@ -6,7 +6,7 @@ const LeftBottomBox = () => {
     <div className="leftBottomBox box">
             <h4>Active Delivery's</h4>
             <div className="row">
-              <div className="col-md-12 col-lg-6 col-6">
+              <div className="col-md-12 col-lg-6 col-12">
                 <div className="btmBoxWrap">
                   <Link to="">
                     <p>Running Delivery's</p>
@@ -25,7 +25,7 @@ const LeftBottomBox = () => {
                   </Link>
                 </div>
               </div>
-              <div className="col-md-12 col-lg-6 col-6">
+              <div className="col-md-12 col-lg-6 col-12">
                 <div className="btmBoxWrap">
                   <Link to="">
                     <p>Running Pickup's</p>

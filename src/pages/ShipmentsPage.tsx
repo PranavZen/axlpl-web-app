@@ -21,20 +21,45 @@ const ShipmentsPage: React.FC = () => {
   const { shipments, loading, error } = useSelector(
     (state: RootState) => state.activeShipment
   );
-  console.log("shipments", shipments)
+  console.log("shipments Data", shipments);
+  console.log("shipment_status Data", shipment_status);
   const [selectedShipments, setSelectedShipments] = useState<any[]>([]);
 
   useEffect(() => {
-    dispatch(fetchAllShipments());
-  }, [dispatch]);
+    dispatch(fetchAllShipments(shipment_status));
+  }, [dispatch, shipment_status]);
 
   const filteredShipments = useMemo(() => {
     if (!shipment_status) return shipments;
-    return shipments.filter(
-      (shipment) =>
-        shipment.shipment_status?.toLowerCase() ===
-        shipment_status.toLowerCase()
-    );
+    const status = shipment_status.toLowerCase();
+    if (status === 'approved' || status === 'active') {
+      // Show all active statuses
+      const activeStatuses = [
+        'approved',
+        'waiting for pickup',
+        'picked up',
+        'shipped',
+        'out for delivery'
+      ];
+      return shipments.filter(
+        (shipment) => activeStatuses.includes((shipment.shipment_status || '').toLowerCase())
+      );
+    } else if (status === 'pending') {
+      return shipments.filter(
+        (shipment) => (shipment.shipment_status || '').toLowerCase() === 'pending'
+      );
+    } else if (status === 'hold') {
+      return shipments.filter(
+        (shipment) => (shipment.shipment_status || '').toLowerCase() === 'hold'
+      );
+    } else if (status === 'archived') {
+      const archivedStatuses = ['delivered', 'cancelled', 'returned'];
+      return shipments.filter(
+        (shipment) => archivedStatuses.includes((shipment.shipment_status || '').toLowerCase())
+      );
+    }
+    // Default fallback
+    return shipments;
   }, [shipments, shipment_status]);
 
   // Handle row selection change

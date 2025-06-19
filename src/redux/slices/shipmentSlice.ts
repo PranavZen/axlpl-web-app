@@ -78,6 +78,7 @@ export const submitShipment = createAsyncThunk(
       formData.append("payment_mode", getFieldValue(formValues.paymentMode));
       formData.append("service_id", getFieldValue(formValues.serviceType));
       formData.append("invoice_value", getFieldValue(formValues.invoiceValue));
+      formData.append("invoice_number", getFieldValue(formValues.invoiceNumber));
 
       // Insurance handling - all dynamic
       formData.append("axlpl_insurance", getBooleanValue(formValues.insurance));
@@ -104,10 +105,10 @@ export const submitShipment = createAsyncThunk(
       formData.append("shipment_invoice_no", getFieldValue(formValues.shipmentInvoiceNo, "1"));
       formData.append("is_amt_edited_by_user", getBooleanValue(formValues.isAmtEditedByUser || false));
 
-      // Generate dynamic shipment ID or use provided one
-      const dynamicShipmentId = getFieldValue(formValues.shipmentId) ||
-                               String(Date.now() + Math.floor(Math.random() * 100000000000));
-      formData.append("shipment_id", dynamicShipmentId);
+      // // Generate dynamic shipment ID or use provided one
+      // const dynamicShipmentId = getFieldValue(formValues.shipmentId) ||
+      //                          String(Date.now() + Math.floor(Math.random() * 100000000000));
+      formData.append("shipment_id", getFieldValue(formValues.shipmentId));
 
       // Sender details - dynamic values from form
       formData.append("sender_name", getFieldValue(formValues.senderName));
@@ -215,7 +216,7 @@ export const submitShipment = createAsyncThunk(
       formData.append("dangerous_goods", getBooleanValue(formValues.dangerousGoods || false));
 
 
-
+ 
 
 
 
