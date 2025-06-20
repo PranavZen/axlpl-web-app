@@ -41,7 +41,7 @@ const steps = [
 const AddShipment = () => {
   const [step, setStep] = useState(0);
   const dispatch = useDispatch<AppDispatch>();
-  const { submitting, submitError, submitSuccess, submittedShipmentId } = useSelector((state: RootState) => state.shipment);
+  const { submitting, submitError, submitSuccess, submittedShipmentId, formData } = useSelector((state: RootState) => state.shipment);
   const { isSidebarCollapsed } = useContext(SidebarContext);
 
   // Reset form data on component mount to ensure clean state
@@ -49,7 +49,7 @@ const AddShipment = () => {
     dispatch(resetFormData());
   }, [dispatch]);
 
-  const initialValues = {
+  const defaultInitialValues = {
     // Step 1: Shipment Details (Original Fields)
     name: "",
     category: null,
@@ -111,6 +111,9 @@ const AddShipment = () => {
     deliveryDate: "",
   };
 
+  // Merge default values with saved form data from Redux to preserve form state
+  const initialValues = { ...defaultInitialValues, ...formData };
+
   const validationSchemas = [
     // Step 1: Shipment Details (Original Fields)
     Yup.object({
@@ -126,36 +129,97 @@ const AddShipment = () => {
       invoiceNumber: Yup.string().required("Invoice number is required"),
     }),
 
-    // Step 2: Address Information (Simplified validation)
+    // Step 2: Address Information (Strict validation with improved email regex)
     Yup.object({
       senderAddressType: Yup.string().oneOf(["new", "existing"], "Invalid sender address type").required("Please select sender address type"),
       receiverAddressType: Yup.string().oneOf(["new", "existing"], "Invalid receiver address type").required("Please select receiver address type"),
       billTo: Yup.string().oneOf(["sender", "receiver"], "Please select who to bill").required("Please select billing option"),
 
-      // Only validate essential fields - let the component handle the rest
-      senderName: Yup.string().nullable(),
-      senderCompanyName: Yup.string().nullable(),
-      senderZipCode: Yup.string().nullable(),
-      senderState: Yup.string().nullable(),
-      senderCity: Yup.string().nullable(),
+      senderName: Yup.string()
+        .min(2, "Sender name must be at least 2 characters")
+        .max(100, "Sender name cannot exceed 100 characters")
+        .required("Sender name is required"),
+      senderCompanyName: Yup.string()
+        .min(2, "Sender company name must be at least 2 characters")
+        .max(100, "Sender company name cannot exceed 100 characters")
+        .required("Sender company name is required"),
+      senderZipCode: Yup.string()
+        .matches(/^\d{6}$/, "Sender zip code must be exactly 6 digits")
+        .required("Sender zip code is required"),
+      senderState: Yup.string()
+        .min(2, "Sender state must be at least 2 characters")
+        .max(50, "Sender state cannot exceed 50 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "Sender state can only contain letters, spaces, dots, and hyphens")
+        .required("Sender state is required"),
+      senderCity: Yup.string()
+        .min(2, "Sender city must be at least 2 characters")
+        .max(50, "Sender city cannot exceed 50 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "Sender city can only contain letters, spaces, dots, and hyphens")
+        .required("Sender city is required"),
       senderArea: Yup.object().nullable(),
-      senderGstNo: Yup.string().nullable(),
-      senderAddressLine1: Yup.string().nullable(),
-      senderAddressLine2: Yup.string().nullable(),
-      senderMobile: Yup.string().nullable(),
-      senderEmail: Yup.string().nullable(),
+      senderGstNo: Yup.string()
+        .matches(/^[a-zA-Z0-9]{15}$/, "Sender GST number must be exactly 15 alphanumeric characters")
+        .required("Sender GST number is required"),
+      senderAddressLine1: Yup.string()
+        .min(5, "Sender address line 1 must be at least 5 characters")
+        .max(200, "Sender address line 1 cannot exceed 200 characters")
+        .required("Sender address line 1 is required"),
+      senderAddressLine2: Yup.string()
+        .min(5, "Sender address line 2 must be at least 5 characters")
+        .max(200, "Sender address line 2 cannot exceed 200 characters")
+        .required("Sender address line 2 is required"),
+      senderMobile: Yup.string()
+        .matches(/^\d{10}$/, "Sender mobile must be exactly 10 digits")
+        .required("Sender mobile is required"),
+      senderEmail: Yup.string()
+        .matches(
+          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 
+          "Invalid sender email format"
+        )
+        .required("Sender email is required"),
 
-      receiverName: Yup.string().nullable(),
-      receiverCompanyName: Yup.string().nullable(),
-      receiverZipCode: Yup.string().nullable(),
-      receiverState: Yup.string().nullable(),
-      receiverCity: Yup.string().nullable(),
+      receiverName: Yup.string()
+        .min(2, "Receiver name must be at least 2 characters")
+        .max(100, "Receiver name cannot exceed 100 characters")
+        .required("Receiver name is required"),
+      receiverCompanyName: Yup.string()
+        .min(2, "Receiver company name must be at least 2 characters")
+        .max(100, "Receiver company name cannot exceed 100 characters")
+        .required("Receiver company name is required"),
+      receiverZipCode: Yup.string()
+        .matches(/^\d{6}$/, "Receiver zip code must be exactly 6 digits")
+        .required("Receiver zip code is required"),
+      receiverState: Yup.string()
+        .min(2, "Receiver state must be at least 2 characters")
+        .max(50, "Receiver state cannot exceed 50 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "Receiver state can only contain letters, spaces, dots, and hyphens")
+        .required("Receiver state is required"),
+      receiverCity: Yup.string()
+        .min(2, "Receiver city must be at least 2 characters")
+        .max(50, "Receiver city cannot exceed 50 characters")
+        .matches(/^[a-zA-Z\s.-]+$/, "Receiver city can only contain letters, spaces, dots, and hyphens")
+        .required("Receiver city is required"),
       receiverArea: Yup.object().nullable(),
-      receiverGstNo: Yup.string().nullable(),
-      receiverAddressLine1: Yup.string().nullable(),
-      receiverAddressLine2: Yup.string().nullable(),
-      receiverMobile: Yup.string().nullable(),
-      receiverEmail: Yup.string().nullable(),
+      receiverGstNo: Yup.string()
+        .matches(/^[a-zA-Z0-9]{15}$/, "Receiver GST number must be exactly 15 alphanumeric characters")
+        .required("Receiver GST number is required"),
+      receiverAddressLine1: Yup.string()
+        .min(5, "Receiver address line 1 must be at least 5 characters")
+        .max(200, "Receiver address line 1 cannot exceed 200 characters")
+        .required("Receiver address line 1 is required"),
+      receiverAddressLine2: Yup.string()
+        .min(5, "Receiver address line 2 must be at least 5 characters")
+        .max(200, "Receiver address line 2 cannot exceed 200 characters")
+        .required("Receiver address line 2 is required"),
+      receiverMobile: Yup.string()
+        .matches(/^\d{10}$/, "Receiver mobile must be exactly 10 digits")
+        .required("Receiver mobile is required"),
+      receiverEmail: Yup.string()
+        .matches(
+          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 
+          "Invalid receiver email format"
+        )
+        .required("Receiver email is required"),
       senderCustomerId: Yup.string().nullable(),
       receiverCustomerId: Yup.string().nullable(),
     }),
@@ -222,6 +286,39 @@ const AddShipment = () => {
       // No additional validation required for step 4
     }),
   ];
+
+  // Custom validation function for Step 2 critical fields
+  const validateStep2CriticalFields = (values: any) => {
+    const errors: string[] = [];
+
+    // Validate sender fields
+    if (!values.senderGstNo || values.senderGstNo.length !== 15 || !/^[a-zA-Z0-9]{15}$/.test(values.senderGstNo)) {
+      errors.push("Sender GST Number must be exactly 15 alphanumeric characters");
+    }
+
+    if (!values.senderMobile || values.senderMobile.length !== 10 || !/^\d{10}$/.test(values.senderMobile)) {
+      errors.push("Sender Mobile Number must be exactly 10 digits");
+    }
+
+    if (!values.senderEmail || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(values.senderEmail)) {
+      errors.push("Sender Email must be in valid format");
+    }
+
+    // Validate receiver fields
+    if (!values.receiverGstNo || values.receiverGstNo.length !== 15 || !/^[a-zA-Z0-9]{15}$/.test(values.receiverGstNo)) {
+      errors.push("Receiver GST Number must be exactly 15 alphanumeric characters");
+    }
+
+    if (!values.receiverMobile || values.receiverMobile.length !== 10 || !/^\d{10}$/.test(values.receiverMobile)) {
+      errors.push("Receiver Mobile Number must be exactly 10 digits");
+    }
+
+    if (!values.receiverEmail || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(values.receiverEmail)) {
+      errors.push("Receiver Email must be in valid format");
+    }
+
+    return errors;
+  };
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
     try {
@@ -331,9 +428,6 @@ const AddShipment = () => {
                   initialValues={initialValues}
                   validationSchema={validationSchemas[step]}
                   onSubmit={async (values, formikHelpers) => {
-
-
-
                     // Check for validation errors
                     try {
                       await validationSchemas[step].validate(values, { abortEarly: false });
@@ -347,7 +441,19 @@ const AddShipment = () => {
                       return; // Don't proceed if validation fails
                     }
 
+                    // Additional validation for Step 2 critical fields before proceeding to Step 3
+                    if (step === 1) { // Step 2 (0-indexed)
+                      const criticalFieldErrors = validateStep2CriticalFields(values);
+                      if (criticalFieldErrors.length > 0) {
+                        const errorMessage = `Please fix the following critical validation errors before proceeding:\n${criticalFieldErrors.join('\n')}`;
+                        toast.error(errorMessage);
+                        return; // Don't proceed if critical validation fails
+                      }
+                    }
+
+                    // Always save form data to Redux before proceeding
                     dispatch(setFormData(values));
+
                     if (step === steps.length - 1) {
                       await handleSubmit(values, formikHelpers);
                     } else {
@@ -414,7 +520,11 @@ const AddShipment = () => {
                       <FormNavigation
                         step={step}
                         stepsLength={steps.length}
-                        onBack={() => setStep(step - 1)}
+                        onBack={() => {
+                          // Save current form data before going back
+                          dispatch(setFormData(values));
+                          setStep(step - 1);
+                        }}
                         isLastStep={step === steps.length - 1}
                         isSubmitting={submitting}
                       />

@@ -28,7 +28,7 @@ export const fetchAllShipments = createAsyncThunk(
         const userData = getUserData();
         const token = userData?.Customerdetail?.token;
         const user_id = userData?.Customerdetail?.id;
-        const next_id = sessionStorage.getItem("next_id") || "1";
+        const next_id = sessionStorage.getItem("next_id") || "0";
 
         const formData = new FormData();
         formData.append("shipment_id", "");

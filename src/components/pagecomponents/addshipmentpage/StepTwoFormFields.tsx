@@ -7,8 +7,15 @@ import Checkbox from "../../ui/checkbox/Checkbox";
 import AddAreaButton from "../../ui/button/AddAreaButton";
 import AddAreaModal from "../../ui/modal/AddAreaModal";
 import { RootState, AppDispatch } from "../../../redux/store";
-import { fetchCustomers, searchCustomers } from "../../../redux/slices/customerSlice";
-import { fetchPincodeDetail, fetchAreasByPincode, addAreaToList } from "../../../redux/slices/pincodeSlice";
+import {
+  fetchCustomers,
+  searchCustomers,
+} from "../../../redux/slices/customerSlice";
+import {
+  fetchPincodeDetail,
+  fetchAreasByPincode,
+  addAreaToList,
+} from "../../../redux/slices/pincodeSlice";
 import { getUserData } from "../../../utils/authUtils";
 import { InlineLogisticsLoader } from "../../ui/spinner";
 import {
@@ -48,7 +55,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     loading: customersLoading,
     error: customersError,
   } = useSelector((state: RootState) => state.customer);
-  
+
   const {
     pincodeDetail,
     areas,
@@ -65,15 +72,20 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     useState<any>(null);
   // Section-specific auto-populating states
   const [isSenderAutoPopulating, setIsSenderAutoPopulating] = useState(false);
-  const [isReceiverAutoPopulating, setIsReceiverAutoPopulating] = useState(false);
+  const [isReceiverAutoPopulating, setIsReceiverAutoPopulating] =
+    useState(false);
 
   // State to track when address type is being changed to suppress validation errors
-  const [isSenderAddressTypeChanging, setIsSenderAddressTypeChanging] = useState(false);
-  const [isReceiverAddressTypeChanging, setIsReceiverAddressTypeChanging] = useState(false);
+  const [isSenderAddressTypeChanging, setIsSenderAddressTypeChanging] =
+    useState(false);
+  const [isReceiverAddressTypeChanging, setIsReceiverAddressTypeChanging] =
+    useState(false);
 
   // Modal state for Add Area functionality
   const [isAddAreaModalOpen, setIsAddAreaModalOpen] = useState(false);
-  const [modalContext, setModalContext] = useState<'sender' | 'receiver' | null>(null);
+  const [modalContext, setModalContext] = useState<
+    "sender" | "receiver" | null
+  >(null);
 
   // Search state for customer search functionality
   const [receiverSearchQuery, setReceiverSearchQuery] = useState("");
@@ -84,8 +96,14 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   const receiverPincodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Helper functions to determine if errors should be suppressed (section-specific)
-  const shouldSuppressSenderErrors = isSenderAutoPopulating || values.senderAddressType === "existing" || isSenderAddressTypeChanging;
-  const shouldSuppressReceiverErrors = isReceiverAutoPopulating || values.receiverAddressType === "existing" || isReceiverAddressTypeChanging;
+  const shouldSuppressSenderErrors =
+    isSenderAutoPopulating ||
+    values.senderAddressType === "existing" ||
+    isSenderAddressTypeChanging;
+  const shouldSuppressReceiverErrors =
+    isReceiverAutoPopulating ||
+    values.receiverAddressType === "existing" ||
+    isReceiverAddressTypeChanging;
 
   // Section-specific helper functions to populate fields and clear validation errors
   const populateSenderFieldsAndClearErrors = useCallback(
@@ -141,125 +159,144 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   );
 
   // Core pincode fetch function for sender
-  const fetchSenderPincodeData = useCallback(async (pincode: string) => {
-    try {
-      // Fetch pincode details first
-      const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
+  const fetchSenderPincodeData = useCallback(
+    async (pincode: string) => {
+      try {
+        // Fetch pincode details first
+        const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
-      if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-        const { state_id, state_name, city_id, city_name } = pincodeResult.payload;
+        if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
+          const { state_id, state_name, city_id, city_name } =
+            pincodeResult.payload;
 
-        // Auto-populate state and city with proper select objects containing IDs
-        setFieldValue('senderState', { value: state_id, label: state_name });
-        setFieldValue('senderCity', { value: city_id, label: city_name });
+          // Auto-populate state and city with proper select objects containing IDs
+          setFieldValue("senderState", { value: state_id, label: state_name });
+          setFieldValue("senderCity", { value: city_id, label: city_name });
+        }
+
+        // Fetch areas for the pincode
+        const areasResult = await dispatch(fetchAreasByPincode(pincode));
+
+        if (fetchAreasByPincode.fulfilled.match(areasResult)) {
+          // Clear any previously selected area since we have new options
+          setFieldValue("senderArea", null);
+        }
+      } catch (error) {
+        // Error handling can be added here if needed
       }
-
-      // Fetch areas for the pincode
-      const areasResult = await dispatch(fetchAreasByPincode(pincode));
-
-      if (fetchAreasByPincode.fulfilled.match(areasResult)) {
-        // Clear any previously selected area since we have new options
-        setFieldValue('senderArea', null);
-      }
-    } catch (error) {
-      // Error handling can be added here if needed
-    }
-  }, [dispatch, setFieldValue]);
+    },
+    [dispatch, setFieldValue]
+  );
 
   // Debounced pincode handler for sender
-  const handleSenderPincodeChange = useCallback((pincode: string) => {
-    // Clear any existing timeout
-    if (senderPincodeTimeoutRef.current) {
-      clearTimeout(senderPincodeTimeoutRef.current);
-    }
+  const handleSenderPincodeChange = useCallback(
+    (pincode: string) => {
+      // Clear any existing timeout
+      if (senderPincodeTimeoutRef.current) {
+        clearTimeout(senderPincodeTimeoutRef.current);
+      }
 
-    // Only trigger when we have exactly 6 digits
-    if (pincode && pincode.length === 6 && /^\d{6}$/.test(pincode)) {
-      // Debounce the API call by 300ms
-      senderPincodeTimeoutRef.current = setTimeout(() => {
-        fetchSenderPincodeData(pincode);
-      }, 300);
-    } else if (pincode && pincode.length < 6) {
-      // Clear state, city, and area when pincode is incomplete
-      setFieldValue('senderState', '');
-      setFieldValue('senderCity', '');
-      setFieldValue('senderArea', null);
-    }
-  }, [fetchSenderPincodeData, setFieldValue]);
+      // Only trigger when we have exactly 6 digits
+      if (pincode && pincode.length === 6 && /^\d{6}$/.test(pincode)) {
+        // Debounce the API call by 300ms
+        senderPincodeTimeoutRef.current = setTimeout(() => {
+          fetchSenderPincodeData(pincode);
+        }, 300);
+      } else if (pincode && pincode.length < 6) {
+        // Clear state, city, and area when pincode is incomplete
+        setFieldValue("senderState", "");
+        setFieldValue("senderCity", "");
+        setFieldValue("senderArea", null);
+      }
+    },
+    [fetchSenderPincodeData, setFieldValue]
+  );
 
   // Core pincode fetch function for receiver
-  const fetchReceiverPincodeData = useCallback(async (pincode: string) => {
-    try {
-      console.log('🔍 Fetching data for Receiver Pincode:', pincode);
+  const fetchReceiverPincodeData = useCallback(
+    async (pincode: string) => {
+      try {
+        console.log("🔍 Fetching data for Receiver Pincode:", pincode);
 
-      // Fetch pincode details first
-      const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
+        // Fetch pincode details first
+        const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
-      if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-        const { state_id, state_name, city_id, city_name } = pincodeResult.payload;
+        if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
+          const { state_id, state_name, city_id, city_name } =
+            pincodeResult.payload;
 
-        // Auto-populate state and city with proper select objects containing IDs
-        setFieldValue('receiverState', { value: state_id, label: state_name });
-        setFieldValue('receiverCity', { value: city_id, label: city_name });
+          // Auto-populate state and city with proper select objects containing IDs
+          setFieldValue("receiverState", {
+            value: state_id,
+            label: state_name,
+          });
+          setFieldValue("receiverCity", { value: city_id, label: city_name });
+        }
 
+        // Fetch areas for the pincode
+        const areasResult = await dispatch(fetchAreasByPincode(pincode));
+
+        if (fetchAreasByPincode.fulfilled.match(areasResult)) {
+          // Clear any previously selected area since we have new options
+          setFieldValue("receiverArea", null);
+        }
+      } catch (error) {
+        // Error handling can be added here if needed
       }
-
-      // Fetch areas for the pincode
-      const areasResult = await dispatch(fetchAreasByPincode(pincode));
-
-      if (fetchAreasByPincode.fulfilled.match(areasResult)) {
-        // Clear any previously selected area since we have new options
-        setFieldValue('receiverArea', null);
-      }
-    } catch (error) {
-      // Error handling can be added here if needed
-    }
-  }, [dispatch, setFieldValue]);
+    },
+    [dispatch, setFieldValue]
+  );
 
   // Debounced pincode handler for receiver
-  const handleReceiverPincodeChange = useCallback((pincode: string) => {
-    // Clear any existing timeout
-    if (receiverPincodeTimeoutRef.current) {
-      clearTimeout(receiverPincodeTimeoutRef.current);
-    }
+  const handleReceiverPincodeChange = useCallback(
+    (pincode: string) => {
+      // Clear any existing timeout
+      if (receiverPincodeTimeoutRef.current) {
+        clearTimeout(receiverPincodeTimeoutRef.current);
+      }
 
-    // Only trigger when we have exactly 6 digits
-    if (pincode && pincode.length === 6 && /^\d{6}$/.test(pincode)) {
-      // Debounce the API call by 300ms
-      receiverPincodeTimeoutRef.current = setTimeout(() => {
-        fetchReceiverPincodeData(pincode);
-      }, 300);
-    } else if (pincode && pincode.length < 6) {
-      // Clear state, city, and area when pincode is incomplete
-      setFieldValue('receiverState', '');
-      setFieldValue('receiverCity', '');
-      setFieldValue('receiverArea', null);
-    }
-  }, [fetchReceiverPincodeData, setFieldValue]);
+      // Only trigger when we have exactly 6 digits
+      if (pincode && pincode.length === 6 && /^\d{6}$/.test(pincode)) {
+        // Debounce the API call by 300ms
+        receiverPincodeTimeoutRef.current = setTimeout(() => {
+          fetchReceiverPincodeData(pincode);
+        }, 300);
+      } else if (pincode && pincode.length < 6) {
+        // Clear state, city, and area when pincode is incomplete
+        setFieldValue("receiverState", "");
+        setFieldValue("receiverCity", "");
+        setFieldValue("receiverArea", null);
+      }
+    },
+    [fetchReceiverPincodeData, setFieldValue]
+  );
 
   // Function to search customers
-  const handleCustomerSearch = useCallback(async (searchQuery: string) => {
-    if (!searchQuery || searchQuery.trim() === '') {
-      // If search query is empty, fetch all customers
-      const params = getCustomerApiParams();
-      dispatch(fetchCustomers(params));
-      return;
-    }
+  const handleCustomerSearch = useCallback(
+    async (searchQuery: string) => {
+      if (!searchQuery || searchQuery.trim() === "") {
+        // If search query is empty, fetch all customers
+        const params = getCustomerApiParams();
+        dispatch(fetchCustomers(params));
+        return;
+      }
 
-    setIsSearching(true);
-    try {
-      const baseParams = getCustomerApiParams();
-      const searchParams = {
-        ...baseParams,
-        search_query: searchQuery.trim()
-      };
-      await dispatch(searchCustomers(searchParams));
-    } catch (error) {
-      // Error handling can be added here if needed
-    } finally {
-      setIsSearching(false);
-    }
-  }, [dispatch]);
+      setIsSearching(true);
+      try {
+        const baseParams = getCustomerApiParams();
+        const searchParams = {
+          ...baseParams,
+          search_query: searchQuery.trim(),
+        };
+        await dispatch(searchCustomers(searchParams));
+      } catch (error) {
+        // Error handling can be added here if needed
+      } finally {
+        setIsSearching(false);
+      }
+    },
+    [dispatch]
+  );
 
   // Fetch customers on component mount with default search
   useEffect(() => {
@@ -303,41 +340,41 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       "receiverAddressLine1",
       "receiverAddressLine2",
       "receiverMobile",
-      "receiverEmail"
+      "receiverEmail",
     ];
 
     if (values.receiverAddressType === "existing") {
       // Clear all receiver field validation errors when switching to existing
-      receiverFields.forEach(field => {
+      receiverFields.forEach((field) => {
         setFieldError(field, undefined);
       });
 
       // Additional clearing with multiple timeouts
       setTimeout(() => {
-        receiverFields.forEach(field => {
+        receiverFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 25);
 
       setTimeout(() => {
-        receiverFields.forEach(field => {
+        receiverFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 100);
     } else if (values.receiverAddressType === "new") {
       // When switching to "new", clear errors immediately and with delays
-      receiverFields.forEach(field => {
+      receiverFields.forEach((field) => {
         setFieldError(field, undefined);
       });
 
       setTimeout(() => {
-        receiverFields.forEach(field => {
+        receiverFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 25);
 
       setTimeout(() => {
-        receiverFields.forEach(field => {
+        receiverFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 100);
@@ -357,41 +394,41 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       "senderAddressLine1",
       "senderAddressLine2",
       "senderMobile",
-      "senderEmail"
+      "senderEmail",
     ];
 
     if (values.senderAddressType === "existing") {
       // Clear all sender field validation errors when switching to existing
-      senderFields.forEach(field => {
+      senderFields.forEach((field) => {
         setFieldError(field, undefined);
       });
 
       // Additional clearing with multiple timeouts
       setTimeout(() => {
-        senderFields.forEach(field => {
+        senderFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 25);
 
       setTimeout(() => {
-        senderFields.forEach(field => {
+        senderFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 100);
     } else if (values.senderAddressType === "new") {
       // When switching to "new", clear errors immediately and with delays
-      senderFields.forEach(field => {
+      senderFields.forEach((field) => {
         setFieldError(field, undefined);
       });
 
       setTimeout(() => {
-        senderFields.forEach(field => {
+        senderFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 25);
 
       setTimeout(() => {
-        senderFields.forEach(field => {
+        senderFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 100);
@@ -405,9 +442,13 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       const userData = getUserData();
       const customerDetail = userData?.Customerdetail;
       const userId = customerDetail?.id;
-      const userName = customerDetail?.name || customerDetail?.full_name || customerDetail?.customer_name || 'Your Account';
+      const userName =
+        customerDetail?.name ||
+        customerDetail?.full_name ||
+        customerDetail?.customer_name ||
+        "Your Account";
       const loginUserOption = {
-        value: 'login_user',
+        value: "login_user",
         label: `${userName} (Your Account)`,
       };
       setSelectedSenderCustomer(loginUserOption);
@@ -417,7 +458,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       if (Object.keys(loginUserFields).length > 0) {
         const fieldsWithCustomerId = {
           ...loginUserFields,
-          senderCustomerId: userId || ""
+          senderCustomerId: userId || "",
         };
         populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
       }
@@ -441,20 +482,28 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     setSelectedSenderCustomer(selectedOption);
 
     if (selectedOption) {
-      if (selectedOption.value === 'login_user') {
+      if (selectedOption.value === "login_user") {
         // Use login user data
         const userData = getUserData();
         const userId = userData?.Customerdetail?.id;
         const loginUserFields = mapLoginUserToSenderFields();
         // Try to match area_name to area option
         let matchedArea = null;
-        if (areas && Array.isArray(areas) && userData?.Customerdetail?.area_name) {
-          matchedArea = areas.find((a: any) => a.label === userData.Customerdetail.area_name || a.value === userData.Customerdetail.area_name);
+        if (
+          areas &&
+          Array.isArray(areas) &&
+          userData?.Customerdetail?.area_name
+        ) {
+          matchedArea = areas.find(
+            (a: any) =>
+              a.label === userData.Customerdetail.area_name ||
+              a.value === userData.Customerdetail.area_name
+          );
         }
         const fieldsWithCustomerId = {
           ...loginUserFields,
           senderCustomerId: userId || "",
-          senderArea: matchedArea || null
+          senderArea: matchedArea || null,
         };
         populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
       } else {
@@ -465,12 +514,15 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           // Try to match area_name to area option
           let matchedArea = null;
           if (areas && Array.isArray(areas) && customer.area_name) {
-            matchedArea = areas.find((a: any) => a.label === customer.area_name || a.value === customer.area_name);
+            matchedArea = areas.find(
+              (a: any) =>
+                a.label === customer.area_name || a.value === customer.area_name
+            );
           }
           const fieldsWithCustomerId = {
             ...mappedFields,
             senderCustomerId: customer.id,
-            senderArea: matchedArea || null
+            senderArea: matchedArea || null,
           };
           populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
         }
@@ -481,7 +533,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       // Also clear the customer ID
       const fieldsWithClearedId = {
         ...clearedFields,
-        senderCustomerId: ""
+        senderCustomerId: "",
       };
       populateSenderFieldsAndClearErrors(fieldsWithClearedId);
     }
@@ -503,13 +555,21 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           const mappedFields = mapCustomerToReceiverFields(customer);
           // Try to match area_name to area option
           let matchedArea = null;
-          if (areas && Array.isArray(areas) && mappedFields.receiverArea === null && customer.area_name) {
-            matchedArea = areas.find((a: any) => a.label === customer.area_name || a.value === customer.area_name);
+          if (
+            areas &&
+            Array.isArray(areas) &&
+            mappedFields.receiverArea === null &&
+            customer.area_name
+          ) {
+            matchedArea = areas.find(
+              (a: any) =>
+                a.label === customer.area_name || a.value === customer.area_name
+            );
           }
           const fieldsWithCustomerId = {
             ...mappedFields,
             receiverCustomerId: customer.id,
-            receiverArea: matchedArea || null
+            receiverArea: matchedArea || null,
           };
           populateReceiverFieldsAndClearErrors(fieldsWithCustomerId);
         } catch (error) {
@@ -523,7 +583,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       // Also clear the customer ID
       const fieldsWithClearedId = {
         ...clearedFields,
-        receiverCustomerId: ""
+        receiverCustomerId: "",
       };
       populateReceiverFieldsAndClearErrors(fieldsWithClearedId);
     }
@@ -549,11 +609,11 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       "senderAddressLine1",
       "senderAddressLine2",
       "senderMobile",
-      "senderEmail"
+      "senderEmail",
     ];
 
     // Immediately clear all sender validation errors regardless of address type
-    senderFields.forEach(field => {
+    senderFields.forEach((field) => {
       setFieldError(field, undefined);
     });
 
@@ -561,9 +621,13 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       // Auto-select login user option
       const userData = getUserData();
       const customerDetail = userData?.Customerdetail;
-      const userName = customerDetail?.name || customerDetail?.full_name || customerDetail?.customer_name || 'Your Account';
+      const userName =
+        customerDetail?.name ||
+        customerDetail?.full_name ||
+        customerDetail?.customer_name ||
+        "Your Account";
       const loginUserOption = {
-        value: 'login_user',
+        value: "login_user",
         label: `${userName} (Your Account)`,
       };
       setSelectedSenderCustomer(loginUserOption);
@@ -576,7 +640,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
       // Additional clearing for existing address mode
       setTimeout(() => {
-        senderFields.forEach(field => {
+        senderFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 10);
@@ -589,7 +653,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
       // Additional error clearing for new address mode
       setTimeout(() => {
-        senderFields.forEach(field => {
+        senderFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 10);
@@ -597,13 +661,13 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
     // Multiple timeout layers to ensure errors stay cleared
     setTimeout(() => {
-      senderFields.forEach(field => {
+      senderFields.forEach((field) => {
         setFieldError(field, undefined);
       });
     }, 50);
 
     setTimeout(() => {
-      senderFields.forEach(field => {
+      senderFields.forEach((field) => {
         setFieldError(field, undefined);
       });
     }, 150);
@@ -639,18 +703,18 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       "receiverAddressLine1",
       "receiverAddressLine2",
       "receiverMobile",
-      "receiverEmail"
+      "receiverEmail",
     ];
 
     // Immediately clear all receiver validation errors regardless of address type
-    receiverFields.forEach(field => {
+    receiverFields.forEach((field) => {
       setFieldError(field, undefined);
     });
 
     if (value === "existing") {
       // Additional clearing for existing address mode
       setTimeout(() => {
-        receiverFields.forEach(field => {
+        receiverFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 10);
@@ -663,7 +727,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
       // Additional error clearing for new address mode
       setTimeout(() => {
-        receiverFields.forEach(field => {
+        receiverFields.forEach((field) => {
           setFieldError(field, undefined);
         });
       }, 10);
@@ -671,13 +735,13 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
     // Multiple timeout layers to ensure errors stay cleared
     setTimeout(() => {
-      receiverFields.forEach(field => {
+      receiverFields.forEach((field) => {
         setFieldError(field, undefined);
       });
     }, 50);
 
     setTimeout(() => {
-      receiverFields.forEach(field => {
+      receiverFields.forEach((field) => {
         setFieldError(field, undefined);
       });
     }, 150);
@@ -691,13 +755,14 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   // Auto-select sender area when areas are loaded and senderArea is not set
   useEffect(() => {
     if (
-      values.senderAddressType === 'existing' &&
+      values.senderAddressType === "existing" &&
       selectedSenderCustomer &&
-      areas && Array.isArray(areas) &&
+      areas &&
+      Array.isArray(areas) &&
       !values.senderArea
     ) {
       let customer: any = null;
-      if (selectedSenderCustomer.value === 'login_user') {
+      if (selectedSenderCustomer.value === "login_user") {
         const userData = getUserData();
         customer = userData?.Customerdetail;
       } else {
@@ -705,27 +770,39 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       }
       if (customer && customer.area_name) {
         const areaName = customer.area_name.trim().toLowerCase();
-        const matchedArea = areas.find((a: any) =>
-          (a.name && a.name.trim().toLowerCase() === areaName) ||
-          (a.label && a.label.trim().toLowerCase() === areaName)
+        const matchedArea = areas.find(
+          (a: any) =>
+            (a.name && a.name.trim().toLowerCase() === areaName) ||
+            (a.label && a.label.trim().toLowerCase() === areaName)
         );
         if (matchedArea) {
-          setFieldValue('senderArea', { value: matchedArea.id, label: matchedArea.name });
+          setFieldValue("senderArea", {
+            value: matchedArea.id,
+            label: matchedArea.name,
+          });
         }
       }
     }
-  }, [areas, values.senderAddressType, selectedSenderCustomer, customers, values.senderArea, setFieldValue]);
+  }, [
+    areas,
+    values.senderAddressType,
+    selectedSenderCustomer,
+    customers,
+    values.senderArea,
+    setFieldValue,
+  ]);
 
   // Robustly auto-select sender area when areas or customer change
   useEffect(() => {
     if (
-      values.senderAddressType === 'existing' &&
+      values.senderAddressType === "existing" &&
       selectedSenderCustomer &&
-      areas && Array.isArray(areas) &&
+      areas &&
+      Array.isArray(areas) &&
       !values.senderArea
     ) {
       let customer: any = null;
-      if (selectedSenderCustomer.value === 'login_user') {
+      if (selectedSenderCustomer.value === "login_user") {
         const userData = getUserData();
         customer = userData?.Customerdetail;
       } else {
@@ -733,38 +810,64 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       }
       if (customer && customer.area_name) {
         const areaName = customer.area_name.trim().toLowerCase();
-        const matchedArea = areas.find((a: any) =>
-          (a.name && a.name.trim().toLowerCase() === areaName) ||
-          (a.label && a.label.trim().toLowerCase() === areaName)
+        const matchedArea = areas.find(
+          (a: any) =>
+            (a.name && a.name.trim().toLowerCase() === areaName) ||
+            (a.label && a.label.trim().toLowerCase() === areaName)
         );
         if (matchedArea) {
-          setFieldValue('senderArea', { value: matchedArea.id, label: matchedArea.name });
+          setFieldValue("senderArea", {
+            value: matchedArea.id,
+            label: matchedArea.name,
+          });
         }
       }
     }
-  }, [areas, values.senderAddressType, selectedSenderCustomer, customers, values.senderArea, setFieldValue]);
+  }, [
+    areas,
+    values.senderAddressType,
+    selectedSenderCustomer,
+    customers,
+    values.senderArea,
+    setFieldValue,
+  ]);
 
   // Auto-select receiver area when areas are loaded and receiverArea is not set
   useEffect(() => {
     if (
-      values.receiverAddressType === 'existing' &&
+      values.receiverAddressType === "existing" &&
       selectedReceiverCustomer &&
-      areas && Array.isArray(areas) &&
+      areas &&
+      Array.isArray(areas) &&
       !values.receiverArea
     ) {
-      const customer: any = findCustomerByName(customers, selectedReceiverCustomer.value);
+      const customer: any = findCustomerByName(
+        customers,
+        selectedReceiverCustomer.value
+      );
       if (customer && customer.area_name) {
         const areaName = customer.area_name.trim().toLowerCase();
-        const matchedArea = areas.find((a: any) =>
-          (a.name && a.name.trim().toLowerCase() === areaName) ||
-          (a.label && a.label.trim().toLowerCase() === areaName)
+        const matchedArea = areas.find(
+          (a: any) =>
+            (a.name && a.name.trim().toLowerCase() === areaName) ||
+            (a.label && a.label.trim().toLowerCase() === areaName)
         );
         if (matchedArea) {
-          setFieldValue('receiverArea', { value: matchedArea.id, label: matchedArea.name });
+          setFieldValue("receiverArea", {
+            value: matchedArea.id,
+            label: matchedArea.name,
+          });
         }
       }
     }
-  }, [areas, values.receiverAddressType, selectedReceiverCustomer, customers, values.receiverArea, setFieldValue]);
+  }, [
+    areas,
+    values.receiverAddressType,
+    selectedReceiverCustomer,
+    customers,
+    values.receiverArea,
+    setFieldValue,
+  ]);
 
   const handleSameAsPickup = (checked: boolean) => {
     setSameAsPickup(checked);
@@ -802,7 +905,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   };
 
   // Modal handler functions
-  const handleOpenAddAreaModal = (context: 'sender' | 'receiver') => {
+  const handleOpenAddAreaModal = (context: "sender" | "receiver") => {
     setModalContext(context);
     setIsAddAreaModalOpen(true);
   };
@@ -817,26 +920,31 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     const newAreaId = Date.now().toString();
 
     // Add the new area to the Redux store using the proper action
-    dispatch(addAreaToList({
-      id: newAreaId,
-      name: newArea.value,
-      city_id: '',
-      pincode: modalContext === 'sender' ? values.senderZipCode : values.receiverZipCode
-    }));
+    dispatch(
+      addAreaToList({
+        id: newAreaId,
+        name: newArea.value,
+        city_id: "",
+        pincode:
+          modalContext === "sender"
+            ? values.senderZipCode
+            : values.receiverZipCode,
+      })
+    );
 
     // Create the option in the correct format for the dropdown (matching areasToOptions format)
     const areaOption = {
       value: newAreaId, // Use the ID as value (consistent with areasToOptions)
-      label: newArea.value // Use the area name as label
+      label: newArea.value, // Use the area name as label
     };
 
     // Select the new area in the appropriate field
-    if (modalContext === 'sender') {
-      setFieldValue('senderArea', areaOption);
-      console.log('✅ New area added and selected for sender:', areaOption);
-    } else if (modalContext === 'receiver') {
-      setFieldValue('receiverArea', areaOption);
-      console.log('✅ New area added and selected for receiver:', areaOption);
+    if (modalContext === "sender") {
+      setFieldValue("senderArea", areaOption);
+      console.log("✅ New area added and selected for sender:", areaOption);
+    } else if (modalContext === "receiver") {
+      setFieldValue("receiverArea", areaOption);
+      console.log("✅ New area added and selected for receiver:", areaOption);
     }
 
     // Close the modal
@@ -844,13 +952,18 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   };
 
   // Helper to get area option or fallback to string
-  const getAreaSelectValue = (areaValue: any, areaName: string, areas: any[]) => {
+  const getAreaSelectValue = (
+    areaValue: any,
+    areaName: string,
+    areas: any[]
+  ) => {
     if (!areaName) return null;
     // Try to find matching option
     const areaNameNorm = areaName.trim().toLowerCase();
-    const matched = areas.find((a: any) =>
-      (a.name && a.name.trim().toLowerCase() === areaNameNorm) ||
-      (a.label && a.label.trim().toLowerCase() === areaNameNorm)
+    const matched = areas.find(
+      (a: any) =>
+        (a.name && a.name.trim().toLowerCase() === areaNameNorm) ||
+        (a.label && a.label.trim().toLowerCase() === areaNameNorm)
     );
     if (matched) return { value: matched.id, label: matched.name };
     // Fallback: show as string option
@@ -872,7 +985,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
               label="Address Type"
               options={[
                 { value: "new", label: "New Address" },
-                { value: "existing", label: "Existing Address" }
+                { value: "existing", label: "Existing Address" },
               ]}
               direction="horizontal"
               variant="card"
@@ -896,11 +1009,11 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                 isLoading={customersLoading}
               />
             </StepFieldWrapper>
-            {customersError && (
+            {/* {customersError && (
               <div className="errorText">
                 Failed to load customers: {customersError}
               </div>
-            )}
+            )} */}
           </div>
         )}
 
@@ -931,10 +1044,10 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                 name="senderZipCode"
                 type="text"
                 className="form-control innerFormControll"
-                value={values.senderZipCode || ''}
+                value={values.senderZipCode || ""}
                 onChange={(e) => {
-                  const pincode = e.target.value.replace(/\D/g, ''); // Only allow digits
-                  setFieldValue('senderZipCode', pincode);
+                  const pincode = e.target.value.replace(/\D/g, ""); // Only allow digits
+                  setFieldValue("senderZipCode", pincode);
                   handleSenderPincodeChange(pincode);
                 }}
                 placeholder="Enter 6-digit pincode"
@@ -942,18 +1055,25 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                 disabled={pincodeLoading}
               />
               {pincodeLoading && values.senderZipCode?.length === 6 && (
-                <div className="position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)' }}>
+                <div
+                  className="position-absolute"
+                  style={{
+                    right: "10px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                  }}
+                >
                   <InlineLogisticsLoader size="sm" />
                 </div>
               )}
             </div>
             {values.senderZipCode?.length === 6 && pincodeDetail && (
-              <div className="text-success mt-1" style={{ fontSize: '1.4rem' }}>
+              <div className="text-success mt-1" style={{ fontSize: "1.4rem" }}>
                 ✅ Found: {pincodeDetail.city_name}, {pincodeDetail.state_name}
               </div>
             )}
             {pincodeError && values.senderZipCode?.length === 6 && (
-              <div className="text-danger mt-1" style={{ fontSize: '1.4rem' }}>
+              <div className="text-danger mt-1" style={{ fontSize: "1.4rem" }}>
                 ❌ {pincodeError}
               </div>
             )}
@@ -984,7 +1104,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             labelButton={
               <AddAreaButton
                 text="Add Area"
-                onClick={() => handleOpenAddAreaModal('sender')}
+                onClick={() => handleOpenAddAreaModal("sender")}
                 ariaLabel="Add new area for sender address"
               />
             }
@@ -992,14 +1112,22 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             <SingleSelect
               options={areasToOptions(areas)}
               value={
-                values.senderAddressType === 'existing' && selectedSenderCustomer
-                  ? getAreaSelectValue(values.senderArea, (selectedSenderCustomer.value === 'login_user'
-                      ? getUserData()?.Customerdetail?.area_name
-                      : findCustomerByName(customers, selectedSenderCustomer.value)?.area_name) || '', areas)
+                values.senderAddressType === "existing" &&
+                selectedSenderCustomer
+                  ? getAreaSelectValue(
+                      values.senderArea,
+                      (selectedSenderCustomer.value === "login_user"
+                        ? getUserData()?.Customerdetail?.area_name
+                        : findCustomerByName(
+                            customers,
+                            selectedSenderCustomer.value
+                          )?.area_name) || "",
+                      areas
+                    )
                   : values.senderArea
               }
-              onChange={(option) => setFieldValue('senderArea', option)}
-              placeholder={areasLoading ? 'Loading areas...' : 'Select Area'}
+              onChange={(option) => setFieldValue("senderArea", option)}
+              placeholder={areasLoading ? "Loading areas..." : "Select Area"}
               isLoading={areasLoading}
             />
             {areasError && (
@@ -1015,7 +1143,36 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderGstNo"
             label="GST No."
             suppressErrors={shouldSuppressSenderErrors}
-          />
+          >
+            <input
+              name="senderGstNo"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.senderGstNo || ""}
+              onChange={(e) => {
+                const gstValue = e.target.value
+                  .replace(/[^a-zA-Z0-9]/g, "")
+                  .toUpperCase(); // Only allow alphanumeric and convert to uppercase
+                setFieldValue("senderGstNo", gstValue);
+              }}
+              placeholder="Enter 15-character GST number"
+              maxLength={15}
+            />
+            {values.senderGstNo && values.senderGstNo.length > 0 && (
+              <div
+                className={`mt-1 ${
+                  values.senderGstNo.length === 15
+                    ? "text-success errorText"
+                    : "errorText"
+                }`}
+              >
+                {values.senderGstNo.length === 15 &&
+                /^[a-zA-Z0-9]{15}$/.test(values.senderGstNo)
+                  ? "✅ Valid GST Number"
+                  : `GST Number should be 15 characters, alphanumeric only`}
+              </div>
+            )}
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1038,18 +1195,69 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           <StepFieldWrapper
             name="senderMobile"
             label="Mobile"
-            type="tel"
             suppressErrors={shouldSuppressSenderErrors}
-          />
+          >
+            <input
+              name="senderMobile"
+              type="tel"
+              className="form-control innerFormControll"
+              value={values.senderMobile || ""}
+              onChange={(e) => {
+                const mobileValue = e.target.value.replace(/\D/g, ""); // Only allow digits
+                setFieldValue("senderMobile", mobileValue);
+              }}
+              placeholder="Enter 10-digit mobile number"
+              maxLength={10}
+            />
+            {values.senderMobile && values.senderMobile.length > 0 && (
+              <div
+                className={`mt-1 ${
+                  values.receiverMobile.length === 10
+                    ? "text-success errorText"
+                    : "errorText"
+                }`}
+              >
+                {values.receiverMobile.length === 10 ? "✅" : "⚠️"}{" "}
+                {values.receiverMobile.length}/10 digits
+              </div>
+            )}
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderEmail"
             label="Email"
-            type="email"
             suppressErrors={shouldSuppressSenderErrors}
-          />
+          >
+            <input
+              name="senderEmail"
+              type="email"
+              className="form-control innerFormControll"
+              value={values.senderEmail || ""}
+              onChange={(e) => {
+                setFieldValue("senderEmail", e.target.value);
+              }}
+              placeholder="Enter valid email address"
+            />
+            {values.senderEmail && values.senderEmail.length > 0 && (
+              <div
+                className={`mt-1 ${
+                  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+                    values.senderEmail
+                  )
+                    ? "text-success errorText"
+                    : "errorText"
+                }`}
+              >
+                {/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+                  values.senderEmail
+                )
+                  ? "✅ Valid email format"
+                  : "⚠️ Invalid email format"}
+              </div>
+            )}
+          </StepFieldWrapper>
         </div>
       </div>
       <div className="col-md-6">
@@ -1065,7 +1273,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
               label="Address Type"
               options={[
                 { value: "new", label: "New Address" },
-                { value: "existing", label: "Existing Address" }
+                { value: "existing", label: "Existing Address" },
               ]}
               direction="horizontal"
               variant="card"
@@ -1080,7 +1288,10 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           <>
             {/* Customer Search Input */}
             <div className="col-md-12 mb-3">
-              <StepFieldWrapper name="receiverCustomerSearch" label="Search Customers">
+              <StepFieldWrapper
+                name="receiverCustomerSearch"
+                label="Search Customers"
+              >
                 <input
                   type="text"
                   className="form-control innerFormControll"
@@ -1101,11 +1312,11 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                   }}
                   disabled={isSearching}
                 />
-                {isSearching && (
+                {/* {isSearching && (
                   <small className="text-muted">
                     <i className="fas fa-spinner fa-spin"></i> Searching...
                   </small>
-                )}
+                )} */}
               </StepFieldWrapper>
             </div>
 
@@ -1117,21 +1328,27 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                   value={selectedReceiverCustomer}
                   onChange={handleReceiverCustomerChange}
                   placeholder={
-                    customersLoading || isSearching ? "Loading customers..." : "Select customer"
+                    customersLoading || isSearching
+                      ? "Loading customers..."
+                      : "Select customer"
                   }
                   isLoading={customersLoading || isSearching}
                 />
-                {receiverSearchQuery && customers.length === 0 && !customersLoading && !isSearching && (
-                  <small className="text-muted">
-                    No customers found for "{receiverSearchQuery}". Try a different search term.
-                  </small>
-                )}
+                {receiverSearchQuery &&
+                  customers.length === 0 &&
+                  !customersLoading &&
+                  !isSearching && (
+                    <small className="text-muted">
+                      No customers found for "{receiverSearchQuery}". Try a
+                      different search term.
+                    </small>
+                  )}
               </StepFieldWrapper>
-              {customersError && (
+              {/* {customersError && (
                 <div className="errorText">
                   Failed to load customers: {customersError}
                 </div>
-              )}
+              )} */}
             </div>
           </>
         )}
@@ -1173,10 +1390,10 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                 name="receiverZipCode"
                 type="text"
                 className="form-control innerFormControll"
-                value={values.receiverZipCode || ''}
+                value={values.receiverZipCode || ""}
                 onChange={(e) => {
-                  const pincode = e.target.value.replace(/\D/g, ''); // Only allow digits
-                  setFieldValue('receiverZipCode', pincode);
+                  const pincode = e.target.value.replace(/\D/g, ""); // Only allow digits
+                  setFieldValue("receiverZipCode", pincode);
                   handleReceiverPincodeChange(pincode);
                 }}
                 placeholder="Enter 6-digit pincode"
@@ -1184,18 +1401,25 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                 disabled={pincodeLoading}
               />
               {pincodeLoading && values.receiverZipCode?.length === 6 && (
-                <div className="position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)' }}>
+                <div
+                  className="position-absolute"
+                  style={{
+                    right: "10px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                  }}
+                >
                   <InlineLogisticsLoader size="sm" />
                 </div>
               )}
             </div>
             {values.receiverZipCode?.length === 6 && pincodeDetail && (
-              <div className="text-success mt-1" style={{ fontSize: '1.4rem' }}>
+              <div className="text-success mt-1" style={{ fontSize: "1.4rem" }}>
                 ✅ Found: {pincodeDetail.city_name}, {pincodeDetail.state_name}
               </div>
             )}
             {pincodeError && values.receiverZipCode?.length === 6 && (
-              <div className="text-danger mt-1" style={{ fontSize: '1.4rem' }}>
+              <div className="text-danger mt-1" style={{ fontSize: "1.4rem" }}>
                 ❌ {pincodeError}
               </div>
             )}
@@ -1226,7 +1450,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             labelButton={
               <AddAreaButton
                 text="Add Area"
-                onClick={() => handleOpenAddAreaModal('receiver')}
+                onClick={() => handleOpenAddAreaModal("receiver")}
                 ariaLabel="Add new area for receiver address"
               />
             }
@@ -1234,12 +1458,20 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             <SingleSelect
               options={areasToOptions(areas)}
               value={
-                values.receiverAddressType === 'existing' && selectedReceiverCustomer
-                  ? getAreaSelectValue(values.receiverArea, (findCustomerByName(customers, selectedReceiverCustomer.value)?.area_name) || '', areas)
+                values.receiverAddressType === "existing" &&
+                selectedReceiverCustomer
+                  ? getAreaSelectValue(
+                      values.receiverArea,
+                      findCustomerByName(
+                        customers,
+                        selectedReceiverCustomer.value
+                      )?.area_name || "",
+                      areas
+                    )
                   : values.receiverArea
               }
-              onChange={(option) => setFieldValue('receiverArea', option)}
-              placeholder={areasLoading ? 'Loading areas...' : 'Select Area'}
+              onChange={(option) => setFieldValue("receiverArea", option)}
+              placeholder={areasLoading ? "Loading areas..." : "Select Area"}
               isLoading={areasLoading}
             />
             {areasError && (
@@ -1255,7 +1487,36 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverGstNo"
             label="GST No."
             suppressErrors={shouldSuppressReceiverErrors}
-          />
+          >
+            <input
+              name="receiverGstNo"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.receiverGstNo || ""}
+              onChange={(e) => {
+                const gstValue = e.target.value
+                  .replace(/[^a-zA-Z0-9]/g, "")
+                  .toUpperCase(); // Only allow alphanumeric and convert to uppercase
+                setFieldValue("receiverGstNo", gstValue);
+              }}
+              placeholder="Enter 15-character GST number"
+              maxLength={15}
+            />
+            {values.receiverGstNo && values.receiverGstNo.length > 0 && (
+              <div
+                className={`mt-1 ${
+                  values.receiverGstNo.length === 15
+                    ? "text-success errorText"
+                    : "errorText"
+                }`}
+              >
+                {values.receiverGstNo.length === 15 &&
+                /^[a-zA-Z0-9]{15}$/.test(values.receiverGstNo)
+                  ? "✅ Valid GST Number"
+                  : `GST Number should be 15 characters, alphanumeric only`}
+              </div>
+            )}
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1278,18 +1539,69 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           <StepFieldWrapper
             name="receiverMobile"
             label="Mobile"
-            type="tel"
             suppressErrors={shouldSuppressReceiverErrors}
-          />
+          >
+            <input
+              name="receiverMobile"
+              type="tel"
+              className="form-control innerFormControll"
+              value={values.receiverMobile || ""}
+              onChange={(e) => {
+                const mobileValue = e.target.value.replace(/\D/g, ""); // Only allow digits
+                setFieldValue("receiverMobile", mobileValue);
+              }}
+              placeholder="Enter 10-digit mobile number"
+              maxLength={10}
+            />
+            {values.receiverMobile && values.receiverMobile.length > 0 && (
+              <div
+                className={`mt-1 ${
+                  values.receiverMobile.length === 10
+                    ? "text-success errorText"
+                    : "errorText"
+                }`}
+              >
+                {values.receiverMobile.length === 10 ? "✅" : "⚠️"}{" "}
+                {values.receiverMobile.length}/10 digits
+              </div>
+            )}
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverEmail"
             label="Email"
-            type="email"
             suppressErrors={shouldSuppressReceiverErrors}
-          />
+          >
+            <input
+              name="receiverEmail"
+              type="email"
+              className="form-control innerFormControll"
+              value={values.receiverEmail || ""}
+              onChange={(e) => {
+                setFieldValue("receiverEmail", e.target.value);
+              }}
+              placeholder="Enter valid email address"
+            />
+            {values.receiverEmail && values.receiverEmail.length > 0 && (
+              <div
+                className={`mt-1 ${
+                  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+                    values.receiverEmail
+                  )
+                    ? "text-success errorText"
+                    : "errorText"
+                }`}
+              >
+                {/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+                  values.receiverEmail
+                )
+                  ? "✅ Valid email format"
+                  : "⚠️ Invalid email format"}
+              </div>
+            )}
+          </StepFieldWrapper>
         </div>
       </div>
       {/* Bill To Section */}
@@ -1303,7 +1615,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="billTo"
             options={[
               { value: "sender", label: "Sender" },
-              { value: "receiver", label: "Receiver" }
+              { value: "receiver", label: "Receiver" },
             ]}
             direction="horizontal"
             variant="card"
@@ -1316,7 +1628,13 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         isOpen={isAddAreaModalOpen}
         onClose={handleCloseAddAreaModal}
         onAreaAdded={handleAreaAdded}
-        title={`Add New Area ${modalContext === 'sender' ? 'for Sender' : modalContext === 'receiver' ? 'for Receiver' : ''}`}
+        title={`Add New Area ${
+          modalContext === "sender"
+            ? "for Sender"
+            : modalContext === "receiver"
+            ? "for Receiver"
+            : ""
+        }`}
       />
     </>
   );

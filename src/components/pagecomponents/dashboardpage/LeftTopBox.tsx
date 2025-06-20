@@ -73,8 +73,8 @@ const LeftTopBox = () => {
                 <div className="btmWrap">
                   <span className="iconWrap">
                     <img
-                      src="https://beta.axlpl.com/admin/template/assets/images/dashboard/consignment.png"
-                      alt="consignment"
+                      src="https://new.axlpl.com/admin/template/assets/images/shipment-tracking.png"
+                      alt="shipment-tracking"
                       className="img-fluid"
                       width="60"
                       height="60"
