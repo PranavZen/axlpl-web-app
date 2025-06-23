@@ -15,7 +15,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
       <input
         className="form-control"
         type="search"
-        placeholder="Search"
+        placeholder="Search here"
         value={searchTerm}
         onChange={onSearchChange}
       />

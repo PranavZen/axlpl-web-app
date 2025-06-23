@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import AddressForm, { AddressFormData, initialAddressFormData } from "../components/pagecomponents/addressespage/forms/AddressForm";
+import AddressForm, {
+  AddressFormData,
+  initialAddressFormData,
+} from "../components/pagecomponents/addressespage/forms/AddressForm";
 import { validateAddressForm } from "../utils/validationUtils";
 import ConfirmationModal from "../components/ui/modals/ConfirmationModal";
 import FormModal from "../components/ui/modals/FormModal";
@@ -18,13 +21,17 @@ import {
 } from "../redux/slices/addressSlice";
 import { AppDispatch, RootState } from "../redux/store";
 import { showError, showSuccess } from "../utils/toastUtils";
+import Button from "../components/ui/button/Button";
+import "../styles/global/AddShipment.scss";
 
 const Addresses: React.FC = () => {
   const [searchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<any>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [formData, setFormData] = useState<AddressFormData>(initialAddressFormData);
+  const [formData, setFormData] = useState<AddressFormData>(
+    initialAddressFormData
+  );
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -46,7 +53,6 @@ const Addresses: React.FC = () => {
   // Update form data when editing an address
   useEffect(() => {
     if (editingAddress) {
-
       const formDataToSet = {
         name: editingAddress.name || "",
         company_name: editingAddress.company_name || "",
@@ -80,7 +86,7 @@ const Addresses: React.FC = () => {
     if (formErrors[name]) {
       setFormErrors((prev) => ({
         ...prev,
-        [name]: '',
+        [name]: "",
       }));
     }
   };
@@ -212,15 +218,21 @@ const Addresses: React.FC = () => {
           <MainBody>
             <div className="container-fluid">
               <div className="tableWraper">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <div className="d-flex align-items-center">
-                    <h1 className="me-3">Saved Addresses</h1>
-                    <button
+                <div className="d-flex justify-content-end align-items-end form-navigation bg-white pt-4 p-0 w-100 border-0">
+                  <div className="navigation-buttons">
+                    {/* <h1 className="me-3">Saved Address</h1> */}
+                    {/* <button
                       className="btn btn-success"
                       onClick={handleAddNewAddress}
                     >
                       <i className="fas fa-plus me-2"></i> Add New Address
-                    </button>
+                    </button> */}
+                    <Button
+                      text="Add New Address"
+                      type="button"
+                      className="btn btn-primary btn-next"
+                     onClick={handleAddNewAddress}
+                    />
                   </div>
                 </div>
                 {loading ? (
@@ -231,11 +243,11 @@ const Addresses: React.FC = () => {
                   <Table
                     columns={tableColumns}
                     data={addresses}
-                    sectionTitle=""
+                    sectionTitle="Saved Address"
                     rowActions={{
                       onEdit: handleEditAddressRow,
                       onDelete: handleDeleteAddressRow,
-                      onView: handleViewAddress
+                      onView: handleViewAddress,
                     }}
                     rowIdAccessor="id"
                   />
@@ -260,7 +272,6 @@ const Addresses: React.FC = () => {
           formData={formData}
           isEditMode={isEditMode}
           formSubmitting={formSubmitting}
-          onSubmit={handleSubmit}
           onInputChange={handleInputChange}
           onSelectChange={handleSelectChange}
           onCancel={handleCloseForm}

@@ -194,26 +194,26 @@ export const submitShipment = createAsyncThunk(
       formData.append("grand_total", getFieldValue(formValues.grandTotal, "0"));
       formData.append("docket_no", getFieldValue(formValues.docketNo));
 
-      // Additional dynamic fields that might be present
-      formData.append("fuel_surcharge", getFieldValue(formValues.fuelSurcharge, "0"));
-      formData.append("cod_charges", getFieldValue(formValues.codCharges, "0"));
-      formData.append("pickup_charges", getFieldValue(formValues.pickupCharges, "0"));
-      formData.append("delivery_charges", getFieldValue(formValues.deliveryCharges, "0"));
-      formData.append("other_charges", getFieldValue(formValues.otherCharges, "0"));
+      // // Additional dynamic fields that might be present
+      // formData.append("fuel_surcharge", getFieldValue(formValues.fuelSurcharge, "0"));
+      // formData.append("cod_charges", getFieldValue(formValues.codCharges, "0"));
+      // formData.append("pickup_charges", getFieldValue(formValues.pickupCharges, "0"));
+      // formData.append("delivery_charges", getFieldValue(formValues.deliveryCharges, "0"));
+      // formData.append("other_charges", getFieldValue(formValues.otherCharges, "0"));
 
-      // Date fields - dynamic with fallbacks
-      const currentDate = new Date().toISOString().split('T')[0];
-      formData.append("shipment_date", getFieldValue(formValues.shipmentDate, currentDate));
-      formData.append("expected_delivery_date", getFieldValue(formValues.expectedDeliveryDate, ""));
-      formData.append("pickup_date", getFieldValue(formValues.pickupDate, ""));
+      // // Date fields - dynamic with fallbacks
+      // const currentDate = new Date().toISOString().split('T')[0];
+      // formData.append("shipment_date", getFieldValue(formValues.shipmentDate, currentDate));
+      // formData.append("expected_delivery_date", getFieldValue(formValues.expectedDeliveryDate, ""));
+      // formData.append("pickup_date", getFieldValue(formValues.pickupDate, ""));
 
-      // Additional dynamic metadata
-      formData.append("special_instructions", getFieldValue(formValues.specialInstructions, ""));
-      formData.append("reference_number", getFieldValue(formValues.referenceNumber, ""));
-      formData.append("customer_reference", getFieldValue(formValues.customerReference, ""));
-      formData.append("priority", getFieldValue(formValues.priority, "normal"));
-      formData.append("fragile", getBooleanValue(formValues.fragile || false));
-      formData.append("dangerous_goods", getBooleanValue(formValues.dangerousGoods || false));
+      // // Additional dynamic metadata
+      // formData.append("special_instructions", getFieldValue(formValues.specialInstructions, ""));
+      // formData.append("reference_number", getFieldValue(formValues.referenceNumber, ""));
+      // formData.append("customer_reference", getFieldValue(formValues.customerReference, ""));
+      // formData.append("priority", getFieldValue(formValues.priority, "normal"));
+      // formData.append("fragile", getBooleanValue(formValues.fragile || false));
+      // formData.append("dangerous_goods", getBooleanValue(formValues.dangerousGoods || false));
 
 
  

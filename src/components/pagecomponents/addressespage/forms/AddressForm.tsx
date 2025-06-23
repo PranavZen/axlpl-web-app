@@ -9,8 +9,8 @@ export interface AddressFormData {
   company_name: string;
   country_id: string;
   state_id: string; // Now stores state_name for display
-  city_id: string;  // Now stores city_name for display
-  area_id: string;  // Now stores area_name for display
+  city_id: string; // Now stores city_name for display
+  area_id: string; // Now stores area_name for display
   zip_code: string;
   address1: string;
   address2: string;
@@ -40,8 +40,9 @@ interface AddressFormProps {
   formData: AddressFormData;
   isEditMode: boolean;
   formSubmitting: boolean;
-  onSubmit: (e: React.FormEvent) => void;
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onInputChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
   onSelectChange: (name: string) => (option: any) => void;
   onCancel: () => void;
   errors?: { [key: string]: string };
@@ -54,14 +55,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
   formData,
   isEditMode,
   formSubmitting,
-  onSubmit,
   onInputChange,
   onSelectChange,
   onCancel,
   errors = {},
 }) => {
   return (
-    <form onSubmit={onSubmit}>
+    <>
+      {/* Removed <form> wrapper to avoid nested forms */}
       <div className="row mb-3">
         <div className="col-md-6">
           <Label htmlFor="name" text="Name" className="form-label" />
@@ -77,11 +78,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
             error={errors.name || ""}
             touched={!!errors.name}
           />
-          {errors.name && (
-            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
-              {errors.name}
-            </div>
-          )}
+          
         </div>
         <div className="col-md-6">
           <Label
@@ -101,11 +98,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
             error={errors.company_name || ""}
             touched={!!errors.company_name}
           />
-          {errors.company_name && (
-            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
-              {errors.company_name}
-            </div>
-          )}
+          
         </div>
       </div>
 
@@ -144,11 +137,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
             error={errors.state_id || ""}
             touched={!!errors.state_id}
           />
-          {errors.state_id && (
-            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
-              {errors.state_id}
-            </div>
-          )}
+          
         </div>
       </div>
 
@@ -167,11 +156,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
             error={errors.city_id || ""}
             touched={!!errors.city_id}
           />
-          {errors.city_id && (
-            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
-              {errors.city_id}
-            </div>
-          )}
+          
         </div>
         <div className="col-md-6">
           <Label htmlFor="area_id" text="Area" className="form-label" />
@@ -187,11 +172,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
             error={errors.area_id || ""}
             touched={!!errors.area_id}
           />
-          {errors.area_id && (
-            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
-              {errors.area_id}
-            </div>
-          )}
+          
         </div>
       </div>
 
@@ -210,11 +191,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
             error={errors.zip_code || ""}
             touched={!!errors.zip_code}
           />
-          {errors.zip_code && (
-            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
-              {errors.zip_code}
-            </div>
-          )}
+          
         </div>
         <div className="col-md-6">
           <Label
@@ -234,11 +211,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
             error={errors.mobile_no || ""}
             touched={!!errors.mobile_no}
           />
-          {errors.mobile_no && (
-            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
-              {errors.mobile_no}
-            </div>
-          )}
+          
         </div>
       </div>
 
@@ -257,11 +230,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
             error={errors.email || ""}
             touched={!!errors.email}
           />
-          {errors.email && (
-            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
-              {errors.email}
-            </div>
-          )}
+          
         </div>
         <div className="col-md-6">
           <Label
@@ -281,11 +250,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
             error={errors.sender_gst_no || ""}
             touched={!!errors.sender_gst_no}
           />
-          {errors.sender_gst_no && (
-            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
-              {errors.sender_gst_no}
-            </div>
-          )}
+          
         </div>
       </div>
 
@@ -308,11 +273,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
             error={errors.address1 || ""}
             touched={!!errors.address1}
           />
-          {errors.address1 && (
-            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
-              {errors.address1}
-            </div>
-          )}
+          
         </div>
       </div>
 
@@ -335,14 +296,10 @@ const AddressForm: React.FC<AddressFormProps> = ({
             error={errors.address2 || ""}
             touched={!!errors.address2}
           />
-          {errors.address2 && (
-            <div className="errorText" style={{ fontSize: '1.4rem', color: '#ff0000', margin: '0.5rem 0', fontWeight: 500 }}>
-              {errors.address2}
-            </div>
-          )}
+          
         </div>
       </div>
-    </form>
+    </>
   );
 };
 

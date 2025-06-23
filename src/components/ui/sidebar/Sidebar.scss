@@ -73,7 +73,8 @@
       padding: 0;
 
       img {
-        width: 3.2rem;
+        // width: 3.2rem;
+        transition: var(--sidebar-transition);
         height: auto;
         filter: brightness(1.1);
       }
@@ -388,7 +389,7 @@
     transition: var(--sidebar-transition);
     background: #fff;
     img {
-      max-width: 18rem;
+      max-width: 90%;
       height: auto;
       filter: brightness(1.1) contrast(1.1);
     }

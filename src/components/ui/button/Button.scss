@@ -1,0 +1,75 @@
+// Button component styles
+.button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+}
+
+.button-text {
+  display: inline-block;
+}
+
+// Icon-only button styles
+button:has(.button-icon):not(:has(.button-text)) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 6px;
+
+  &.btn-sm {
+    min-width: 28px;
+    min-height: 28px;
+    padding: 4px;
+  }
+
+  &.btn-lg {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 8px;
+  }
+}
+
+// Button with both icon and text
+button:has(.button-icon):has(.button-text) {
+  .button-icon {
+    margin-right: 6px;
+  }
+}
+
+// Action buttons in tables
+.innerBtnsWrap {
+  .btn {
+    border-radius: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    // Print button specific styling
+    &.btn-success {
+      background-color: #28a745;
+      border-color: #28a745;
+
+      &:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+      }
+    }
+  }
+}
+
+// Print label modal styling moved to PrintLabelModal.scss

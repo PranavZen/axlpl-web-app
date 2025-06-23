@@ -46,8 +46,8 @@
             color: #721c24;
             font-weight: 600;
           }
-          &.status-intransit {
-            background-color: #d1ecf1; // light blue
+          &.status-waitaing {
+            background-color: #00d7ff; // light blue
             color: #0c5460;
             font-weight: 600;
           }
@@ -56,8 +56,18 @@
             color: #155724;
             font-weight: 600;
           }
+          &.status-out-delivered {
+            background-color: #00ff3a; // lighter green
+            color: #155724;
+            font-weight: 600;
+          }
           &.status-cancelled {
             background-color: #f5c6cb; // pink
+            color: #721c24;
+            font-weight: 600;
+          }
+          &.status-hold {
+            background-color: #ffe91f; // pink
             color: #721c24;
             font-weight: 600;
           }

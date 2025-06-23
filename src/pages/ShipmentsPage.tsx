@@ -5,8 +5,10 @@ import MainBody from "../components/ui/mainbody/MainBody";
 import Sidebar from "../components/ui/sidebar/Sidebar";
 import { LogisticsLoader } from "../components/ui/spinner";
 import Table, { Column } from "../components/ui/table/Table";
+import PrintLabelModal from "../components/ui/modals/PrintLabelModal";
 import { fetchAllShipments } from "../redux/slices/activeShipmentSlice";
 import { AppDispatch, RootState } from "../redux/store";
+import { showSuccess, showError } from "../utils/toastUtils";
 
 const statusTitleMap: Record<string, string> = {
   pending: "Pending Shipments",
@@ -24,6 +26,9 @@ const ShipmentsPage: React.FC = () => {
   console.log("shipments Data", shipments);
   console.log("shipment_status Data", shipment_status);
   const [selectedShipments, setSelectedShipments] = useState<any[]>([]);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [selectedShipmentForPrint, setSelectedShipmentForPrint] = useState<any>(null);
+  const [isPrintingLabel, setIsPrintingLabel] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAllShipments(shipment_status));
@@ -113,6 +118,45 @@ const ShipmentsPage: React.FC = () => {
     // 1. A modal with editable fields
     // 2. Navigation to a dedicated edit page
     // 3. Inline editing in the table
+  };
+
+  // Handle print shipment label
+  const handlePrintShipment = (shipment: any) => {
+    setSelectedShipmentForPrint(shipment);
+    setPrintModalOpen(true);
+  };
+
+  // Handle print label with number of labels
+  const handlePrintLabel = async (numberOfLabels: number) => {
+    if (!selectedShipmentForPrint) return;
+
+    setIsPrintingLabel(true);
+    try {
+      // Construct the print URL using the shipment_label format
+      const shipmentId = selectedShipmentForPrint.shipment_id;
+      const printUrl = `https://new.axlpl.com/admin/shipment/shipment_manifest_pdf/${shipmentId}/${numberOfLabels}`;
+
+      // Open the PDF in a new window/tab for printing
+      window.open(printUrl, '_blank');
+
+      showSuccess(`✅ Opened ${numberOfLabels} label(s) for shipment ${shipmentId}`);
+
+      // Close the modal
+      setPrintModalOpen(false);
+      setSelectedShipmentForPrint(null);
+    } catch (error) {
+      showError('❌ Failed to open print labels');
+      console.error('Print error:', error);
+    } finally {
+      setIsPrintingLabel(false);
+    }
+  };
+
+  // Handle close print modal
+  const handleClosePrintModal = () => {
+    setPrintModalOpen(false);
+    setSelectedShipmentForPrint(null);
+    setIsPrintingLabel(false);
   };
 
   const tableColumns: Column<any>[] = [
@@ -215,7 +259,8 @@ const ShipmentsPage: React.FC = () => {
                     rowActions={{
                       onEdit: handleEditShipment,
                       onDelete: handleDeleteShipment,
-                      onView: handleViewShipment
+                      onView: handleViewShipment,
+                      onPrint: handlePrintShipment
                     }}
                     rowIdAccessor="shipment_id"
                   />
@@ -225,6 +270,15 @@ const ShipmentsPage: React.FC = () => {
           </MainBody>
         </section>
       </div>
+
+      {/* Print Label Modal */}
+      <PrintLabelModal
+        isOpen={printModalOpen}
+        onClose={handleClosePrintModal}
+        onPrint={handlePrintLabel}
+        shipmentId={selectedShipmentForPrint?.shipment_id || ''}
+        isLoading={isPrintingLabel}
+      />
     </section>
   );
 };

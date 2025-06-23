@@ -91,11 +91,21 @@ const Sidebar = () => {
     >
       <div className="sidebar">
         <div className="logoWap">
-          <img
-            src="https://beta.axlpl.com/admin/template/assets/images/dashboard/axlplLogoImg.png"
-            alt="AXLPL Logo"
-            className="img-fluid"
-          />
+          {isSidebarCollapsed ? (
+            <img
+              src="https://new.axlpl.com/admin/template/assets/images/axlpl_box.png"
+              alt="AXLPL Logo"
+              className="img-fluid"
+              loading="lazy"
+            />
+          ) : (
+            <img
+              src="https://beta.axlpl.com/admin/template/assets/images/dashboard/axlplLogoImg.png"
+              alt="AXLPL Logo"
+              className="img-fluid"
+              loading="lazy"
+            />
+          )}
         </div>
 
         {userData && userData.Customerdetail && (
@@ -122,7 +132,6 @@ const Sidebar = () => {
                     userData?.Customerdetail?.mobile ||
                     ""}
                 </small>
-
               </div>
             </div>
           </div>

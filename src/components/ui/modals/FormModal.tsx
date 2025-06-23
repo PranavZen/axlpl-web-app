@@ -30,25 +30,27 @@ const FormModal: React.FC<FormModalProps> = ({
     <Modal isOpen={isOpen} title={title} onClose={onClose} size={size}>
       <form onSubmit={onSubmit}>
         {children}
-        <div className="d-flex justify-content-end mt-4">
-          <Button
-            text={cancelText}
-            type="button"
-            className="btn btn-secondary me-2"
-            onClick={onClose}
-            disabled={isSubmitting}
-          />
-          <Button
-            text={isSubmitting ? "Processing..." : submitText}
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          />
-          {isSubmitting && (
-            <span className="ms-2">
-              <InlineLogisticsLoader size="sm" />
-            </span>
-          )}
+        <div className="d-flex justify-content-end mt-4 form-navigation">
+          <div className="navigation-buttons">
+            <Button
+              text={cancelText}
+              type="button"
+              className="btn btn-secondary me-2"
+              onClick={onClose}
+              disabled={isSubmitting}
+            />
+            <Button
+              text={isSubmitting ? "Processing..." : submitText}
+              type="submit"
+              className="btn btn-primary btn-next"
+              disabled={isSubmitting}
+            />
+            {isSubmitting && (
+              <span className="ms-2">
+                <InlineLogisticsLoader size="sm" />
+              </span>
+            )}
+          </div>
         </div>
       </form>
     </Modal>
