@@ -10,7 +10,11 @@ const Dashboard = () => {
   return (
     <section id="dashboardSection">
       <div className="container-fluid p-0">
-        <section className={`bodyWrap ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+        <section
+          className={`bodyWrap ${
+            isSidebarCollapsed ? "sidebar-collapsed" : ""
+          }`}
+        >
           <Sidebar />
           <MainBody>
             <DashboardBody />

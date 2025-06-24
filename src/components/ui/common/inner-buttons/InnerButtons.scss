@@ -29,7 +29,8 @@
     }
 
     // Icon styling (for both SVG and emoji)
-    svg, span.me-1 {
+    svg,
+    span.me-1 {
       font-size: 1.2rem;
       flex-shrink: 0;
     }
@@ -93,10 +94,13 @@
 
       // Hide text on mobile, show only icons
       span:not(.me-1):not(.sr-only) {
-        display: none;
+        display: block;
       }
-
-      svg, span.me-1 {
+      .mIcon {
+        display: none !important;
+      }
+      svg,
+      span.me-1 {
         margin: 0 !important;
       }
     }

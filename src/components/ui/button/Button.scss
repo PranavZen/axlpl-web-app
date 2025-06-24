@@ -28,6 +28,10 @@ button:has(.button-icon):not(:has(.button-text)) {
     min-width: 28px;
     min-height: 28px;
     padding: 4px;
+    @media screen and (max-width: 767px) {
+      min-width: 22px;
+      min-height: 22px;
+    }
   }
 
   &.btn-lg {

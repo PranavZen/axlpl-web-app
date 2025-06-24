@@ -1,0 +1,30 @@
+#footerSection {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  background-color: #0a2849;
+  width: calc(100% - 30rem);
+  flex: 1 1;
+  min-width: 0;
+  height: 5rem;
+  overflow-x: hidden;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 2rem;
+  z-index: 2;
+
+  span {
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 400;
+  }
+  &.sidebar-collapsed {
+    width: calc(100% - 8rem);
+    transition: all 0.3s ease-in-out;
+    @media screen and (max-width: 767px) {
+      width: calc(100% - 5.5rem);
+    }
+  }
+}

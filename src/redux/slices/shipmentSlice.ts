@@ -184,10 +184,15 @@ export const submitShipment = createAsyncThunk(
       }
 
       // Charges - dynamic values from form
-      formData.append("shipment_charges", getFieldValue(formValues.shipmentCharges, "0"));
-      formData.append("insurance_charges", getFieldValue(formValues.insuranceCharges, "0.00"));
+      // If API did not provide a value, ensure we send '0' for these fields
+      const safeShipmentCharges = formValues.shipmentCharges === undefined || formValues.shipmentCharges === null || formValues.shipmentCharges === '' ? '0' : formValues.shipmentCharges;
+      const safeInsuranceCharges = formValues.insuranceCharges === undefined || formValues.insuranceCharges === null || formValues.insuranceCharges === '' ? '0' : formValues.insuranceCharges;
+      const safeHandlingCharges = formValues.handlingCharges === undefined || formValues.handlingCharges === null || formValues.handlingCharges === '' ? '0' : formValues.handlingCharges;
+
+      formData.append("shipment_charges", getFieldValue(safeShipmentCharges, "0"));
+      formData.append("insurance_charges", getFieldValue(safeInsuranceCharges, "0"));
       formData.append("invoice_charges", getFieldValue(formValues.invoiceCharges, "0"));
-      formData.append("handling_charges", getFieldValue(formValues.handlingCharges, "0.00"));
+      formData.append("handling_charges", getFieldValue(safeHandlingCharges, "0"));
       formData.append("tax", getFieldValue(formValues.tax, "0"));
       formData.append("gst_amount", getFieldValue(formValues.gstAmount, "0"));
       formData.append("total_charges", getFieldValue(formValues.totalCharges, "0"));

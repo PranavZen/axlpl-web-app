@@ -46,7 +46,7 @@ body {
         padding: 30px;
         border-radius: 32px;
         width: 60%;
-        @include media-down(sm){
+        @include media-down(sm) {
           width: 95%;
         }
         .p_formTitle {
@@ -292,8 +292,8 @@ body {
     overflow-x: hidden;
     transition: all 0.3s ease-in-out;
     background-color: #f5f7fa;
-
-    // Calculate width based on sidebar width
+    padding-bottom: 8rem;
+    padding-top: 3rem;
     width: calc(100% - 30rem); // Default: 100% - 480px
 
     @include media-down(xl) {
@@ -340,10 +340,19 @@ body {
   border-radius: 2rem;
   margin: 0 1.5rem;
   box-shadow: 0rem 0rem 10rem -0.3rem #d4d3d3;
+  .navigation-buttons{
+    @media screen and (max-width : 767px) {
+      margin-bottom: 2rem;
+      justify-content: center;
+    }
+  }
   .topSecWrap {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    @media screen and (max-width : 767px) {
+      flex-direction: column;
+    }
     h1 {
       margin-bottom: 0;
       font-size: 2.2rem;

@@ -43,7 +43,7 @@ const LeftTopBox = () => {
             </div>
 
             <div className="cubeBox">
-              <Link to="/shipments/pending">
+              <Link to="/shipments/approved">
                 <p>Show Shipment</p>
                 <div className="btmWrap">
                   <span className="iconWrap">

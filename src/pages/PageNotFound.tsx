@@ -158,7 +158,7 @@ const PageNotFound: React.FC = React.memo(() => {
         </div>
 
         {/* Decorative Road */}
-        <div className="decorative-road">
+        <div className="decorative-road d-none">
           <div className="road-line"></div>
           <div className="road-dashes">
             <span className="dash"></span>

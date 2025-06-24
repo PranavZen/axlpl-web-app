@@ -12,6 +12,7 @@ import pincodeReducer from "./slices/pincodeSlice";
 import changePasswordReducer from "./slices/changePasswordSlice";
 import profileReducer from "./slices/profileSlice";
 import trackingReducer from "./slices/trackingSlice";
+import shipmentPaymentReducer from "./slices/shipmentPaymentStore";
 import { authMiddleware, securityMiddleware, rateLimitMiddleware } from "../middleware/authMiddleware";
 
 export const store = configureStore({
@@ -29,6 +30,7 @@ export const store = configureStore({
     changePassword: changePasswordReducer,
     profile: profileReducer,
     tracking: trackingReducer,
+    shipmentPayment: shipmentPaymentReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

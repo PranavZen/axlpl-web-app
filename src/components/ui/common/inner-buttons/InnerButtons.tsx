@@ -39,7 +39,7 @@ const InnerButtons: React.FC<ButtonActions> = ({
         disabled={isDisabled}
         title={getTooltipText('Copy')}
       >
-        <span className="me-1">📋</span>
+        <span className="me-1 mIcon">📋</span>
         Copy {selectedCount > 0 ? `(${selectedCount})` : ''}
       </button>
       <button
@@ -48,7 +48,7 @@ const InnerButtons: React.FC<ButtonActions> = ({
         disabled={isDisabled}
         title={getTooltipText('Export to CSV')}
       >
-        <span className="me-1">📄</span>
+        <span className="me-1 mIcon">📄</span>
         CSV {selectedCount > 0 ? `(${selectedCount})` : ''}
       </button>
       <button
@@ -57,7 +57,7 @@ const InnerButtons: React.FC<ButtonActions> = ({
         disabled={isDisabled}
         title={getTooltipText('Export to Excel')}
       >
-        <span className="me-1">📊</span>
+        <span className="me-1 mIcon">📊</span>
         Excel {selectedCount > 0 ? `(${selectedCount})` : ''}
       </button>
       <button
@@ -66,7 +66,7 @@ const InnerButtons: React.FC<ButtonActions> = ({
         disabled={isDisabled}
         title={getTooltipText('Export to PDF')}
       >
-        <span className="me-1">📑</span>
+        <span className="me-1 mIcon">📑</span>
         PDF {selectedCount > 0 ? `(${selectedCount})` : ''}
       </button>
       <button
@@ -75,7 +75,7 @@ const InnerButtons: React.FC<ButtonActions> = ({
         disabled={isDisabled}
         title={getTooltipText('Print')}
       >
-        <span className="me-1">🖨️</span>
+        <span className="me-1 mIcon">🖨️</span>
         Print {selectedCount > 0 ? `(${selectedCount})` : ''}
       </button>
     </div>

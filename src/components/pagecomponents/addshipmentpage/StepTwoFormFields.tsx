@@ -53,7 +53,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   const {
     customers,
     loading: customersLoading,
-    error: customersError,
   } = useSelector((state: RootState) => state.customer);
 
   const {
@@ -166,12 +165,12 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
         if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-          const { state_id, state_name, city_id, city_name } =
+          const { state_name, city_name } =
             pincodeResult.payload;
 
           // Auto-populate state and city with proper select objects containing IDs
-          setFieldValue("senderState", { value: state_id, label: state_name });
-          setFieldValue("senderCity", { value: city_id, label: city_name });
+          setFieldValue("senderState", state_name);
+          setFieldValue("senderCity", city_name);
         }
 
         // Fetch areas for the pincode
@@ -222,15 +221,12 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
         if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-          const { state_id, state_name, city_id, city_name } =
+          const { state_name, city_name } =
             pincodeResult.payload;
 
           // Auto-populate state and city with proper select objects containing IDs
-          setFieldValue("receiverState", {
-            value: state_id,
-            label: state_name,
-          });
-          setFieldValue("receiverCity", { value: city_id, label: city_name });
+          setFieldValue("receiverState", state_name);
+          setFieldValue("receiverCity", city_name);
         }
 
         // Fetch areas for the pincode

@@ -1,15 +1,15 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Suspense, lazy } from "react";
-import { SidebarProvider } from "./contexts/SidebarContext";
-import { ToastContainer } from "react-toastify";
-import { APP_CONFIG } from "./config";
-import { LogisticsLoader } from "./components/ui/spinner";
-import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./styles/global/Global.scss";
+import { Suspense, lazy } from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import ShipmentsPage from "../src/pages/ShipmentsPage";
-import Addresses from "./pages/Addresses";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { LogisticsLoader } from "./components/ui/spinner";
+import { APP_CONFIG } from "./config";
+import { SidebarProvider } from "./contexts/SidebarContext";
+import Addresses from "./pages/Addresses";
+import "./styles/global/Global.scss";
 // Lazy load pages
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SignIn = lazy(() => import("./pages/SignIn"));
@@ -42,6 +42,7 @@ const App = () => {
           rtl={false}
           pauseOnFocusLoss
         />
+      
       </SidebarProvider>
     </Router>
   );
