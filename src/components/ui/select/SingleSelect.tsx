@@ -41,4 +41,5 @@ const SingleSelect: React.FC<SingleSelectProps> = ({
   );
 };
 
-export default SingleSelect;
+const MemoizedSingleSelect = React.memo(SingleSelect);
+export default MemoizedSingleSelect;
