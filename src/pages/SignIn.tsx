@@ -76,7 +76,7 @@ const SignIn = () => {
     <section id="p_newLoginFormSection">
       <div className="container-fluid px-0">
         <div className="p_newFormRow">
-          <div className="col-lg-6 col-md-8 col-12 p_newLeftSide px-0">
+          <div className="col-lg-8 col-md-8 col-12 p_newLeftSide px-0">
             <div className="p_loginInnerFormWrap">
               <h1 className="p_formTitle">Welcome</h1>
               <p className="p_formPara">Please login to your account</p>

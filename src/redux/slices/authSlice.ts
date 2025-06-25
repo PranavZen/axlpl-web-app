@@ -91,7 +91,7 @@ export const logoutUser = createAsyncThunk(
 
       // Call the logout API with authentication token
       const response = await axios.post(
-        'https://new.axlpl.com/messenger/services_v6/logout',
+        `${process.env.REACT_APP_API_BASE_URL || 'https://new.axlpl.com/messenger/services_v6'}/logout`,
         formData,
         {
           headers: {

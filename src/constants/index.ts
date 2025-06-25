@@ -4,7 +4,7 @@
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: 'https://new.axlpl.com/messenger/services_v6',
+  BASE_URL: process.env.REACT_APP_API_BASE_URL || 'https://new.axlpl.com/messenger/services_v6',
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
 } as const;

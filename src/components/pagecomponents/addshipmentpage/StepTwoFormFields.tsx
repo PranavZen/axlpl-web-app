@@ -94,6 +94,10 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   const senderPincodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const receiverPincodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Local state for sender and receiver areas
+  const [senderAreas, setSenderAreas] = useState<any[]>([]);
+  const [receiverAreas, setReceiverAreas] = useState<any[]>([]);
+
   // Helper functions to determine if errors should be suppressed (section-specific)
   const shouldSuppressSenderErrors =
     isSenderAutoPopulating ||
@@ -173,15 +177,16 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           setFieldValue("senderCity", city_name);
         }
 
-        // Fetch areas for the pincode
+        // Fetch areas for the pincode (local only)
         const areasResult = await dispatch(fetchAreasByPincode(pincode));
-
         if (fetchAreasByPincode.fulfilled.match(areasResult)) {
-          // Clear any previously selected area since we have new options
+          setSenderAreas(areasResult.payload || []);
           setFieldValue("senderArea", null);
+        } else {
+          setSenderAreas([]);
         }
       } catch (error) {
-        // Error handling can be added here if needed
+        setSenderAreas([]);
       }
     },
     [dispatch, setFieldValue]
@@ -215,8 +220,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   const fetchReceiverPincodeData = useCallback(
     async (pincode: string) => {
       try {
-        console.log("🔍 Fetching data for Receiver Pincode:", pincode);
-
         // Fetch pincode details first
         const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
@@ -229,15 +232,16 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           setFieldValue("receiverCity", city_name);
         }
 
-        // Fetch areas for the pincode
+        // Fetch areas for the pincode (local only)
         const areasResult = await dispatch(fetchAreasByPincode(pincode));
-
         if (fetchAreasByPincode.fulfilled.match(areasResult)) {
-          // Clear any previously selected area since we have new options
+          setReceiverAreas(areasResult.payload || []);
           setFieldValue("receiverArea", null);
+        } else {
+          setReceiverAreas([]);
         }
       } catch (error) {
-        // Error handling can be added here if needed
+        setReceiverAreas([]);
       }
     },
     [dispatch, setFieldValue]
@@ -934,12 +938,14 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       label: newArea.value, // Use the area name as label
     };
 
-    // Select the new area in the appropriate field
+    // Select the new area in the appropriate field and update local state
     if (modalContext === "sender") {
       setFieldValue("senderArea", areaOption);
+      setSenderAreas((prev) => [...prev, { id: newAreaId, name: newArea.value }]);
       console.log("✅ New area added and selected for sender:", areaOption);
     } else if (modalContext === "receiver") {
       setFieldValue("receiverArea", areaOption);
+      setReceiverAreas((prev) => [...prev, { id: newAreaId, name: newArea.value }]);
       console.log("✅ New area added and selected for receiver:", areaOption);
     }
 
@@ -1106,7 +1112,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             }
           >
             <SingleSelect
-              options={areasToOptions(areas)}
+              options={areasToOptions(values.senderZipCode?.length === 6 ? senderAreas : [])}
               value={
                 values.senderAddressType === "existing" &&
                 selectedSenderCustomer
@@ -1118,7 +1124,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                             customers,
                             selectedSenderCustomer.value
                           )?.area_name) || "",
-                      areas
+                      values.senderZipCode?.length === 6 ? senderAreas : []
                     )
                   : values.senderArea
               }
@@ -1157,15 +1163,14 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             {values.senderGstNo && values.senderGstNo.length > 0 && (
               <div
                 className={`mt-1 ${
-                  values.senderGstNo.length === 15
+                  /^[0-3][0-9]{1}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(values.senderGstNo)
                     ? "text-success errorText"
                     : "errorText"
                 }`}
               >
-                {values.senderGstNo.length === 15 &&
-                /^[a-zA-Z0-9]{15}$/.test(values.senderGstNo)
+                {/^[0-3][0-9]{1}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(values.senderGstNo)
                   ? "✅ Valid GST Number"
-                  : `GST Number should be 15 characters, alphanumeric only`}
+                  : `GST Number format: 2 digits (state code), 5 letters, 4 digits, 1 letter, 1 entity (1-9/A-Z), 'Z', 1 alphanumeric`}
               </div>
             )}
           </StepFieldWrapper>
@@ -1208,13 +1213,13 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             {values.senderMobile && values.senderMobile.length > 0 && (
               <div
                 className={`mt-1 ${
-                  values.receiverMobile.length === 10
+                  values.senderMobile.length === 10
                     ? "text-success errorText"
                     : "errorText"
                 }`}
               >
-                {values.receiverMobile.length === 10 ? "✅" : "⚠️"}{" "}
-                {values.receiverMobile.length}/10 digits
+                {values.senderMobile.length === 10 ? "✅" : "⚠️"}{" "}
+                {values.senderMobile.length}/10 digits
               </div>
             )}
           </StepFieldWrapper>
@@ -1452,7 +1457,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             }
           >
             <SingleSelect
-              options={areasToOptions(areas)}
+              options={areasToOptions(values.receiverZipCode?.length === 6 ? receiverAreas : [])}
               value={
                 values.receiverAddressType === "existing" &&
                 selectedReceiverCustomer
@@ -1462,7 +1467,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                         customers,
                         selectedReceiverCustomer.value
                       )?.area_name || "",
-                      areas
+                      values.receiverZipCode?.length === 6 ? receiverAreas : []
                     )
                   : values.receiverArea
               }
@@ -1501,15 +1506,14 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             {values.receiverGstNo && values.receiverGstNo.length > 0 && (
               <div
                 className={`mt-1 ${
-                  values.receiverGstNo.length === 15
+                  /^[0-3][0-9]{1}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(values.receiverGstNo)
                     ? "text-success errorText"
                     : "errorText"
                 }`}
               >
-                {values.receiverGstNo.length === 15 &&
-                /^[a-zA-Z0-9]{15}$/.test(values.receiverGstNo)
+                {/^[0-3][0-9]{1}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(values.receiverGstNo)
                   ? "✅ Valid GST Number"
-                  : `GST Number should be 15 characters, alphanumeric only`}
+                  : `GST Number format: 2 digits (state code), 5 letters, 4 digits, 1 letter, 1 entity (1-9/A-Z), 'Z', 1 alphanumeric`}
               </div>
             )}
           </StepFieldWrapper>

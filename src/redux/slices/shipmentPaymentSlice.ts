@@ -33,7 +33,7 @@ export const fetchShipmentPaymentInformation = createAsyncThunk(
         formData.append("policy_value", "0");
       }
       const response = await axios.post(
-        "https://new.axlpl.com/messenger/services_v6/getShipmentPaymentInformation",
+        `${process.env.REACT_APP_API_BASE_URL || 'https://new.axlpl.com/messenger/services_v6'}/getShipmentPaymentInformation`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

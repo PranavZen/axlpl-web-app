@@ -23,8 +23,6 @@ const ShipmentsPage: React.FC = () => {
   const { shipments, loading, error } = useSelector(
     (state: RootState) => state.activeShipment
   );
-  console.log("shipments Data", shipments);
-  console.log("shipment_status Data", shipment_status);
   const [selectedShipments, setSelectedShipments] = useState<any[]>([]);
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [selectedShipmentForPrint, setSelectedShipmentForPrint] = useState<any>(null);

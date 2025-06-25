@@ -55,7 +55,7 @@ export const fetchPincodeDetail = createAsyncThunk(
       const formData = new FormData();
       formData.append('pincode', pincode);
 
-      const response = await fetch('https://new.axlpl.com/messenger/services_v6/getPincodeDetail', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || 'https://new.axlpl.com/messenger/services_v6'}/getPincodeDetail`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -105,7 +105,7 @@ export const fetchAreasByPincode = createAsyncThunk(
       const formData = new FormData();
       formData.append('pincode', pincode);
 
-      const response = await fetch('https://new.axlpl.com/messenger/services_v6/getAllAreaByZipcode', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || 'https://new.axlpl.com/messenger/services_v6'}/getAllAreaByZipcode`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -149,7 +149,7 @@ export const addNewArea = createAsyncThunk(
 
       // TODO: Replace with actual API endpoint for adding area
       // For now, we'll simulate the API call
-      const response = await fetch('https://new.axlpl.com/messenger/services_v6/addArea', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || 'https://new.axlpl.com/messenger/services_v6'}/addArea`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
