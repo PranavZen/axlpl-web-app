@@ -10,5 +10,4 @@ const Toast: React.FC<ToastProps> = ({ position }) => {
   return <ToastContainer position={position} autoClose={3000} />;
 };
 
-const MemoizedToast = React.memo(Toast);
-export default MemoizedToast;
+export default Toast;

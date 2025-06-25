@@ -1,4 +1,4 @@
-import React, { ReactNode, useContext } from "react";
+import { ReactNode, useContext } from "react";
 import { SidebarContext } from "../../../contexts/SidebarContext";
 import "../mainbody/MainBody.scss";
 import Footer from "../footer/Footer";
@@ -21,5 +21,4 @@ const MainBody: React.FC<MainBodyProps> = ({ children }) => {
   );
 };
 
-const MemoizedMainBody = React.memo(MainBody);
-export default MemoizedMainBody;
+export default MainBody;

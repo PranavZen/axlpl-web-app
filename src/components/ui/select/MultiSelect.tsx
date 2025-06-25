@@ -38,5 +38,4 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   );
 };
 
-const MemoizedMultiSelect = React.memo(MultiSelect);
-export default MemoizedMultiSelect;
+export default MultiSelect;

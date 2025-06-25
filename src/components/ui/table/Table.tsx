@@ -471,5 +471,4 @@ function Table<T extends Record<string, any>>({
   );
 }
 
-const MemoizedTable = React.memo(Table) as typeof Table;
-export default MemoizedTable;
+export default Table;
