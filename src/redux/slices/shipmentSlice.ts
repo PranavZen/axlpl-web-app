@@ -97,7 +97,7 @@ export const submitShipment = createAsyncThunk(
       // Dynamic values with fallbacks
       formData.append("number_of_parcel", getFieldValue(formValues.numberOfParcel, "1"));
       formData.append("additional_axlpl_insurance", getFieldValue(formValues.additionalAxlplInsurance, "0.00"));
-      formData.append("shipment_status", getFieldValue(formValues.shipmentStatus, "Pending"));
+      formData.append("shipment_status", getFieldValue(formValues.shipmentStatus, "Approved"));
       formData.append("calculation_status", getFieldValue(formValues.calculationStatus, "custom"));
       formData.append("added_by", getFieldValue(formValues.addedBy, String(userId)));
       formData.append("added_by_type", getFieldValue(formValues.addedByType, "1"));
@@ -133,7 +133,8 @@ export const submitShipment = createAsyncThunk(
       formData.append("sender_is_new_sender_address", isNewSenderAddress);
 
       formData.append("sender_gst_no", getFieldValue(formValues.senderGstNo));
-      formData.append("sender_customer_id", getFieldValue(formValues.senderCustomerId, String(userId)));
+      // formData.append("sender_customer_id", getFieldValue(formValues.senderCustomerId, String(userId)));
+      formData.append("sender_customer_id", String(userId));
 
       // Receiver details - dynamic values from form
       formData.append("receiver_name", getFieldValue(formValues.receiverName));
@@ -207,8 +208,8 @@ export const submitShipment = createAsyncThunk(
       // formData.append("other_charges", getFieldValue(formValues.otherCharges, "0"));
 
       // // Date fields - dynamic with fallbacks
-      // const currentDate = new Date().toISOString().split('T')[0];
-      // formData.append("shipment_date", getFieldValue(formValues.shipmentDate, currentDate));
+      const currentDate = new Date().toISOString().split('T')[0];
+      formData.append("shipment_date", getFieldValue(formValues.shipmentDate, currentDate));
       // formData.append("expected_delivery_date", getFieldValue(formValues.expectedDeliveryDate, ""));
       // formData.append("pickup_date", getFieldValue(formValues.pickupDate, ""));
 
@@ -229,67 +230,18 @@ export const submitShipment = createAsyncThunk(
 
 
 
-      // Try both FormData and JSON approaches
-
+      // Try only FormData approach for shipment submission
       let response;
-      try {
-        // First try with FormData (like Postman form-data)
-
-        response = await axios.post(
-          `${API_BASE_URL}/insertShipment`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              // Let browser set Content-Type for FormData
-            }
+      response = await axios.post(
+        `${API_BASE_URL}/insertShipment`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // Let browser set Content-Type for FormData
           }
-        );
-
-      } catch (formDataError: any) {
-
-        try {
-          // Get form data entries for conversion
-          const formDataEntries = Array.from(formData.entries());
-
-          // Convert FormData to URLSearchParams (application/x-www-form-urlencoded)
-          const urlParams = new URLSearchParams();
-          formDataEntries.forEach(([key, value]) => {
-            urlParams.append(key, String(value));
-          });
-
-          response = await axios.post(
-            `${API_BASE_URL}/insertShipment`,
-            urlParams,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-              }
-            }
-          );
-        } catch (urlParamsError: any) {
-          // Get form data entries for conversion
-          const formDataEntries = Array.from(formData.entries());
-
-          // Convert FormData to regular object for JSON
-          const postData: Record<string, any> = {};
-          formDataEntries.forEach(([key, value]) => {
-            postData[key] = value;
-          });
-
-          response = await axios.post(
-            `${API_BASE_URL}/insertShipment`,
-            postData,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              }
-            }
-          );
         }
-      }
+      );
 
       if (response.data && response.data.status === "success") {
         return {

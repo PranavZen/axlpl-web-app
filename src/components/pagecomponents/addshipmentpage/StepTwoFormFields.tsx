@@ -181,7 +181,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const areasResult = await dispatch(fetchAreasByPincode(pincode));
         if (fetchAreasByPincode.fulfilled.match(areasResult)) {
           setSenderAreas(areasResult.payload || []);
-          setFieldValue("senderArea", null);
+          setFieldValue("senderArea", { value: '', label: '' });
         } else {
           setSenderAreas([]);
         }
@@ -210,7 +210,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         // Clear state, city, and area when pincode is incomplete
         setFieldValue("senderState", "");
         setFieldValue("senderCity", "");
-        setFieldValue("senderArea", null);
+        setFieldValue("senderArea", { value: '', label: '' });
       }
     },
     [fetchSenderPincodeData, setFieldValue]
@@ -236,7 +236,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const areasResult = await dispatch(fetchAreasByPincode(pincode));
         if (fetchAreasByPincode.fulfilled.match(areasResult)) {
           setReceiverAreas(areasResult.payload || []);
-          setFieldValue("receiverArea", null);
+          setFieldValue("receiverArea", { value: '', label: '' });
         } else {
           setReceiverAreas([]);
         }
@@ -265,7 +265,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         // Clear state, city, and area when pincode is incomplete
         setFieldValue("receiverState", "");
         setFieldValue("receiverCity", "");
-        setFieldValue("receiverArea", null);
+        setFieldValue("receiverArea", { value: '', label: '' });
       }
     },
     [fetchReceiverPincodeData, setFieldValue]
@@ -458,7 +458,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       if (Object.keys(loginUserFields).length > 0) {
         const fieldsWithCustomerId = {
           ...loginUserFields,
-          senderCustomerId: userId || "",
+          senderCustomerId: userId,
         };
         populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
       }
@@ -502,7 +502,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         }
         const fieldsWithCustomerId = {
           ...loginUserFields,
-          senderCustomerId: userId || "",
+          senderCustomerId: userId,
           senderArea: matchedArea || null,
         };
         populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
@@ -856,6 +856,12 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           setFieldValue("receiverArea", {
             value: matchedArea.id,
             label: matchedArea.name,
+          });
+        } else {
+          // Fallback: set area_name as both value and label
+          setFieldValue("receiverArea", {
+            value: customer.id,
+            label: customer.area_name,
           });
         }
       }

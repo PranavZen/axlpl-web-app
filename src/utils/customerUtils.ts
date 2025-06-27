@@ -68,9 +68,10 @@ export const mapLoginUserToSenderFields = () => {
       // Use string values from customer data, API will handle conversion or accept strings
       senderState: customerDetail.state_name || customerDetail.state || '',
       senderCity: customerDetail.city_name || customerDetail.city || '',
-      // Set area as null since customer data only has area_name (string) not area_id
-      // User will need to select from dropdown which provides proper ID/label structure
-      senderArea: null,
+      // Set area as { value, label } if area_name exists, else empty object
+      senderArea: customerDetail.area_name
+        ? { value: customerDetail.id, label: customerDetail.area_name }
+        : { value: '', label: '' },
       senderGstNo: customerDetail.gst_no || customerDetail.gst_number || '',
       senderAddressLine1: customerDetail.reg_address1 || customerDetail.address1 || customerDetail.address || '',
       senderAddressLine2: customerDetail.reg_address2 || customerDetail.address2 || '',
@@ -102,9 +103,10 @@ export const mapCustomerToSenderFields = (customer: Customer | null) => {
       // Use string values from customer data, API will handle conversion or accept strings
       senderState: customer.state_name || '',
       senderCity: customer.city_name || '',
-      // Set area as null since customer data only has area_name (string) not area_id
-      // User will need to select from dropdown which provides proper ID/label structure
-      senderArea: null,
+      // Set area as { value, label } if area_name exists, else empty object
+      senderArea: customer.area_name
+        ? { value: customer.id, label: customer.area_name }
+        : { value: '', label: '' },
       senderGstNo: customer.gst_no || '',
       senderAddressLine1: customer.address1 || '',
       senderAddressLine2: customer.address2 || '',
@@ -134,9 +136,10 @@ export const mapCustomerToReceiverFields = (customer: Customer | null) => {
       // Use string values from customer data, API will handle conversion or accept strings
       receiverState: customer.state_name || '',
       receiverCity: customer.city_name || '',
-      // Set area as null since customer data only has area_name (string) not area_id
-      // User will need to select from dropdown which provides proper ID/label structure
-      receiverArea: null,
+      // Set area as { value, label } if area_name exists, else empty object
+      receiverArea: customer.area_name
+        ? { value: customer.id, label: customer.area_name }
+        : { value: '', label: '' },
       receiverGstNo: customer.gst_no || '',
       receiverAddressLine1: customer.address1 || '',
       receiverAddressLine2: customer.address2 || '',
@@ -267,7 +270,7 @@ export const clearSenderFields = () => {
     senderZipCode: '',
     senderState: '',
     senderCity: '',
-    senderArea: null,
+    senderArea: { value: '', label: '' },
     senderGstNo: '',
     senderAddressLine1: '',
     senderAddressLine2: '',
@@ -288,7 +291,7 @@ export const clearReceiverFields = () => {
     receiverZipCode: '',
     receiverState: '',
     receiverCity: '',
-    receiverArea: null,
+    receiverArea: { value: '', label: '' },
     receiverGstNo: '',
     receiverAddressLine1: '',
     receiverAddressLine2: '',

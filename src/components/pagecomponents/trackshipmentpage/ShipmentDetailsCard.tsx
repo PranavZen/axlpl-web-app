@@ -66,12 +66,12 @@ const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data }) => {
 
               <div className="detail-item">
                 <label>Net Weight</label>
-                <span>{data.net_weight ? `${data.net_weight} kg` : "N/A"}</span>
+                <span>{data.net_weight ? `${data.net_weight} gms` : "N/A"}</span>
               </div>
 
               <div className="detail-item">
                 <label>Gross Weight</label>
-                <span>{data.gross_weight ? `${data.gross_weight} kg` : "N/A"}</span>
+                <span>{data.gross_weight ? `${data.gross_weight} gms` : "N/A"}</span>
               </div>
 
               <div className="detail-item">
