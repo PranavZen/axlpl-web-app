@@ -10,6 +10,7 @@ import { APP_CONFIG } from "./config";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import Addresses from "./pages/Addresses";
 import "./styles/global/Global.scss";
+import SessionTimeoutChecker from "./components/auth/SessionTimeoutChecker";
 // Lazy load pages
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SignIn = lazy(() => import("./pages/SignIn"));
@@ -26,13 +27,63 @@ const App = () => {
         <Suspense fallback={<LogisticsLoader />}>
           <Routes>
             <Route path="/" element={<SignIn />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/add-shipment" element={<ProtectedRoute><AddShipment /></ProtectedRoute>} />
-            <Route path="/shipments/:shipment_status" element={<ProtectedRoute><ShipmentsPage /></ProtectedRoute>} />
-            <Route path="/customer/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
-            <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
-            <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
-            <Route path="/track-shipment" element={<ProtectedRoute><TrackShipment /></ProtectedRoute>} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <SessionTimeoutChecker />
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/add-shipment"
+              element={
+                <ProtectedRoute>
+                  <AddShipment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/shipments/:shipment_status"
+              element={
+                <ProtectedRoute>
+                  <ShipmentsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer/addresses"
+              element={
+                <ProtectedRoute>
+                  <Addresses />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/edit-profile"
+              element={
+                <ProtectedRoute>
+                  <EditProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/change-password"
+              element={
+                <ProtectedRoute>
+                  <ChangePassword />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/track-shipment"
+              element={
+                <ProtectedRoute>
+                  <TrackShipment />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </Suspense>
@@ -42,7 +93,6 @@ const App = () => {
           rtl={false}
           pauseOnFocusLoss
         />
-      
       </SidebarProvider>
     </Router>
   );

@@ -33,7 +33,7 @@ const Sidebar = () => {
   const [userData, setUserData] = useState<any>(null);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-
+  // console.log("userData", userData)
   useEffect(() => {
     // Get user data from session storage
     const storedUser = sessionStorage.getItem("user");
@@ -117,10 +117,19 @@ const Sidebar = () => {
             <div className="d-flex">
               <div className="user-avatar">
                 <img
-                  src="https://beta.axlpl.com/admin/template/assets/images/dashboard/profImg.png"
+                  src={`${(userData?.Customerdetail?.path || "").replace(
+                    /\/$/,
+                    ""
+                  )}/${(
+                    userData?.Customerdetail?.cust_profile_img || ""
+                  ).replace(/^\//, "")}`}
                   alt={userData?.Customerdetail?.name || "User"}
                   className="rounded-circle"
                   title="Click to edit profile"
+                  onError={(e) =>
+                    (e.currentTarget.src =
+                      "https://beta.axlpl.com/admin/template/assets/images/dashboard/profImg.png")
+                  } // fallback path
                 />
               </div>
               <div className="user-info">

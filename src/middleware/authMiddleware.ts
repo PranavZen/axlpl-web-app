@@ -56,22 +56,22 @@ export const authMiddleware: Middleware = (store) => (next) => (action : any) =>
  */
 export const securityMiddleware: Middleware = (store) => (next) => (action: any) => {
   // Log security-related actions
-  const securityActions = [
-    'auth/login',
-    'auth/logout',
-    'tracking/trackShipment',
-  ];
+  // const securityActions = [
+  //   'auth/login',
+  //   'auth/logout',
+  //   'tracking/trackShipment',
+  // ];
 
-  if (securityActions.some(securityAction => action.type.includes(securityAction))) {
-    const userData = getUserData();
-    const timestamp = new Date().toISOString();
+  // if (securityActions.some(securityAction => action.type.includes(securityAction))) {
+  //   const userData = getUserData();
+  //   const timestamp = new Date().toISOString();
     
-    console.log(`[SECURITY LOG] ${timestamp}:`, {
-      action: action.type,
-      user: userData?.Customerdetail?.id || 'anonymous',
-      payload: action.type.includes('login') ? '[REDACTED]' : action.payload,
-    });
-  }
+  //   console.log(`[SECURITY LOG] ${timestamp}:`, {
+  //     action: action.type,
+  //     user: userData?.Customerdetail?.id || 'anonymous',
+  //     payload: action.type.includes('login') ? '[REDACTED]' : action.payload,
+  //   });
+  // }
 
   return next(action);
 };

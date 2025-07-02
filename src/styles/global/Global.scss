@@ -341,8 +341,8 @@ body {
   border-radius: 2rem;
   margin: 0 1.5rem;
   box-shadow: 0rem 0rem 10rem -0.3rem #d4d3d3;
-  .navigation-buttons{
-    @media screen and (max-width : 767px) {
+  .navigation-buttons {
+    @media screen and (max-width: 767px) {
       margin-bottom: 2rem;
       justify-content: center;
     }
@@ -351,7 +351,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    @media screen and (max-width : 767px) {
+    @media screen and (max-width: 767px) {
       flex-direction: column;
     }
     h1 {
@@ -376,4 +376,29 @@ body {
   font-size: 1.6rem;
   font-weight: 500;
   color: #7e7e7e;
+}
+
+div:where(.swal2-container) div:where(.swal2-popup) {
+  width: 50rem !important;
+  @include media-down(sm) {
+    width: 85% !important;
+  }
+}
+.swal-title {
+  font-size: 2.4rem;
+  font-weight: 600;
+}
+
+.swal-text {
+  font-size: 1.6rem;
+}
+
+.swal-confirm {
+  font-size: 1.6rem;
+  background-color: #ed6723;
+}
+
+.swal-cancel {
+  font-size: 1.6rem;
+  background-color: #123458;
 }
