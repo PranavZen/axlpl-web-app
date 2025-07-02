@@ -958,7 +958,7 @@ const EditProfile: React.FC = () => {
             {/* Action Buttons */}
             <div className="card">
               <div className="card-body">
-                <div className="form-navigation border-top-0">
+                <div className="form-navigation border-top-0 ps-0">
                   <div className="navigation-buttons">
                     <button
                       type="button"

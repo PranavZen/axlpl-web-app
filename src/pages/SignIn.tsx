@@ -1,17 +1,17 @@
-import React, { useEffect } from "react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import * as Yup from "yup";
+import Button from "../components/ui/button/Button";
+import Input from "../components/ui/input/Input";
+import Label from "../components/ui/label/Label";
+import { InlineLogisticsLoader } from "../components/ui/spinner";
+import { useConfig } from "../hooks";
 import { loginUser } from "../redux/slices/authSlice";
 import { AppDispatch, RootState } from "../redux/store";
-import Label from "../components/ui/label/Label";
-import Input from "../components/ui/input/Input";
-import Button from "../components/ui/button/Button";
-import { Link, useNavigate } from "react-router-dom";
-import { showSuccess, showError } from "../utils/toastUtils";
 import { isAuthenticated } from "../utils/authUtils";
-import { useConfig } from "../hooks";
-import { InlineLogisticsLoader } from "../components/ui/spinner";
+import { showError, showSuccess } from "../utils/toastUtils";
 const SignIn = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.auth);
@@ -21,7 +21,7 @@ const SignIn = () => {
   // Check if user is already logged in
   useEffect(() => {
     if (isAuthenticated()) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   }, [navigate]);
   const formik = useFormik({
@@ -43,16 +43,19 @@ const SignIn = () => {
           loginUser({ ...values, fcm_token: fcmToken || "" })
         );
 
-        if (response.meta.requestStatus === 'fulfilled') {
+        if (response.meta.requestStatus === "fulfilled") {
           showSuccess("Login Successful! Welcome back.");
           navigate("/dashboard");
         } else {
           let errorMessage = "Login Failed. Please check your credentials.";
 
           if (response.payload) {
-            if (typeof response.payload === 'string') {
+            if (typeof response.payload === "string") {
               errorMessage = response.payload;
-            } else if (typeof response.payload === 'object' && 'message' in response.payload) {
+            } else if (
+              typeof response.payload === "object" &&
+              "message" in response.payload
+            ) {
               errorMessage = String(response.payload.message);
             }
           } else if (error) {
@@ -61,7 +64,9 @@ const SignIn = () => {
 
           // Check if the error is related to messenger role
           if (errorMessage.includes("Messenger accounts are not allowed")) {
-            showError("Access Denied: Messenger accounts cannot use this application. Please contact support.");
+            showError(
+              "Access Denied: Messenger accounts cannot use this application. Please contact support."
+            );
           } else {
             showError(errorMessage);
           }
@@ -78,6 +83,15 @@ const SignIn = () => {
         <div className="p_newFormRow">
           <div className="col-lg-8 col-md-8 col-12 p_newLeftSide px-0">
             <div className="p_loginInnerFormWrap">
+              <div className="logoWrap d-flex justify-content-center mb-5">
+                <img
+                  src="https://beta.axlpl.com/admin/template/assets/images/dashboard/axlplLogoImg.png"
+                  alt="axlpl"
+                  width={300}
+                  height={100}
+                  className="img-fluid"
+                />
+              </div>
               <h1 className="p_formTitle">Welcome</h1>
               <p className="p_formPara">Please login to your account</p>
               <form onSubmit={formik.handleSubmit} className="p_loginMainForm">
@@ -115,7 +129,10 @@ const SignIn = () => {
                     className="form-control"
                   />
                   <Label
-                    className="form-label" htmlFor="password" text="Password" />
+                    className="form-label"
+                    htmlFor="password"
+                    text="Password"
+                  />
                 </div>
                 <div className="p_frgtPswdWrap">
                   <Link
@@ -126,14 +143,13 @@ const SignIn = () => {
                     Forgot Password?
                   </Link>
                 </div>
-                <div className="form-check myCheckbox">
+                <div className="form-check myCheckbox d-none">
                   <input
                     type="checkbox"
                     className="form-check-input"
                     id="exampleCheck1"
                   />
-                  <label
-                    className="form-check-label" htmlFor="exampleCheck1">
+                  <label className="form-check-label" htmlFor="exampleCheck1">
                     By selecting you are agree to our{" "}
                     <Link to="">terms of service</Link> and acknowledge our{" "}
                     <Link to="">privacy policy</Link>
@@ -151,14 +167,16 @@ const SignIn = () => {
                       <InlineLogisticsLoader size="sm" />
                     </div>
                   )}
-                  <span className="dividerLine">or</span>
+                  {/* <span className="dividerLine">or</span>
                   <Link to="" className="btn authSignUpBtn">
                     Register Now
-                  </Link>
+                  </Link> */}
                 </div>
                 {error && (
                   <div className="text-danger mt-2">
-                    {String(error).includes("Messenger accounts are not allowed")
+                    {String(error).includes(
+                      "Messenger accounts are not allowed"
+                    )
                       ? "Access Denied: Messenger accounts cannot use this application."
                       : String(error)}
                   </div>

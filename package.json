@@ -1,6 +1,7 @@
 {
   "name": "app.axlpl.com",
-  "homepage": "https://app.axlpl.com/",
+  "homepage": "https://app.axlpl.com",
+  "proxy": "https://app.axlpl.com",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -36,7 +37,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

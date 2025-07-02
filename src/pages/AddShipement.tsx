@@ -5,7 +5,12 @@ import { toast } from "react-toastify";
 import MainBody from "../components/ui/mainbody/MainBody";
 import Sidebar from "../components/ui/sidebar/Sidebar";
 import { RootState, AppDispatch } from "../redux/store";
-import { resetFormData, setFormData, submitShipment, clearSubmitState } from "../redux/slices/shipmentSlice";
+import {
+  resetFormData,
+  setFormData,
+  submitShipment,
+  clearSubmitState,
+} from "../redux/slices/shipmentSlice";
 import * as Yup from "yup";
 import StepOneFormFields from "../components/pagecomponents/addshipmentpage/StepOneFormFields";
 import StepTwoFormFields from "../components/pagecomponents/addshipmentpage/StepTwoFormFields";
@@ -14,34 +19,42 @@ import StepFourFormFields from "../components/pagecomponents/addshipmentpage/Ste
 import FormNavigation from "../components/pagecomponents/addshipmentpage/FormNavigation";
 import { SidebarContext } from "../contexts/SidebarContext";
 import "../styles/global/AddShipment.scss";
+import { useNavigate } from "react-router-dom";
 
 const steps = [
   {
     title: "Shipment Details",
     subtitle: "Basic shipment information",
-    icon: "📦"
+    icon: "📦",
   },
   {
     title: "Address Information",
     subtitle: "Pickup and delivery addresses",
-    icon: "📍"
+    icon: "📍",
   },
   {
     title: "Delivery Options",
     subtitle: "Different delivery address",
-    icon: "🚚"
+    icon: "🚚",
   },
   {
     title: "Review & Confirm",
     subtitle: "Review and submit your shipment",
-    icon: "✅"
-  }
+    icon: "✅",
+  },
 ];
 
 const AddShipment = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const dispatch = useDispatch<AppDispatch>();
-  const { submitting, submitError, submitSuccess, submittedShipmentId, formData } = useSelector((state: RootState) => state.shipment);
+  const {
+    submitting,
+    submitError,
+    submitSuccess,
+    submittedShipmentId,
+    formData,
+  } = useSelector((state: RootState) => state.shipment);
   const { isSidebarCollapsed } = useContext(SidebarContext);
 
   // Reset form data on component mount to ensure clean state
@@ -128,20 +141,38 @@ const AddShipment = () => {
       name: Yup.string().required("Name is required"),
       category: Yup.object().nullable().required("Please select category"),
       commodity: Yup.array().min(1, "Please select at least one commodity"),
-      netWeight: Yup.number().positive("Net weight must be positive").required("Net weight is required"),
-      grossWeight: Yup.number().positive("Gross weight must be positive").required("Gross weight is required"),
-      paymentMode: Yup.object().nullable().required("Please select payment mode"),
-      numberOfParcel: Yup.number().positive("Number of parcels must be positive").required("Number of parcels is required"),
-      serviceType: Yup.object().nullable().required("Please select service type"),
-      invoiceValue: Yup.number().positive("Invoice value must be positive").required("Invoice value is required"),
+      netWeight: Yup.number()
+        .positive("Net weight must be positive")
+        .required("Net weight is required"),
+      grossWeight: Yup.number()
+        .positive("Gross weight must be positive")
+        .required("Gross weight is required"),
+      paymentMode: Yup.object()
+        .nullable()
+        .required("Please select payment mode"),
+      numberOfParcel: Yup.number()
+        .positive("Number of parcels must be positive")
+        .required("Number of parcels is required"),
+      serviceType: Yup.object()
+        .nullable()
+        .required("Please select service type"),
+      invoiceValue: Yup.number()
+        .positive("Invoice value must be positive")
+        .required("Invoice value is required"),
       invoiceNumber: Yup.string().required("Invoice number is required"),
     }),
 
     // Step 2: Address Information (Strict validation with improved email regex)
     Yup.object({
-      senderAddressType: Yup.string().oneOf(["new", "existing"], "Invalid sender address type").required("Please select sender address type"),
-      receiverAddressType: Yup.string().oneOf(["new", "existing"], "Invalid receiver address type").required("Please select receiver address type"),
-      billTo: Yup.string().oneOf(["sender", "receiver"], "Please select who to bill").required("Please select billing option"),
+      senderAddressType: Yup.string()
+        .oneOf(["new", "existing"], "Invalid sender address type")
+        .required("Please select sender address type"),
+      receiverAddressType: Yup.string()
+        .oneOf(["new", "existing"], "Invalid receiver address type")
+        .required("Please select receiver address type"),
+      billTo: Yup.string()
+        .oneOf(["sender", "receiver"], "Please select who to bill")
+        .required("Please select billing option"),
 
       senderName: Yup.string()
         .min(2, "Sender name must be at least 2 characters")
@@ -154,27 +185,50 @@ const AddShipment = () => {
       senderZipCode: Yup.string()
         .matches(/^\d{6}$/, "Sender zip code must be exactly 6 digits")
         .required("Sender zip code is required"),
-      senderState: Yup.mixed()
-        .test('senderState', 'Sender state is required', function(value) {
+      senderState: Yup.mixed().test(
+        "senderState",
+        "Sender state is required",
+        function (value) {
           if (!value) return false;
           // Handle both string and object formats
-          const stateValue = typeof value === 'object' && value !== null ? (value as any).label : value;
-          if (!stateValue || typeof stateValue !== 'string') return false;
+          const stateValue =
+            typeof value === "object" && value !== null
+              ? (value as any).label
+              : value;
+          if (!stateValue || typeof stateValue !== "string") return false;
           const trimmed = stateValue.trim();
-          return trimmed.length >= 2 && trimmed.length <= 50 && /^[a-zA-Z\s.-]+$/.test(trimmed);
-        }),
-      senderCity: Yup.mixed()
-        .test('senderCity', 'Sender city is required', function(value) {
+          return (
+            trimmed.length >= 2 &&
+            trimmed.length <= 50 &&
+            /^[a-zA-Z\s.-]+$/.test(trimmed)
+          );
+        }
+      ),
+      senderCity: Yup.mixed().test(
+        "senderCity",
+        "Sender city is required",
+        function (value) {
           if (!value) return false;
           // Handle both string and object formats
-          const cityValue = typeof value === 'object' && value !== null ? (value as any).label : value;
-          if (!cityValue || typeof cityValue !== 'string') return false;
+          const cityValue =
+            typeof value === "object" && value !== null
+              ? (value as any).label
+              : value;
+          if (!cityValue || typeof cityValue !== "string") return false;
           const trimmed = cityValue.trim();
-          return trimmed.length >= 2 && trimmed.length <= 50 && /^[a-zA-Z\s.-]+$/.test(trimmed);
-        }),
+          return (
+            trimmed.length >= 2 &&
+            trimmed.length <= 50 &&
+            /^[a-zA-Z\s.-]+$/.test(trimmed)
+          );
+        }
+      ),
       senderArea: Yup.object().nullable(),
       senderGstNo: Yup.string()
-        .matches(/^[a-zA-Z0-9]{15}$/, "Sender GST number must be exactly 15 alphanumeric characters")
+        .matches(
+          /^[a-zA-Z0-9]{15}$/,
+          "Sender GST number must be exactly 15 alphanumeric characters"
+        )
         .required("Sender GST number is required"),
       senderAddressLine1: Yup.string()
         .min(5, "Sender address line 1 must be at least 5 characters")
@@ -189,7 +243,7 @@ const AddShipment = () => {
         .required("Sender mobile is required"),
       senderEmail: Yup.string()
         .matches(
-          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 
+          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
           "Invalid sender email format"
         )
         .required("Sender email is required"),
@@ -205,27 +259,50 @@ const AddShipment = () => {
       receiverZipCode: Yup.string()
         .matches(/^\d{6}$/, "Receiver zip code must be exactly 6 digits")
         .required("Receiver zip code is required"),
-      receiverState: Yup.mixed()
-        .test('receiverState', 'Receiver state is required', function(value) {
+      receiverState: Yup.mixed().test(
+        "receiverState",
+        "Receiver state is required",
+        function (value) {
           if (!value) return false;
           // Handle both string and object formats
-          const stateValue = typeof value === 'object' && value !== null ? (value as any).label : value;
-          if (!stateValue || typeof stateValue !== 'string') return false;
+          const stateValue =
+            typeof value === "object" && value !== null
+              ? (value as any).label
+              : value;
+          if (!stateValue || typeof stateValue !== "string") return false;
           const trimmed = stateValue.trim();
-          return trimmed.length >= 2 && trimmed.length <= 50 && /^[a-zA-Z\s.-]+$/.test(trimmed);
-        }),
-      receiverCity: Yup.mixed()
-        .test('receiverCity', 'Receiver city is required', function(value) {
+          return (
+            trimmed.length >= 2 &&
+            trimmed.length <= 50 &&
+            /^[a-zA-Z\s.-]+$/.test(trimmed)
+          );
+        }
+      ),
+      receiverCity: Yup.mixed().test(
+        "receiverCity",
+        "Receiver city is required",
+        function (value) {
           if (!value) return false;
           // Handle both string and object formats
-          const cityValue = typeof value === 'object' && value !== null ? (value as any).label : value;
-          if (!cityValue || typeof cityValue !== 'string') return false;
+          const cityValue =
+            typeof value === "object" && value !== null
+              ? (value as any).label
+              : value;
+          if (!cityValue || typeof cityValue !== "string") return false;
           const trimmed = cityValue.trim();
-          return trimmed.length >= 2 && trimmed.length <= 50 && /^[a-zA-Z\s.-]+$/.test(trimmed);
-        }),
+          return (
+            trimmed.length >= 2 &&
+            trimmed.length <= 50 &&
+            /^[a-zA-Z\s.-]+$/.test(trimmed)
+          );
+        }
+      ),
       receiverArea: Yup.object().nullable(),
       receiverGstNo: Yup.string()
-        .matches(/^[a-zA-Z0-9]{15}$/, "Receiver GST number must be exactly 15 alphanumeric characters")
+        .matches(
+          /^[a-zA-Z0-9]{15}$/,
+          "Receiver GST number must be exactly 15 alphanumeric characters"
+        )
         .required("Receiver GST number is required"),
       receiverAddressLine1: Yup.string()
         .min(5, "Receiver address line 1 must be at least 5 characters")
@@ -240,7 +317,7 @@ const AddShipment = () => {
         .required("Receiver mobile is required"),
       receiverEmail: Yup.string()
         .matches(
-          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 
+          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
           "Invalid receiver email format"
         )
         .required("Receiver email is required"),
@@ -254,53 +331,64 @@ const AddShipment = () => {
       isDifferentDeliveryAddress: Yup.boolean(),
 
       // Conditional validation for delivery address fields
-      deliveryZipCode: Yup.string().when('isDifferentDeliveryAddress', {
+      deliveryZipCode: Yup.string().when("isDifferentDeliveryAddress", {
         is: true,
-        then: (schema) => schema
-          .trim()
-          .matches(/^\d{6}$/, "Delivery zip code must be exactly 6 digits")
-          .required("Delivery zip code is required"),
+        then: (schema) =>
+          schema
+            .trim()
+            .matches(/^\d{6}$/, "Delivery zip code must be exactly 6 digits")
+            .required("Delivery zip code is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
 
-      deliveryState: Yup.string().when('isDifferentDeliveryAddress', {
+      deliveryState: Yup.string().when("isDifferentDeliveryAddress", {
         is: true,
-        then: (schema) => schema
-          .trim()
-          .min(2, "Delivery state must be at least 2 characters")
-          .max(50, "Delivery state cannot exceed 50 characters")
-          .matches(/^[a-zA-Z\s.-]+$/, "Delivery state can only contain letters, spaces, dots, and hyphens")
-          .required("Delivery state is required"),
+        then: (schema) =>
+          schema
+            .trim()
+            .min(2, "Delivery state must be at least 2 characters")
+            .max(50, "Delivery state cannot exceed 50 characters")
+            .matches(
+              /^[a-zA-Z\s.-]+$/,
+              "Delivery state can only contain letters, spaces, dots, and hyphens"
+            )
+            .required("Delivery state is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
 
-      deliveryCity: Yup.string().when('isDifferentDeliveryAddress', {
+      deliveryCity: Yup.string().when("isDifferentDeliveryAddress", {
         is: true,
-        then: (schema) => schema
-          .trim()
-          .min(2, "Delivery city must be at least 2 characters")
-          .max(100, "Delivery city cannot exceed 100 characters")
-          .matches(/^[a-zA-Z\s.-]+$/, "Delivery city can only contain letters, spaces, dots, and hyphens")
-          .required("Delivery city is required"),
+        then: (schema) =>
+          schema
+            .trim()
+            .min(2, "Delivery city must be at least 2 characters")
+            .max(100, "Delivery city cannot exceed 100 characters")
+            .matches(
+              /^[a-zA-Z\s.-]+$/,
+              "Delivery city can only contain letters, spaces, dots, and hyphens"
+            )
+            .required("Delivery city is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
 
-      deliveryAddressLine1: Yup.string().when('isDifferentDeliveryAddress', {
+      deliveryAddressLine1: Yup.string().when("isDifferentDeliveryAddress", {
         is: true,
-        then: (schema) => schema
-          .trim()
-          .min(5, "Delivery address must be at least 5 characters")
-          .max(200, "Delivery address cannot exceed 200 characters")
-          .required("Delivery address line 1 is required"),
+        then: (schema) =>
+          schema
+            .trim()
+            .min(5, "Delivery address must be at least 5 characters")
+            .max(200, "Delivery address cannot exceed 200 characters")
+            .required("Delivery address line 1 is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
 
-      deliveryAddressLine2: Yup.string().when('isDifferentDeliveryAddress', {
+      deliveryAddressLine2: Yup.string().when("isDifferentDeliveryAddress", {
         is: true,
-        then: (schema) => schema
-          .trim()
-          .max(200, "Delivery address cannot exceed 200 characters")
-          .nullable(),
+        then: (schema) =>
+          schema
+            .trim()
+            .max(200, "Delivery address cannot exceed 200 characters")
+            .nullable(),
         otherwise: (schema) => schema.notRequired(),
       }),
     }),
@@ -316,28 +404,58 @@ const AddShipment = () => {
     const errors: string[] = [];
 
     // Validate sender fields
-    if (!values.senderGstNo || values.senderGstNo.length !== 15 || !/^[a-zA-Z0-9]{15}$/.test(values.senderGstNo)) {
-      errors.push("Sender GST Number must be exactly 15 alphanumeric characters");
+    if (
+      !values.senderGstNo ||
+      values.senderGstNo.length !== 15 ||
+      !/^[a-zA-Z0-9]{15}$/.test(values.senderGstNo)
+    ) {
+      errors.push(
+        "Sender GST Number must be exactly 15 alphanumeric characters"
+      );
     }
 
-    if (!values.senderMobile || values.senderMobile.length !== 10 || !/^\d{10}$/.test(values.senderMobile)) {
+    if (
+      !values.senderMobile ||
+      values.senderMobile.length !== 10 ||
+      !/^\d{10}$/.test(values.senderMobile)
+    ) {
       errors.push("Sender Mobile Number must be exactly 10 digits");
     }
 
-    if (!values.senderEmail || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(values.senderEmail)) {
+    if (
+      !values.senderEmail ||
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+        values.senderEmail
+      )
+    ) {
       errors.push("Sender Email must be in valid format");
     }
 
     // Validate receiver fields
-    if (!values.receiverGstNo || values.receiverGstNo.length !== 15 || !/^[a-zA-Z0-9]{15}$/.test(values.receiverGstNo)) {
-      errors.push("Receiver GST Number must be exactly 15 alphanumeric characters");
+    if (
+      !values.receiverGstNo ||
+      values.receiverGstNo.length !== 15 ||
+      !/^[a-zA-Z0-9]{15}$/.test(values.receiverGstNo)
+    ) {
+      errors.push(
+        "Receiver GST Number must be exactly 15 alphanumeric characters"
+      );
     }
 
-    if (!values.receiverMobile || values.receiverMobile.length !== 10 || !/^\d{10}$/.test(values.receiverMobile)) {
+    if (
+      !values.receiverMobile ||
+      values.receiverMobile.length !== 10 ||
+      !/^\d{10}$/.test(values.receiverMobile)
+    ) {
       errors.push("Receiver Mobile Number must be exactly 10 digits");
     }
 
-    if (!values.receiverEmail || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(values.receiverEmail)) {
+    if (
+      !values.receiverEmail ||
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+        values.receiverEmail
+      )
+    ) {
       errors.push("Receiver Email must be in valid format");
     }
 
@@ -351,29 +469,45 @@ const AddShipment = () => {
       console.log("patchedValues", patchedValues);
       // Sender
       if (patchedValues.senderAddressType === "existing") {
-        if (!patchedValues.senderStateId && patchedValues.senderState && patchedValues.senderState.id) {
+        if (
+          !patchedValues.senderStateId &&
+          patchedValues.senderState &&
+          patchedValues.senderState.id
+        ) {
           patchedValues.senderStateId = patchedValues.senderState.id;
         }
-        if (!patchedValues.senderCityId && patchedValues.senderCity && patchedValues.senderCity.id) {
+        if (
+          !patchedValues.senderCityId &&
+          patchedValues.senderCity &&
+          patchedValues.senderCity.id
+        ) {
           patchedValues.senderCityId = patchedValues.senderCity.id;
         }
       }
       // Receiver
       if (patchedValues.receiverAddressType === "existing") {
-        if (!patchedValues.receiverStateId && patchedValues.receiverState && patchedValues.receiverState.id) {
+        if (
+          !patchedValues.receiverStateId &&
+          patchedValues.receiverState &&
+          patchedValues.receiverState.id
+        ) {
           patchedValues.receiverStateId = patchedValues.receiverState.id;
         }
-        if (!patchedValues.receiverCityId && patchedValues.receiverCity && patchedValues.receiverCity.id) {
+        if (
+          !patchedValues.receiverCityId &&
+          patchedValues.receiverCity &&
+          patchedValues.receiverCity.id
+        ) {
           patchedValues.receiverCityId = patchedValues.receiverCity.id;
         }
       }
       // Debug log for state/city IDs
-      console.log('Submitting shipment with IDs:', {
+      console.log("Submitting shipment with IDs:", {
         senderStateId: patchedValues.senderStateId,
         senderCityId: patchedValues.senderCityId,
         receiverStateId: patchedValues.receiverStateId,
         receiverCityId: patchedValues.receiverCityId,
-        allValues: patchedValues
+        allValues: patchedValues,
       });
       // Show loading toast
       const loadingToast = toast.loading("Submitting shipment...");
@@ -387,7 +521,11 @@ const AddShipment = () => {
       if (submitShipment.fulfilled.match(result)) {
         // Success - Clear form and show success message
         const shipmentId = result.payload.shipmentId;
-        toast.success(`Shipment submitted successfully! ${shipmentId ? `Shipment ID: ${shipmentId}` : ''}`);
+        toast.success(
+          `Shipment submitted successfully! ${
+            shipmentId ? `Shipment ID: ${shipmentId}` : ""
+          }`
+        );
 
         // 1. Reset Redux form data
         dispatch(resetFormData());
@@ -397,10 +535,11 @@ const AddShipment = () => {
 
         // 3. Reset step to 0
         setStep(0);
-
+       setTimeout(() => navigate("/shipments/approved"), 500);
       } else {
         // Error
-        const errorMessage = result.payload as string || "Failed to submit shipment";
+        const errorMessage =
+          (result.payload as string) || "Failed to submit shipment";
         toast.error(errorMessage);
       }
     } catch (error: any) {
@@ -426,105 +565,150 @@ const AddShipment = () => {
   }, [submitSuccess, submitError, submittedShipmentId, dispatch]);
 
   return (
-      <div className="container-fluid p-0">
-        <section className={`bodyWrap ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-          <Sidebar />
-          <MainBody>
-            <div className="multi-step-form-container">
-              {/* Enhanced Header */}
-              <div className="form-header">
-                <div className="header-content">
-                  <h1 className="form-title">Create New Shipment</h1>
-                  <p className="form-subtitle">
-                    Complete the following steps to create your shipment
-                  </p>
-                </div>
-                {/* <div className="step-indicator">
+    <div className="container-fluid p-0">
+      <section
+        className={`bodyWrap ${isSidebarCollapsed ? "sidebar-collapsed" : ""}`}
+      >
+        <Sidebar />
+        <MainBody>
+          <div className="multi-step-form-container">
+            {/* Enhanced Header */}
+            <div className="form-header">
+              <div className="header-content">
+                <h1 className="form-title">Create New Shipment</h1>
+                <p className="form-subtitle">
+                  Complete the following steps to create your shipment
+                </p>
+              </div>
+              {/* <div className="step-indicator">
                   <span className="current-step">Step {step + 1}</span>
                   <span className="total-steps">of {steps.length}</span>
                 </div> */}
-              </div>
+            </div>
 
-              {/* Progress Indicator */}
-              <div className="multi-step-progress">
-                <div className="progress-container" style={{ '--progress-width': `${(step / (steps.length - 1)) * 100}%` } as React.CSSProperties}>
-                  {steps.map((stepItem, index) => {
-                    const isCompleted = index < step;
-                    const isActive = index === step;
+            {/* Progress Indicator */}
+            <div className="multi-step-progress">
+              <div
+                className="progress-container"
+                style={
+                  {
+                    "--progress-width": `${(step / (steps.length - 1)) * 100}%`,
+                  } as React.CSSProperties
+                }
+              >
+                {steps.map((stepItem, index) => {
+                  const isCompleted = index < step;
+                  const isActive = index === step;
 
-                    return (
-                      <div key={index} className="progress-step">
-                        <div className={`step-circle ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`}>
-                          {isCompleted ? (
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          ) : (
-                            <span>{index + 1}</span>
-                          )}
-                        </div>
-                        <div className="step-label">
-                          <div className={`step-title ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>
-                            {stepItem.title}
-                          </div>
-                          <div className="step-subtitle">{stepItem.subtitle}</div>
-                        </div>
+                  return (
+                    <div key={index} className="progress-step">
+                      <div
+                        className={`step-circle ${
+                          isCompleted ? "completed" : ""
+                        } ${isActive ? "active" : ""}`}
+                      >
+                        {isCompleted ? (
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        ) : (
+                          <span>{index + 1}</span>
+                        )}
                       </div>
-                    );
-                  })}
-                </div>
+                      <div className="step-label">
+                        <div
+                          className={`step-title ${isActive ? "active" : ""} ${
+                            isCompleted ? "completed" : ""
+                          }`}
+                        >
+                          {stepItem.title}
+                        </div>
+                        <div className="step-subtitle">{stepItem.subtitle}</div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+            </div>
 
-              {/* Form Content */}
-              <div className="form-content">
-                <Formik
-                  initialValues={initialValues}
-                  validationSchema={validationSchemas[step]}
-                  onSubmit={async (values, formikHelpers) => {
-                    // Check for validation errors
-                    try {
-                      await validationSchemas[step].validate(values, { abortEarly: false });
-                    } catch (validationError: any) {
-                      // Show validation errors to user
-                      if (validationError.errors && validationError.errors.length > 0) {
-                        const errorMessage = `Please fix the following errors:\n${validationError.errors.join('\n')}`;
-                        // Show toast with validation errors
-                        toast.error(errorMessage);
-                      }
-                      return; // Don't proceed if validation fails
+            {/* Form Content */}
+            <div className="form-content">
+              <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchemas[step]}
+                onSubmit={async (values, formikHelpers) => {
+                  // Check for validation errors
+                  try {
+                    await validationSchemas[step].validate(values, {
+                      abortEarly: false,
+                    });
+                  } catch (validationError: any) {
+                    // Show validation errors to user
+                    if (
+                      validationError.errors &&
+                      validationError.errors.length > 0
+                    ) {
+                      const errorMessage = `Please fix the following errors:\n${validationError.errors.join(
+                        "\n"
+                      )}`;
+                      // Show toast with validation errors
+                      toast.error(errorMessage);
                     }
+                    return; // Don't proceed if validation fails
+                  }
 
-                    // Additional validation for Step 2 critical fields before proceeding to Step 3
-                    if (step === 1) { // Step 2 (0-indexed)
-                      const criticalFieldErrors = validateStep2CriticalFields(values);
-                      if (criticalFieldErrors.length > 0) {
-                        const errorMessage = `Please fix the following critical validation errors before proceeding:\n${criticalFieldErrors.join('\n')}`;
-                        toast.error(errorMessage);
-                        return; // Don't proceed if critical validation fails
-                      }
+                  // Additional validation for Step 2 critical fields before proceeding to Step 3
+                  if (step === 1) {
+                    // Step 2 (0-indexed)
+                    const criticalFieldErrors =
+                      validateStep2CriticalFields(values);
+                    if (criticalFieldErrors.length > 0) {
+                      const errorMessage = `Please fix the following critical validation errors before proceeding:\n${criticalFieldErrors.join(
+                        "\n"
+                      )}`;
+                      toast.error(errorMessage);
+                      return; // Don't proceed if critical validation fails
                     }
+                  }
 
-                    // Always save form data to Redux before proceeding
-                    dispatch(setFormData(values));
+                  // Always save form data to Redux before proceeding
+                  dispatch(setFormData(values));
 
-                    if (step === steps.length - 1) {
-                      await handleSubmit(values, formikHelpers);
-                    } else {
-                      setStep(step + 1);
-                    }
-                  }}
-                  enableReinitialize
-                >
-                  {({ values, setFieldValue, setFieldTouched, setFieldError, errors, touched }) => {
-
-                    return (
+                  if (step === steps.length - 1) {
+                    await handleSubmit(values, formikHelpers);
+                  } else {
+                    setStep(step + 1);
+                  }
+                }}
+                enableReinitialize
+              >
+                {({
+                  values,
+                  setFieldValue,
+                  setFieldTouched,
+                  setFieldError,
+                  errors,
+                  touched,
+                }) => {
+                  return (
                     <Form className="multi-step-form" noValidate>
                       <div className="step-content">
                         <div className="step-header">
                           <div className="step-icon">{steps[step].icon}</div>
                           <div className="step-info">
                             <h2 className="step-title">{steps[step].title}</h2>
-                            <p className="step-subtitle">{steps[step].subtitle}</p>
+                            <p className="step-subtitle">
+                              {steps[step].subtitle}
+                            </p>
                           </div>
                         </div>
 
@@ -582,15 +766,14 @@ const AddShipment = () => {
                         isSubmitting={submitting}
                       />
                     </Form>
-                    );
-                  }}
-                </Formik>
-              </div>
+                  );
+                }}
+              </Formik>
             </div>
-          </MainBody>
-        </section>
-      </div>
-
+          </div>
+        </MainBody>
+      </section>
+    </div>
   );
 };
 

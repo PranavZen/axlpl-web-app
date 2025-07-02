@@ -252,6 +252,7 @@ export interface ShipmentDetails {
   sender_id?: number | string;
   gst?: string;
   grand_total?: number;
+  gst_amount?: string;
 }
 
 export interface TrackingData {

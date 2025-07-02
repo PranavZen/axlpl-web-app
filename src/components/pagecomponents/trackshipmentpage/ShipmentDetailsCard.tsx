@@ -88,10 +88,10 @@ const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data }) => {
                 </span>
               </div>
 
-              <div className="detail-item">
+              {/* <div className="detail-item">
                 <label>Expected Delivery</label>
                 <span>{data.exp_date ? formatDate(data.exp_date) : "N/A"}</span>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -224,7 +224,7 @@ const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data }) => {
 
               <div className="charge-item">
                 <label>GST</label>
-                <span>{formatCurrency(data.gst || "0")}</span>
+                <span>{formatCurrency(data.gst_amount || "0")}</span>
               </div>
 
               <div className="charge-item total">
