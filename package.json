@@ -1,5 +1,6 @@
 {
-  "name": "axlpl-webapp",
+  "name": "app.axlpl.com",
+  "homepage": "https://app.axlpl.com/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

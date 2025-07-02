@@ -2,7 +2,7 @@
  * Utility functions for customer data handling
  */
 
-import { getUserData } from './authUtils';
+import { getUserData } from "./authUtils";
 
 /**
  * Debug function to log all available fields in login user data
@@ -25,6 +25,9 @@ interface Customer {
   state_name: string;
   city_name: string;
   area_name: string;
+  state_id?: string;
+  city_id?: string;
+  area_id?: string;
   gst_no: string;
   address1: string;
   address2: string;
@@ -39,12 +42,15 @@ interface Customer {
  * @param fullName The full_name to search for
  * @returns The matching customer object or null if not found
  */
-export const findCustomerByName = (customers: Customer[], fullName: string): Customer | null => {
+export const findCustomerByName = (
+  customers: Customer[],
+  fullName: string
+): Customer | null => {
   if (!customers || !Array.isArray(customers) || !fullName) {
     return null;
   }
 
-  return customers.find(customer => customer.full_name === fullName) || null;
+  return customers.find((customer) => customer.full_name === fullName) || null;
 };
 
 /**
@@ -62,21 +68,43 @@ export const mapLoginUserToSenderFields = () => {
 
     // Map fields based on actual login response structure
     const mappedFields = {
-      senderName: customerDetail.name || customerDetail.full_name || customerDetail.customer_name || '',
-      senderCompanyName: customerDetail.company_name || customerDetail.name || '',
-      senderZipCode: customerDetail.pincode || customerDetail.zip_code || customerDetail.postal_code || '',
-      // Use string values from customer data, API will handle conversion or accept strings
-      senderState: customerDetail.state_name || customerDetail.state || '',
-      senderCity: customerDetail.city_name || customerDetail.city || '',
-      // Set area as { value, label } if area_name exists, else empty object
+      senderName:
+        customerDetail.name ||
+        customerDetail.full_name ||
+        customerDetail.customer_name ||
+        "",
+      senderCompanyName:
+        customerDetail.company_name || customerDetail.name || "",
+      senderZipCode:
+        customerDetail.pincode ||
+        customerDetail.zip_code ||
+        customerDetail.postal_code ||
+        "",
+      // Use proper object format for state, city, and area
+      senderState: customerDetail.state_name
+        ? { value: customerDetail.state_id || customerDetail.id, label: customerDetail.state_name }
+        : { value: "", label: "" },
+      senderCity: customerDetail.city_name
+        ? { value: customerDetail.city_id || customerDetail.id, label: customerDetail.city_name }
+        : { value: "", label: "" },
+      // Set area as { value, label } using proper area_id if available
       senderArea: customerDetail.area_name
-        ? { value: customerDetail.id, label: customerDetail.area_name }
-        : { value: '', label: '' },
-      senderGstNo: customerDetail.gst_no || customerDetail.gst_number || '',
-      senderAddressLine1: customerDetail.reg_address1 || customerDetail.address1 || customerDetail.address || '',
-      senderAddressLine2: customerDetail.reg_address2 || customerDetail.address2 || '',
-      senderMobile: customerDetail.mobile || customerDetail.mobile_no || customerDetail.phone || '',
-      senderEmail: customerDetail.email || customerDetail.email_id || '',
+        ? { value: customerDetail.area_id || customerDetail.id, label: customerDetail.area_name }
+        : { value: "", label: "" },
+      senderGstNo: customerDetail.gst_no || customerDetail.gst_number || "",
+      senderAddressLine1:
+        customerDetail.reg_address1 ||
+        customerDetail.address1 ||
+        customerDetail.address ||
+        "",
+      senderAddressLine2:
+        customerDetail.reg_address2 || customerDetail.address2 || "",
+      senderMobile:
+        customerDetail.mobile ||
+        customerDetail.mobile_no ||
+        customerDetail.phone ||
+        "",
+      senderEmail: customerDetail.email || customerDetail.email_id || "",
     };
 
     return mappedFields;
@@ -97,21 +125,25 @@ export const mapCustomerToSenderFields = (customer: Customer | null) => {
 
   try {
     return {
-      senderName: customer.full_name || '',
-      senderCompanyName: customer.company_name || '',
-      senderZipCode: customer.pincode || '',
-      // Use string values from customer data, API will handle conversion or accept strings
-      senderState: customer.state_name || '',
-      senderCity: customer.city_name || '',
-      // Set area as { value, label } if area_name exists, else empty object
+      senderName: customer.full_name || "",
+      senderCompanyName: customer.company_name || "",
+      senderZipCode: customer.pincode || "",
+      // Use proper IDs for state, city, and area
+      senderState: customer.state_name
+        ? { value: customer.state_id || customer.id, label: customer.state_name }
+        : { value: "", label: "" },
+      senderCity: customer.city_name
+        ? { value: customer.city_id || customer.id, label: customer.city_name }
+        : { value: "", label: "" },
+      // Set area as { value, label } using proper area_id
       senderArea: customer.area_name
-        ? { value: customer.id, label: customer.area_name }
-        : { value: '', label: '' },
-      senderGstNo: customer.gst_no || '',
-      senderAddressLine1: customer.address1 || '',
-      senderAddressLine2: customer.address2 || '',
-      senderMobile: customer.mobile_no || '',
-      senderEmail: customer.email || '',
+        ? { value: customer.area_id || customer.id, label: customer.area_name }
+        : { value: "", label: "" },
+      senderGstNo: customer.gst_no || "",
+      senderAddressLine1: customer.address1 || "",
+      senderAddressLine2: customer.address2 || "",
+      senderMobile: customer.mobile_no || "",
+      senderEmail: customer.email || "",
     };
   } catch (error) {
     return {};
@@ -130,21 +162,25 @@ export const mapCustomerToReceiverFields = (customer: Customer | null) => {
 
   try {
     return {
-      receiverName: customer.full_name || '',
-      receiverCompanyName: customer.company_name || '',
-      receiverZipCode: customer.pincode || '',
-      // Use string values from customer data, API will handle conversion or accept strings
-      receiverState: customer.state_name || '',
-      receiverCity: customer.city_name || '',
-      // Set area as { value, label } if area_name exists, else empty object
+      receiverName: customer.full_name || "",
+      receiverCompanyName: customer.company_name || "",
+      receiverZipCode: customer.pincode || "",
+      // Use proper IDs for state, city, and area
+      receiverState: customer.state_name
+        ? { value: customer.state_id || customer.id, label: customer.state_name }
+        : { value: "", label: "" },
+      receiverCity: customer.city_name
+        ? { value: customer.city_id || customer.id, label: customer.city_name }
+        : { value: "", label: "" },
+      // Set area as { value, label } using proper area_id
       receiverArea: customer.area_name
-        ? { value: customer.id, label: customer.area_name }
-        : { value: '', label: '' },
-      receiverGstNo: customer.gst_no || '',
-      receiverAddressLine1: customer.address1 || '',
-      receiverAddressLine2: customer.address2 || '',
-      receiverMobile: customer.mobile_no || '',
-      receiverEmail: customer.email || '',
+        ? { value: customer.area_id || customer.id, label: customer.area_name }
+        : { value: "", label: "" },
+      receiverGstNo: customer.gst_no || "",
+      receiverAddressLine1: customer.address1 || "",
+      receiverAddressLine2: customer.address2 || "",
+      receiverMobile: customer.mobile_no || "",
+      receiverEmail: customer.email || "",
     };
   } catch (error) {
     return {};
@@ -161,7 +197,7 @@ export const customersToOptions = (customers: Customer[]) => {
     return [];
   }
 
-  return customers.map(customer => ({
+  return customers.map((customer) => ({
     value: customer.full_name,
     label: customer.full_name,
   }));
@@ -182,16 +218,20 @@ export const customersToOptionsWithLoginUser = (customers: Customer[]) => {
 
     if (customerDetail) {
       // Use the correct field name based on login response structure
-      const userName = customerDetail.name || customerDetail.full_name || customerDetail.customer_name || 'Your Account';
+      const userName =
+        customerDetail.name ||
+        customerDetail.full_name ||
+        customerDetail.customer_name ||
+        "Your Account";
       options.push({
-        value: 'login_user',
+        value: "login_user",
         label: `${userName} (Your Account)`,
       });
     }
 
     // Add other customers
     if (customers && Array.isArray(customers)) {
-      const customerOptions = customers.map(customer => ({
+      const customerOptions = customers.map((customer) => ({
         value: customer.full_name,
         label: customer.full_name,
       }));
@@ -212,7 +252,7 @@ export const customersToOptionsWithLoginUser = (customers: Customer[]) => {
 export const getCustomerApiParams = () => {
   // Import getUserData here to avoid circular dependencies
   const getUserData = (): any => {
-    const userData = sessionStorage.getItem('user');
+    const userData = sessionStorage.getItem("user");
     return userData ? JSON.parse(userData) : null;
   };
 
@@ -223,8 +263,8 @@ export const getCustomerApiParams = () => {
   // and default values for branch_id since the exact source isn't clear
   return {
     branch_id: userData?.Customerdetail?.branch_id || "1", // Use from user data or default
-    m_id: userData?.Customerdetail?.id || "1",             // Use user ID as m_id
-    next_id: "1",                                          // Start from 1 for pagination
+    m_id: userData?.Customerdetail?.id || "1", // Use user ID as m_id
+    next_id: "1", // Start from 1 for pagination
   };
 };
 
@@ -236,7 +276,7 @@ export const getCustomerApiParams = () => {
 export const getCustomerApiParamsWithSearch = (searchQuery?: string) => {
   // Import getUserData here to avoid circular dependencies
   const getUserData = (): any => {
-    const userData = sessionStorage.getItem('user');
+    const userData = sessionStorage.getItem("user");
     return userData ? JSON.parse(userData) : null;
   };
 
@@ -249,10 +289,10 @@ export const getCustomerApiParamsWithSearch = (searchQuery?: string) => {
   };
 
   // Add search_query if provided
-  if (searchQuery && searchQuery.trim() !== '') {
+  if (searchQuery && searchQuery.trim() !== "") {
     return {
       ...params,
-      search_query: searchQuery.trim()
+      search_query: searchQuery.trim(),
     };
   }
 
@@ -265,18 +305,18 @@ export const getCustomerApiParamsWithSearch = (searchQuery?: string) => {
  */
 export const clearSenderFields = () => {
   return {
-    senderName: '',
-    senderCompanyName: '',
-    senderZipCode: '',
-    senderState: '',
-    senderCity: '',
-    senderArea: { value: '', label: '' },
-    senderGstNo: '',
-    senderAddressLine1: '',
-    senderAddressLine2: '',
-    senderMobile: '',
-    senderEmail: '',
-    senderCustomerId: '',
+    senderName: "",
+    senderCompanyName: "",
+    senderZipCode: "",
+    senderState: "",
+    senderCity: "",
+    senderArea: { value: "", label: "" },
+    senderGstNo: "",
+    senderAddressLine1: "",
+    senderAddressLine2: "",
+    senderMobile: "",
+    senderEmail: "",
+    senderCustomerId: "",
   };
 };
 
@@ -286,18 +326,18 @@ export const clearSenderFields = () => {
  */
 export const clearReceiverFields = () => {
   return {
-    receiverName: '',
-    receiverCompanyName: '',
-    receiverZipCode: '',
-    receiverState: '',
-    receiverCity: '',
-    receiverArea: { value: '', label: '' },
-    receiverGstNo: '',
-    receiverAddressLine1: '',
-    receiverAddressLine2: '',
-    receiverMobile: '',
-    receiverEmail: '',
-    receiverCustomerId: '',
+    receiverName: "",
+    receiverCompanyName: "",
+    receiverZipCode: "",
+    receiverState: "",
+    receiverCity: "",
+    receiverArea: { value: "", label: "" },
+    receiverGstNo: "",
+    receiverAddressLine1: "",
+    receiverAddressLine2: "",
+    receiverMobile: "",
+    receiverEmail: "",
+    receiverCustomerId: "",
   };
 };
 
@@ -307,8 +347,8 @@ export const clearReceiverFields = () => {
  * @returns Array of option objects for dropdown
  */
 export const areasToOptions = (areas: any[]) => {
-  return areas.map(area => ({
+  return areas.map((area) => ({
     value: area.id,
-    label: area.name
+    label: area.name,
   }));
 };

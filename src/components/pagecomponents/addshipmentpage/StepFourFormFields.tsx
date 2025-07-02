@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchShipmentPaymentInformation } from '../../../redux/slices/shipmentPaymentSlice';
 import { RootState, AppDispatch } from '../../../redux/store';
 import StepFieldWrapper from "./StepFieldWrapper";
+import { getUserData } from '../../../utils/authUtils';
 
 interface StepFourFormFieldsProps {
   values: any;
@@ -23,12 +24,39 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { paymentInfo, loading, error } = useSelector((state: RootState) => state.shipmentPayment);
-
+//  const userId = getUserData()?.Customerdetail?.id || '';
+//       console.log("userIduserId", userId)
   // Build API payload from form values
   const buildApiPayload = () => {
+    // Ensure commodity_id is always a string (comma separated if multiple)
+    let commodity_id = '';
+    if (Array.isArray(values.commodity)) {
+      if (values.commodity.length > 0) {
+        if (typeof values.commodity[0] === 'object' && values.commodity[0]?.value) {
+          commodity_id = values.commodity.map((c: any) => c.value).join(',');
+        } else {
+          commodity_id = values.commodity.join(',');
+        }
+      }
+    } else if (values.commodity) {
+      commodity_id = values.commodity.value || values.commodity;
+    }
+
+    // Always use senderName/receiverName for new address, fallback to customerId for existing
+    let customer_id = '';
+    if (values.senderAddressType === 'existing') {
+      customer_id = values.customerId || values.senderCustomerId || '';
+    } else {
+      // For new address, use logged-in userId as customer_id
+      const userId = getUserData()?.Customerdetail?.id || '';
+      // console.log("userIduserId 2", userId);
+      customer_id = userId;
+      // console.log("customer_id 2", customer_id);
+    }
+
     return {
-      customer_id: values.senderCustomerId || values.customerId || '',
-      commodity_id: Array.isArray(values.commodity) && values.commodity[0]?.value ? values.commodity[0].value : values.commodity[0] || '',
+      customer_id,
+      commodity_id,
       category_id: values.category?.value || values.category || '',
       net_weight: values.netWeight || '',
       gross_weight: values.grossWeight || '',
@@ -38,9 +66,9 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
       number_of_parcel: values.numberOfParcel || '1',
       sender_zipcode: values.senderZipCode || '',
       receiver_zipcode: values.receiverZipCode || '',
-      policy_no: values.policyNumber || '',
-      policy_expirydate: values.expiryDate || '',
-      policy_value: values.insuranceValue || '',
+      policy_no: values.insurance ? (values.policyNumber || '') : '0',
+      policy_expirydate: values.insurance ? (values.expiryDate || '') : '0',
+      policy_value: values.insurance ? (values.insuranceValue || '') : '0',
     };
   };
 

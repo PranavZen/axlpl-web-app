@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { getUserData } from "../../utils/authUtils";
 import { API_BASE_URL } from "../../config";
-import { extractLocationId } from "../../utils/locationUtils";
 
 /**
  * Helper function to safely extract value from form field
@@ -110,13 +109,23 @@ export const submitShipment = createAsyncThunk(
       //                          String(Date.now() + Math.floor(Math.random() * 100000000000));
       formData.append("shipment_id", getFieldValue(formValues.shipmentId));
 
-      // Sender details - dynamic values from form
+      // Sender details - always use IDs if present
       formData.append("sender_name", getFieldValue(formValues.senderName));
       formData.append("sender_company_name", getFieldValue(formValues.senderCompanyName));
-      formData.append("sender_country", getFieldValue(formValues.senderCountry, "1")); // Dynamic with India (1) as default
-      formData.append("sender_state", extractLocationId(formValues.senderState, "sender_state", "state", "21")); // Default to Maharashtra ID
-      formData.append("sender_city", extractLocationId(formValues.senderCity, "sender_city", "city", "817")); // Default to Mumbai ID
-      formData.append("sender_area", extractLocationId(formValues.senderArea, "sender_area", "area", "1")); // Default area ID
+      formData.append("sender_country", "1"); // Always set to 1
+      // Sender details - use fallback only for existing address type
+      let senderStateId = formValues.senderStateId;
+      let senderCityId = formValues.senderCityId;
+      console.log("senderStateId", senderStateId);
+      console.log("senderCityId", senderCityId);
+      // Fix: Use .id if senderStateId or senderCityId is an object
+      const senderStateIdValue = (senderStateId && typeof senderStateId === 'object' && senderStateId.id !== undefined) ? senderStateId.id : senderStateId;
+      const senderCityIdValue = (senderCityId && typeof senderCityId === 'object' && senderCityId.id !== undefined) ? senderCityId.id : senderCityId;
+      formData.append("sender_state", getFieldValue(senderStateIdValue));
+      formData.append("sender_city", getFieldValue(senderCityIdValue));
+      // Use senderAreaId if available, otherwise extract from senderArea object
+      const senderAreaId = formValues.senderAreaId || getFieldValue(formValues.senderArea, "1");
+      formData.append("sender_area", senderAreaId);
       formData.append("sender_pincode", getFieldValue(formValues.senderZipCode));
       formData.append("sender_address1", getFieldValue(formValues.senderAddressLine1));
       formData.append("sender_address2", getFieldValue(formValues.senderAddressLine2));
@@ -133,16 +142,33 @@ export const submitShipment = createAsyncThunk(
       formData.append("sender_is_new_sender_address", isNewSenderAddress);
 
       formData.append("sender_gst_no", getFieldValue(formValues.senderGstNo));
-      // formData.append("sender_customer_id", getFieldValue(formValues.senderCustomerId, String(userId)));
-      formData.append("sender_customer_id", String(userId));
+      // Set sender_customer_id based on address type
+      if (formValues.senderAddressType === "new") {
+        formData.append("sender_customer_id", String(userId));
+      } else {
+        formData.append("sender_customer_id", getFieldValue(formValues.senderCustomerId, String(userId)));
+      }
 
-      // Receiver details - dynamic values from form
+      // Receiver details - always use IDs if present
       formData.append("receiver_name", getFieldValue(formValues.receiverName));
       formData.append("receiver_company_name", getFieldValue(formValues.receiverCompanyName));
-      formData.append("receiver_country", getFieldValue(formValues.receiverCountry, "1")); // Dynamic with India (1) as default
-      formData.append("receiver_state", extractLocationId(formValues.receiverState, "receiver_state", "state", "21")); // Default to Maharashtra ID
-      formData.append("receiver_city", extractLocationId(formValues.receiverCity, "receiver_city", "city", "817")); // Default to Mumbai ID
-      formData.append("receiver_area", extractLocationId(formValues.receiverArea, "receiver_area", "area", "1")); // Default area ID
+      formData.append("receiver_country", "1"); // Always set to 1
+      // Receiver details - use fallback only for existing address type
+      let receiverStateId = formValues.receiverStateId;
+      let receiverCityId = formValues.receiverCityId;
+      console.log("receiverStateId", receiverStateId);
+      console.log("receiverCityId", receiverCityId);
+      // if (formValues.receiverAddressType === "existing") {
+      //   if (!receiverStateId && formValues.receiverState && formValues.receiverState.id) {
+      //     receiverStateId = formValues.receiverState.id;
+      //   }
+      //   if (!receiverCityId && formValues.receiverCity && formValues.receiverCity.id) {
+      //     receiverCityId = formValues.receiverCity.id;
+      //   }
+      // }
+      formData.append("receiver_state", getFieldValue(receiverStateId));
+      formData.append("receiver_city", getFieldValue(receiverCityId));
+      formData.append("receiver_area", getFieldValue(formValues.receiverArea, "1")); // Pass as-is, default area ID
       formData.append("receiver_pincode", getFieldValue(formValues.receiverZipCode));
       formData.append("receiver_address1", getFieldValue(formValues.receiverAddressLine1));
       formData.append("receiver_address2", getFieldValue(formValues.receiverAddressLine2));
@@ -159,7 +185,13 @@ export const submitShipment = createAsyncThunk(
       formData.append("receiver_is_new_receiver_address", isNewReceiverAddress);
 
       formData.append("receiver_gst_no", getFieldValue(formValues.receiverGstNo));
-      formData.append("receiver_customer_id", getFieldValue(formValues.receiverCustomerId));
+      // Set receiver_customer_id based on address type
+      if (formValues.receiverAddressType === "new") {
+        formData.append("receiver_customer_id", String(userId));
+      } else {
+        // Use form value, fallback to userId if not set
+        formData.append("receiver_customer_id", getFieldValue(formValues.receiverCustomerId, String(userId)));
+      }
 
       // Different delivery address - dynamic values from form
       const isDifferentDeliveryAddress = getBooleanValue(formValues.isDifferentDeliveryAddress) === "1";
@@ -167,18 +199,19 @@ export const submitShipment = createAsyncThunk(
 
       if (isDifferentDeliveryAddress) {
         formData.append("diff_receiver_country", getFieldValue(formValues.deliveryCountry, "1")); // Dynamic with India (1) as default
-        formData.append("diff_receiver_state", extractLocationId(formValues.deliveryState, "diff_receiver_state", "state", "21")); // Default to Maharashtra ID
-        formData.append("diff_receiver_city", extractLocationId(formValues.deliveryCity, "diff_receiver_city", "city", "817")); // Default to Mumbai ID
-        formData.append("diff_receiver_area", extractLocationId(formValues.deliveryArea, "diff_receiver_area", "area", "1")); // Default area ID
+        // Use the actual state/city IDs if present, fallback to default if not
+        formData.append("diff_receiver_state", getFieldValue(formValues.deliveryStateId, "21")); // Use ID
+        formData.append("diff_receiver_city", getFieldValue(formValues.deliveryCityId, "817")); // Use ID
+        formData.append("diff_receiver_area", getFieldValue(formValues.deliveryArea, "1")); // Pass as-is, default area ID
         formData.append("diff_receiver_pincode", getFieldValue(formValues.deliveryZipCode));
         formData.append("diff_receiver_address1", getFieldValue(formValues.deliveryAddressLine1));
         formData.append("diff_receiver_address2", getFieldValue(formValues.deliveryAddressLine2));
       } else {
         // Set dynamic default values for API compatibility when not using different delivery address
         formData.append("diff_receiver_country", getFieldValue(formValues.deliveryCountry, "1"));
-        formData.append("diff_receiver_state", extractLocationId(formValues.deliveryState, "diff_receiver_state", "state", "21")); // Default to Maharashtra ID
-        formData.append("diff_receiver_city", extractLocationId(formValues.deliveryCity, "diff_receiver_city", "city", "817")); // Default to Mumbai ID
-        formData.append("diff_receiver_area", extractLocationId(formValues.deliveryArea, "diff_receiver_area", "area", "1")); // Default area ID
+        formData.append("diff_receiver_state", getFieldValue(formValues.deliveryStateId, "21")); // Use ID
+        formData.append("diff_receiver_city", getFieldValue(formValues.deliveryCityId, "817")); // Use ID
+        formData.append("diff_receiver_area", getFieldValue(formValues.deliveryArea, "1")); // Pass as-is, default area ID
         formData.append("diff_receiver_pincode", getFieldValue(formValues.deliveryZipCode, ""));
         formData.append("diff_receiver_address1", getFieldValue(formValues.deliveryAddressLine1, ""));
         formData.append("diff_receiver_address2", getFieldValue(formValues.deliveryAddressLine2, ""));

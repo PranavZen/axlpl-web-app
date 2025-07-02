@@ -169,12 +169,15 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
         if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-          const { state_name, city_name } =
+          const { state_name, city_name, state_id, city_id } =
             pincodeResult.payload;
 
-          // Auto-populate state and city with proper select objects containing IDs
+          // Auto-populate state and city names
           setFieldValue("senderState", state_name);
           setFieldValue("senderCity", city_name);
+          // Also set state and city IDs
+          setFieldValue("senderStateId", state_id);
+          setFieldValue("senderCityId", city_id);
         }
 
         // Fetch areas for the pincode (local only)
@@ -224,12 +227,15 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
         if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-          const { state_name, city_name } =
+          const { state_name, city_name, state_id, city_id } =
             pincodeResult.payload;
 
-          // Auto-populate state and city with proper select objects containing IDs
-          setFieldValue("receiverState", state_name);
-          setFieldValue("receiverCity", city_name);
+          setFieldValue("receiverState", typeof state_name === 'object' && state_name !== null ? state_name.name || '' : state_name || '');
+          setFieldValue("receiverCity", typeof city_name === 'object' && city_name !== null ? city_name.name || '' : city_name || '');
+          // Also set state and city IDs
+          setFieldValue("receiverStateId", state_id);
+          setFieldValue("receiverCityId", city_id);
+          console.log("city id", city_id)
         }
 
         // Fetch areas for the pincode (local only)
@@ -453,12 +459,17 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       };
       setSelectedSenderCustomer(loginUserOption);
 
-      // Populate with login user data including customer ID
+      // Populate with login user data including customer ID and state/city/area
       const loginUserFields = mapLoginUserToSenderFields();
       if (Object.keys(loginUserFields).length > 0) {
         const fieldsWithCustomerId = {
           ...loginUserFields,
           senderCustomerId: userId,
+          // Don't override the properly formatted state/city/area from mapLoginUserToSenderFields
+          // Only add the ID fields for backend compatibility
+          senderStateId: customerDetail?.state_id || '',
+          senderCityId: customerDetail?.city_id || '',
+          senderAreaId: customerDetail?.area_id || '',
         };
         populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
       }
@@ -500,10 +511,15 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
               a.value === userData.Customerdetail.area_name
           );
         }
+        // Always set state/city IDs from userData
+        const senderStateId = userData?.Customerdetail?.state_id || '';
+        const senderCityId = userData?.Customerdetail?.city_id || '';
         const fieldsWithCustomerId = {
           ...loginUserFields,
           senderCustomerId: userId,
           senderArea: matchedArea || null,
+          senderStateId,
+          senderCityId,
         };
         populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
       } else {
@@ -511,18 +527,34 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const customer = findCustomerByName(customers, selectedOption.value);
         if (customer) {
           const mappedFields = mapCustomerToSenderFields(customer);
-          // Try to match area_name to area option
+          // Try to match area_name to area option using proper area_id
           let matchedArea = null;
           if (areas && Array.isArray(areas) && customer.area_name) {
             matchedArea = areas.find(
               (a: any) =>
-                a.label === customer.area_name || a.value === customer.area_name
+                a.label === customer.area_name ||
+                a.value === customer.area_name ||
+                a.value === customer.area_id
             );
           }
+          // If no match found but area_name exists, create area option with proper ID
+          if (!matchedArea && customer.area_name) {
+            matchedArea = {
+              value: customer.area_id || customer.id,
+              label: customer.area_name
+            };
+          }
+          // Always set state/city/area IDs from customer
+          const senderStateId = customer.state_id || '';
+          const senderCityId = customer.city_id || '';
+          const senderAreaId = customer.area_id || '';
           const fieldsWithCustomerId = {
             ...mappedFields,
             senderCustomerId: customer.id,
             senderArea: matchedArea || null,
+            senderStateId,
+            senderCityId,
+            senderAreaId,
           };
           populateSenderFieldsAndClearErrors(fieldsWithCustomerId);
         }
@@ -530,10 +562,12 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     } else {
       // Clear sender fields if no customer selected
       const clearedFields = clearSenderFields();
-      // Also clear the customer ID
+      // Also clear the customer ID and IDs
       const fieldsWithClearedId = {
         ...clearedFields,
         senderCustomerId: "",
+        senderStateId: '',
+        senderCityId: '',
       };
       populateSenderFieldsAndClearErrors(fieldsWithClearedId);
     }
@@ -553,23 +587,34 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       if (customer) {
         try {
           const mappedFields = mapCustomerToReceiverFields(customer);
-          // Try to match area_name to area option
+          // Try to match area_name to area option using proper area_id
           let matchedArea = null;
-          if (
-            areas &&
-            Array.isArray(areas) &&
-            mappedFields.receiverArea === null &&
-            customer.area_name
-          ) {
+          if (areas && Array.isArray(areas) && customer.area_name) {
             matchedArea = areas.find(
               (a: any) =>
-                a.label === customer.area_name || a.value === customer.area_name
+                a.label === customer.area_name ||
+                a.value === customer.area_name ||
+                a.value === customer.area_id
             );
           }
+          // If no match found but area_name exists, create area option with proper ID
+          if (!matchedArea && customer.area_name) {
+            matchedArea = {
+              value: customer.area_id || customer.id,
+              label: customer.area_name
+            };
+          }
+          // Ensure state/city/area IDs are set if available
+          const receiverStateId = customer.state_id || '';
+          const receiverCityId = customer.city_id || '';
+          const receiverAreaId = customer.area_id || '';
           const fieldsWithCustomerId = {
             ...mappedFields,
             receiverCustomerId: customer.id,
             receiverArea: matchedArea || null,
+            receiverStateId,
+            receiverCityId,
+            receiverAreaId,
           };
           populateReceiverFieldsAndClearErrors(fieldsWithCustomerId);
         } catch (error) {
@@ -580,10 +625,12 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     } else {
       // Clear receiver fields if no customer selected
       const clearedFields = clearReceiverFields();
-      // Also clear the customer ID
+      // Also clear the customer ID and IDs
       const fieldsWithClearedId = {
         ...clearedFields,
         receiverCustomerId: "",
+        receiverStateId: '',
+        receiverCityId: '',
       };
       populateReceiverFieldsAndClearErrors(fieldsWithClearedId);
     }
@@ -635,7 +682,17 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       // Populate with login user data when switching to existing address
       const loginUserFields = mapLoginUserToSenderFields();
       if (Object.keys(loginUserFields).length > 0) {
-        populateSenderFieldsAndClearErrors(loginUserFields);
+        // Ensure state/city/area IDs are set if available
+        const userData = getUserData();
+        const senderStateId = userData?.Customerdetail?.state_id || '';
+        const senderCityId = userData?.Customerdetail?.city_id || '';
+        const senderAreaId = userData?.Customerdetail?.area_id || '';
+        populateSenderFieldsAndClearErrors({
+          ...loginUserFields,
+          senderStateId,
+          senderCityId,
+          senderAreaId,
+        });
       }
 
       // Additional clearing for existing address mode
@@ -649,8 +706,22 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     if (value === "new") {
       // Clear form fields when switching to new address
       const clearedFields = clearSenderFields();
-      populateSenderFieldsAndClearErrors(clearedFields);
-
+      // Set senderCustomerId to userId when new address is selected
+      const userData = getUserData();
+      const userId = userData?.Customerdetail?.id || "";
+      const senderStateId = userData?.Customerdetail?.state_id || '';
+      const senderCityId = userData?.Customerdetail?.city_id || '';
+      const senderAreaId = userData?.Customerdetail?.area_id || '';
+      const clearedFieldsWithUserId = {
+        ...clearedFields,
+        senderCustomerId: userId,
+        senderStateId,
+        senderCityId,
+        senderAreaId,
+      };
+      populateSenderFieldsAndClearErrors(clearedFieldsWithUserId);
+      // Update Redux formData as well
+      dispatch({ type: 'shipment/setFormData', payload: { senderCustomerId: userId } });
       // Additional error clearing for new address mode
       setTimeout(() => {
         senderFields.forEach((field) => {
@@ -723,8 +794,20 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     if (value === "new") {
       // Clear form fields when switching to new address
       const clearedFields = clearReceiverFields();
-      populateReceiverFieldsAndClearErrors(clearedFields);
-
+      // Set receiverCustomerId to userId when new address is selected
+      const userData = getUserData();
+      const userId = userData?.Customerdetail?.id || "";
+      const receiverStateId = userData?.Customerdetail?.state_id || '';
+      const receiverCityId = userData?.Customerdetail?.city_id || '';
+      const clearedFieldsWithUserId = {
+        ...clearedFields,
+        receiverCustomerId: userId,
+        receiverStateId,
+        receiverCityId,
+      };
+      populateReceiverFieldsAndClearErrors(clearedFieldsWithUserId);
+      // Update Redux formData as well
+      dispatch({ type: 'shipment/setFormData', payload: { receiverCustomerId: userId } });
       // Additional error clearing for new address mode
       setTimeout(() => {
         receiverFields.forEach((field) => {
@@ -961,7 +1044,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
   // Helper to get area option or fallback to string
   const getAreaSelectValue = (
-    areaValue: any,
     areaName: string,
     areas: any[]
   ) => {
@@ -1088,12 +1170,29 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           </StepFieldWrapper>
         </div>
 
+        <div className="col-md-12 mb-3 d-none">
+          <StepFieldWrapper
+            name="senderCountry"
+            label="Country"
+            suppressErrors={shouldSuppressSenderErrors}
+          />
+        </div>
+
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="senderState"
             label="State"
             suppressErrors={shouldSuppressSenderErrors}
-          />
+          >
+            <input
+              name="senderState"
+              type="text"
+              className="form-control innerFormControll"
+              value={typeof values.senderState === 'object' && values.senderState !== null ? values.senderState.label || '' : values.senderState || ''}
+              onChange={(e) => setFieldValue("senderState", e.target.value)}
+              placeholder="Enter state"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1101,7 +1200,16 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderCity"
             label="City"
             suppressErrors={shouldSuppressSenderErrors}
-          />
+          >
+            <input
+              name="senderCity"
+              type="text"
+              className="form-control innerFormControll"
+              value={typeof values.senderCity === 'object' && values.senderCity !== null ? values.senderCity.label || '' : values.senderCity || ''}
+              onChange={(e) => setFieldValue("senderCity", e.target.value)}
+              placeholder="Enter city"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1123,7 +1231,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                 values.senderAddressType === "existing" &&
                 selectedSenderCustomer
                   ? getAreaSelectValue(
-                      values.senderArea,
                       (selectedSenderCustomer.value === "login_user"
                         ? getUserData()?.Customerdetail?.area_name
                         : findCustomerByName(
@@ -1433,12 +1540,29 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           </StepFieldWrapper>
         </div>
 
+        <div className="col-md-12 mb-3 d-none">
+          <StepFieldWrapper
+            name="receiverCountry"
+            label="Country"
+            suppressErrors={shouldSuppressSenderErrors}
+          />
+        </div>
+
         <div className="col-md-12 mb-3">
           <StepFieldWrapper
             name="receiverState"
             label="State"
             suppressErrors={shouldSuppressReceiverErrors}
-          />
+          >
+            <input
+              name="receiverState"
+              type="text"
+              className="form-control innerFormControll"
+              value={typeof values.receiverState === 'object' && values.receiverState !== null ? values.receiverState.label || '' : values.receiverState || ''}
+              onChange={(e) => setFieldValue("receiverState", e.target.value)}
+              placeholder="Enter state"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1446,7 +1570,16 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverCity"
             label="City"
             suppressErrors={shouldSuppressReceiverErrors}
-          />
+          >
+            <input
+              name="receiverCity"
+              type="text"
+              className="form-control innerFormControll"
+              value={typeof values.receiverCity === 'object' && values.receiverCity !== null ? values.receiverCity.label || '' : values.receiverCity || ''}
+              onChange={(e) => setFieldValue("receiverCity", e.target.value)}
+              placeholder="Enter city"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1468,7 +1601,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                 values.receiverAddressType === "existing" &&
                 selectedReceiverCustomer
                   ? getAreaSelectValue(
-                      values.receiverArea,
                       findCustomerByName(
                         customers,
                         selectedReceiverCustomer.value

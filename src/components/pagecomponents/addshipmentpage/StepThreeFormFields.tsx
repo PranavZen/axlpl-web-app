@@ -59,11 +59,17 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
         const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
         if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-          const { state_name, city_name, area_name } = pincodeResult.payload;
+          const { state_name, city_name, area_name, state_id, city_id, area_id } = pincodeResult.payload;
 
-          // Auto-populate state and city
+          // Auto-populate state and city with names
           setFieldValue("deliveryState", state_name);
           setFieldValue("deliveryCity", city_name);
+          setFieldValue("deliveryArea", area_name);
+
+          // Also set the corresponding IDs for form submission
+          setFieldValue("deliveryStateId", state_id);
+          setFieldValue("deliveryCityId", city_id);
+          setFieldValue("deliveryAreaId", area_id);
         }
 
         // Fetch areas for the pincode

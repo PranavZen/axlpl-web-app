@@ -72,6 +72,7 @@ const AddShipment = () => {
     senderName: "",
     senderCompanyName: "",
     senderZipCode: "",
+    senderCountry: "",
     senderState: "",
     senderCity: "",
     senderArea: { value: "", label: "" },
@@ -88,6 +89,7 @@ const AddShipment = () => {
     receiverName: "",
     receiverCompanyName: "",
     receiverZipCode: "",
+    receiverCountry: "",
     receiverState: "",
     receiverCity: "",
     receiverArea: { value: "", label: "" },
@@ -109,6 +111,12 @@ const AddShipment = () => {
 
     // Step 4: Review & Confirmation
     deliveryDate: "",
+
+    // New fields
+    senderStateId: "",
+    senderCityId: "",
+    receiverStateId: "",
+    receiverCityId: "",
   };
 
   // Merge default values with saved form data from Redux to preserve form state
@@ -146,16 +154,24 @@ const AddShipment = () => {
       senderZipCode: Yup.string()
         .matches(/^\d{6}$/, "Sender zip code must be exactly 6 digits")
         .required("Sender zip code is required"),
-      senderState: Yup.string()
-        .min(2, "Sender state must be at least 2 characters")
-        .max(50, "Sender state cannot exceed 50 characters")
-        .matches(/^[a-zA-Z\s.-]+$/, "Sender state can only contain letters, spaces, dots, and hyphens")
-        .required("Sender state is required"),
-      senderCity: Yup.string()
-        .min(2, "Sender city must be at least 2 characters")
-        .max(50, "Sender city cannot exceed 50 characters")
-        .matches(/^[a-zA-Z\s.-]+$/, "Sender city can only contain letters, spaces, dots, and hyphens")
-        .required("Sender city is required"),
+      senderState: Yup.mixed()
+        .test('senderState', 'Sender state is required', function(value) {
+          if (!value) return false;
+          // Handle both string and object formats
+          const stateValue = typeof value === 'object' && value !== null ? (value as any).label : value;
+          if (!stateValue || typeof stateValue !== 'string') return false;
+          const trimmed = stateValue.trim();
+          return trimmed.length >= 2 && trimmed.length <= 50 && /^[a-zA-Z\s.-]+$/.test(trimmed);
+        }),
+      senderCity: Yup.mixed()
+        .test('senderCity', 'Sender city is required', function(value) {
+          if (!value) return false;
+          // Handle both string and object formats
+          const cityValue = typeof value === 'object' && value !== null ? (value as any).label : value;
+          if (!cityValue || typeof cityValue !== 'string') return false;
+          const trimmed = cityValue.trim();
+          return trimmed.length >= 2 && trimmed.length <= 50 && /^[a-zA-Z\s.-]+$/.test(trimmed);
+        }),
       senderArea: Yup.object().nullable(),
       senderGstNo: Yup.string()
         .matches(/^[a-zA-Z0-9]{15}$/, "Sender GST number must be exactly 15 alphanumeric characters")
@@ -189,16 +205,24 @@ const AddShipment = () => {
       receiverZipCode: Yup.string()
         .matches(/^\d{6}$/, "Receiver zip code must be exactly 6 digits")
         .required("Receiver zip code is required"),
-      receiverState: Yup.string()
-        .min(2, "Receiver state must be at least 2 characters")
-        .max(50, "Receiver state cannot exceed 50 characters")
-        .matches(/^[a-zA-Z\s.-]+$/, "Receiver state can only contain letters, spaces, dots, and hyphens")
-        .required("Receiver state is required"),
-      receiverCity: Yup.string()
-        .min(2, "Receiver city must be at least 2 characters")
-        .max(50, "Receiver city cannot exceed 50 characters")
-        .matches(/^[a-zA-Z\s.-]+$/, "Receiver city can only contain letters, spaces, dots, and hyphens")
-        .required("Receiver city is required"),
+      receiverState: Yup.mixed()
+        .test('receiverState', 'Receiver state is required', function(value) {
+          if (!value) return false;
+          // Handle both string and object formats
+          const stateValue = typeof value === 'object' && value !== null ? (value as any).label : value;
+          if (!stateValue || typeof stateValue !== 'string') return false;
+          const trimmed = stateValue.trim();
+          return trimmed.length >= 2 && trimmed.length <= 50 && /^[a-zA-Z\s.-]+$/.test(trimmed);
+        }),
+      receiverCity: Yup.mixed()
+        .test('receiverCity', 'Receiver city is required', function(value) {
+          if (!value) return false;
+          // Handle both string and object formats
+          const cityValue = typeof value === 'object' && value !== null ? (value as any).label : value;
+          if (!cityValue || typeof cityValue !== 'string') return false;
+          const trimmed = cityValue.trim();
+          return trimmed.length >= 2 && trimmed.length <= 50 && /^[a-zA-Z\s.-]+$/.test(trimmed);
+        }),
       receiverArea: Yup.object().nullable(),
       receiverGstNo: Yup.string()
         .matches(/^[a-zA-Z0-9]{15}$/, "Receiver GST number must be exactly 15 alphanumeric characters")
@@ -322,11 +346,40 @@ const AddShipment = () => {
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
     try {
+      // Ensure state/city IDs are set for existing address types
+      let patchedValues = { ...values };
+      console.log("patchedValues", patchedValues);
+      // Sender
+      if (patchedValues.senderAddressType === "existing") {
+        if (!patchedValues.senderStateId && patchedValues.senderState && patchedValues.senderState.id) {
+          patchedValues.senderStateId = patchedValues.senderState.id;
+        }
+        if (!patchedValues.senderCityId && patchedValues.senderCity && patchedValues.senderCity.id) {
+          patchedValues.senderCityId = patchedValues.senderCity.id;
+        }
+      }
+      // Receiver
+      if (patchedValues.receiverAddressType === "existing") {
+        if (!patchedValues.receiverStateId && patchedValues.receiverState && patchedValues.receiverState.id) {
+          patchedValues.receiverStateId = patchedValues.receiverState.id;
+        }
+        if (!patchedValues.receiverCityId && patchedValues.receiverCity && patchedValues.receiverCity.id) {
+          patchedValues.receiverCityId = patchedValues.receiverCity.id;
+        }
+      }
+      // Debug log for state/city IDs
+      console.log('Submitting shipment with IDs:', {
+        senderStateId: patchedValues.senderStateId,
+        senderCityId: patchedValues.senderCityId,
+        receiverStateId: patchedValues.receiverStateId,
+        receiverCityId: patchedValues.receiverCityId,
+        allValues: patchedValues
+      });
       // Show loading toast
       const loadingToast = toast.loading("Submitting shipment...");
 
       // Submit the shipment
-      const result = await dispatch(submitShipment(values));
+      const result = await dispatch(submitShipment(patchedValues));
 
       // Dismiss loading toast
       toast.dismiss(loadingToast);

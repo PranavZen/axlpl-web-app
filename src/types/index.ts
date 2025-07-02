@@ -15,9 +15,24 @@ export interface CustomerDetail {
   role: string;
   token: string;
   full_name?: string;
+  name?: string;
+  customer_name?: string;
   company_name?: string;
   email?: string;
   mobile?: string;
+  pincode?: string;
+  state_name?: string;
+  city_name?: string;
+  area_name?: string;
+  state_id?: string;
+  city_id?: string;
+  area_id?: string;
+  gst_no?: string;
+  reg_address1?: string;
+  reg_address2?: string;
+  address1?: string;
+  address2?: string;
+  mobile_no?: string;
   cust_profile_img?: string;
   path?: string;
 }
