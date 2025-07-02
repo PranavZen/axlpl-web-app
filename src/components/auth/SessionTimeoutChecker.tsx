@@ -9,7 +9,7 @@ const SessionTimeoutChecker = () => {
   const dispatch = useDispatch();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const INACTIVITY_LIMIT = 1 * 60 * 1000; // 10 minutes in milliseconds
+  const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 minutes in milliseconds
 
   const handleSessionTimeout = useCallback(() => {
     sessionStorage.removeItem("user"); // clear session
