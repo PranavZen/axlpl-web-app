@@ -87,6 +87,14 @@ export const trackShipment = createAsyncThunk(
         }
       });
 
+      // Normalize GST and Tax fields in ShipmentDetails
+      if (trackingData.ShipmentDetails) {
+        // If backend uses alternate field names, map them here
+        const details = trackingData.ShipmentDetails as any;
+        trackingData.ShipmentDetails.gst_amount = details.gst_amount || details.gst || "0";
+        trackingData.ShipmentDetails.tax = details.tax || details.gst_amount || details.gst || "0";
+      }
+
       // STRICT SECURITY: Validate shipment ownership - Users can ONLY track their own shipments
       if (trackingData.ShipmentDetails) {
         const shipmentUserId = trackingData.ShipmentDetails.user_id ||

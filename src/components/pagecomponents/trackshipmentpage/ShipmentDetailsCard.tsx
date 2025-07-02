@@ -11,18 +11,18 @@ const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data }) => {
     return isNaN(num) ? amount : `₹${num.toFixed(2)}`;
   };
 
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
-    }
-  };
+  // const formatDate = (dateString: string) => {
+  //   try {
+  //     const date = new Date(dateString);
+  //     return date.toLocaleDateString('en-US', {
+  //       year: 'numeric',
+  //       month: 'short',
+  //       day: 'numeric'
+  //     });
+  //   } catch (error) {
+  //     return dateString;
+  //   }
+  // };
 
   return (
     <div className="shipment-details-card">
@@ -217,14 +217,14 @@ const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data }) => {
                 </div>
               )}
 
-              <div className="charge-item">
+              <div className="charge-item d-none">
                 <label>Tax</label>
                 <span>{formatCurrency(data.tax || "0")}</span>
               </div>
 
               <div className="charge-item">
                 <label>GST</label>
-                <span>{formatCurrency(data.gst_amount || "0")}</span>
+                <span>{formatCurrency(data.gst || "0")}</span>
               </div>
 
               <div className="charge-item total">

@@ -31,30 +31,6 @@ const TrackingTimeline: React.FC<TrackingTimelineProps> = ({
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    const statusLower = status.toLowerCase();
-
-    if (statusLower.includes("delivered")) {
-      return <i className="fas fa-check-circle text-success"></i>;
-    } else if (
-      statusLower.includes("transit") ||
-      statusLower.includes("shipped")
-    ) {
-      return <i className="fas fa-truck text-info"></i>;
-    } else if (
-      statusLower.includes("approved") ||
-      statusLower.includes("confirmed")
-    ) {
-      return <i className="fas fa-check text-success"></i>;
-    } else if (
-      statusLower.includes("pending") ||
-      statusLower.includes("processing")
-    ) {
-      return <i className="fas fa-clock text-warning"></i>;
-    } else {
-      return <i className="fas fa-circle text-muted"></i>;
-    }
-  };
 
   if (!trackingStatus || trackingStatus.length === 0) {
     return <p className="noDataText">No tracking information available</p>;
