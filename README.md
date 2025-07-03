@@ -1,79 +1,156 @@
-# AXLPL Web Application
+# 📁 Project Folder Structure
 
-This is the web application for AXLPL, a logistics and shipping platform.
+This document outlines the organized folder structure for the AXLPL Web Application.
 
-## Environment Variables
+## 🏗️ Current Structure
 
-The application uses the following environment variables:
+```
+src/
+├── components/           # Reusable UI components
+│   ├── ui/              # Basic UI components (Button, Input, Select, etc.)
+│   │   ├── button/      # Button component
+│   │   ├── input/       # Input component
+│   │   ├── select/      # Select component
+│   │   ├── modal/       # Modal components
+│   │   ├── table/       # Table components
+│   │   ├── sidebar/     # Sidebar component
+│   │   └── ...          # Other UI components
+│   ├── auth/            # Authentication related components
+│   │   └── ProtectedRoute.tsx
+│   ├── pagecomponents/  # Page-specific components
+│   │   ├── dashboardpage/
+│   │   ├── addshipmentpage/
+│   │   ├── addressespage/
+│   │   └── editprofile/
 
-| Variable | Description |
-|----------|-------------|
-| `REACT_APP_FCM_TOKEN` | Firebase Cloud Messaging token for push notifications |
-
-Create a `.env` file in the root directory with these variables before running the application.
-
-## Configuration
-
-The application configuration is centralized in `src/config/index.ts`. This file exports:
-
-- `FCM_TOKEN`: The Firebase Cloud Messaging token from environment variables
-- `API_BASE_URL`: The base URL for API requests
-- `APP_CONFIG`: Other configuration settings like toast notification options
-
-You can access these configuration values throughout the app using the `useConfig` hook:
-
-```jsx
-import { useConfig } from '../hooks';
-
-function MyComponent() {
-  const { fcmToken, apiBaseUrl } = useConfig();
-  // Use the configuration values
-}
+│
+├── pages/               # Page components (TSX only)
+│   ├── Dashboard.tsx
+│   ├── SignIn.tsx
+│   ├── AddShipement.tsx
+│   ├── EditProfile.tsx
+│   ├── ChangePassword.tsx
+│   ├── ShipmentsPage.tsx
+│   └── Addresses.tsx
+│
+├── styles/              # All SCSS files (NEW - REORGANIZED)
+│   ├── global/          # Global styles
+│   │   ├── Global.scss
+│   │   ├── AddShipment.scss
+│   │   └── _mixin.scss
+│   ├── pages/           # Page-specific styles
+│   │   ├── EditProfile.scss
+│   │   └── ChangePassword.scss
+│   └── index.scss       # Main styles entry point
+│
+├── redux/               # Redux store and slices
+│   ├── slices/          # Redux slices
+│   │   ├── authSlice.ts
+│   │   ├── profileSlice.ts
+│   │   ├── shipmentSlice.ts
+│   │   ├── changePasswordSlice.ts
+│   │   └── ...
+│   └── store.ts         # Redux store configuration
+│
+├── types/               # TypeScript type definitions (NEW)
+│   └── index.ts         # Global type definitions
+│
+├── constants/           # Application constants (NEW)
+│   └── index.ts         # API endpoints, routes, validation rules, etc.
+│
+├── services/            # API services (NEW)
+│   └── api.ts           # Axios configuration and API methods
+│
+├── utils/               # Utility functions
+│   ├── authUtils.ts
+│   ├── toastUtils.ts
+│   ├── validationUtils.ts
+│   ├── exportUtils.ts
+│   └── ...
+│
+├── hooks/               # Custom React hooks
+│   ├── useConfig.ts
+│   └── index.ts
+│
+├── contexts/            # React contexts
+│   └── SidebarContext.tsx
+│
+├── config/              # Configuration files
+│   └── index.ts
+│
+├── App.tsx              # Main App component
+└── index.tsx            # Application entry point
 ```
 
-## Getting Started
+## 📋 Folder Descriptions
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### `/components`
+- **`/ui`**: Reusable UI components (Button, Input, Modal, etc.)
+- **`/auth`**: Authentication-related components
+- **`/pagecomponents`**: Page-specific components
 
-## Available Scripts
 
-In the project directory, you can run:
+### `/pages`
+- Contains only page-level components (TSX files)
+- No SCSS files (moved to `/styles/pages`)
 
-### `npm start`
+### `/styles` ✨ NEW
+- **`/global`**: Global styles, mixins, and shared SCSS
+- **`/pages`**: Page-specific SCSS files
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- **`index.scss`**: Main entry point for all styles
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### `/types` ✨ NEW
+- TypeScript type definitions
+- Interfaces for API responses, form data, etc.
 
-### `npm test`
+### `/constants` ✨ NEW
+- Application constants
+- API endpoints, routes, validation rules
+- Error messages, success messages
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### `/services` ✨ NEW
+- API service layer
+- Axios configuration
+- HTTP request methods
 
-### `npm run build`
+### `/redux`
+- Redux store configuration
+- Redux slices for state management
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### `/utils`
+- Utility functions
+- Helper methods for common operations
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 🔄 Migration Status
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### ✅ Completed
+- [x] Created new folder structure
+- [x] Moved SCSS files to `/styles` directory
+- [x] Updated import paths in components
+- [x] Created type definitions in `/types`
+- [x] Created constants in `/constants`
+- [x] Created API service in `/services`
 
-### `npm run eject`
+### 📋 TODO
+- [ ] Rename `/redux` to `/store` (when not in use)
+- [ ] Move page-specific components to `/features`
+- [ ] Create custom hooks for common logic
+- [ ] Add barrel exports (index.ts files)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## 📝 Best Practices
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. **Import Paths**: Use relative imports for local files, absolute for external packages
+2. **File Naming**: Use PascalCase for components, camelCase for utilities
+3. **Folder Organization**: Group related files together
+4. **Type Safety**: Define types in `/types` and import where needed
+5. **Constants**: Use constants from `/constants` instead of hardcoded values
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## 🚀 Benefits
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **Better Organization**: Clear separation of concerns
+- **Easier Maintenance**: Related files are grouped together
+- **Improved Scalability**: Easy to add new features
+- **Type Safety**: Centralized type definitions
+- **Consistent Styling**: Organized SCSS structure
+- **Reusability**: Better component organization

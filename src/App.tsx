@@ -24,6 +24,7 @@ const App = () => {
   return (
     <Router>
       <SidebarProvider>
+      <SessionTimeoutChecker />
         <Suspense fallback={<LogisticsLoader />}>
           <Routes>
             <Route path="/" element={<SignIn />} />
@@ -31,7 +32,6 @@ const App = () => {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <SessionTimeoutChecker />
                   <Dashboard />
                 </ProtectedRoute>
               }
