@@ -2,9 +2,16 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { AppDispatch, RootState } from "../../../redux/store";
-import { trackShipment, clearTrackingError } from "../../../redux/slices/trackingSlice";
+import {
+  trackShipment,
+  clearTrackingError,
+} from "../../../redux/slices/trackingSlice";
 import { getUserData } from "../../../utils/authUtils";
-import { useShipmentSecurity, isSecurityError, getSecurityErrorMessage } from "../../../hooks/useShipmentSecurity";
+import {
+  useShipmentSecurity,
+  isSecurityError,
+  getSecurityErrorMessage,
+} from "../../../hooks/useShipmentSecurity";
 import Input from "../../ui/input/Input";
 import Button from "../../ui/button/Button";
 
@@ -16,7 +23,10 @@ const TrackShipmentForm: React.FC = () => {
 
   // Get current user information
   const userData = getUserData();
-  const userName = userData?.Customerdetail?.name || userData?.Customerdetail?.company_name || "User";
+  const userName =
+    userData?.Customerdetail?.name ||
+    userData?.Customerdetail?.company_name ||
+    "User";
 
   // Use security hook for validation
   const { validateShipmentAccess, isValidating } = useShipmentSecurity();
@@ -54,7 +64,9 @@ const TrackShipmentForm: React.FC = () => {
       const result = await dispatch(trackShipment(shipmentIdTrimmed));
 
       if (trackShipment.fulfilled.match(result)) {
-        toast.success(`🎉 Shipment tracking data retrieved successfully for ${userName}!`);
+        toast.success(
+          `🎉 Shipment tracking data retrieved successfully for ${userName}!`
+        );
       } else if (trackShipment.rejected.match(result)) {
         const errorMessage = result.payload as string;
 
@@ -67,7 +79,25 @@ const TrackShipmentForm: React.FC = () => {
         } else if (errorMessage.includes("session has expired")) {
           toast.error("⏰ " + errorMessage, { autoClose: 6000 });
         } else {
-          toast.error(errorMessage);
+          try {
+            // Attempt to parse error payload
+            const parsed = JSON.parse(errorMessage);
+
+            if (
+              parsed?.tracking &&
+              Array.isArray(parsed.tracking) &&
+              parsed.tracking[0]?.message
+            ) {
+              toast.error(`❌ ${parsed.tracking[0].message}`, {
+                autoClose: 6000,
+              });
+            } else {
+              toast.error(errorMessage);
+            }
+          } catch {
+            // If error is not JSON, show as plain text
+            toast.error(errorMessage);
+          }
         }
       }
     } catch (error) {
@@ -111,9 +141,11 @@ const TrackShipmentForm: React.FC = () => {
               <Button
                 type="submit"
                 text={
-                  loading ? "Tracking..." :
-                  isValidating ? "Validating Access..." :
-                  "Track Shipment"
+                  loading
+                    ? "Tracking..."
+                    : isValidating
+                    ? "Validating Access..."
+                    : "Track Shipment"
                 }
                 disabled={loading || isValidating || !shipmentId.trim()}
                 className="btn btn-primary btn-block trackBtn"
@@ -121,14 +153,14 @@ const TrackShipmentForm: React.FC = () => {
             </div>
           </div>
         </div>
-
       </form>
 
       {/* Security Help Section */}
       <div className="helpSection d-none">
         <p className="helpText">
-          <strong>Security Notice:</strong> You can only track shipments that belong to your account ({userName}).
-          Enter your shipment ID to track your package in real-time with secure access control.
+          <strong>Security Notice:</strong> You can only track shipments that
+          belong to your account ({userName}). Enter your shipment ID to track
+          your package in real-time with secure access control.
         </p>
       </div>
     </div>
