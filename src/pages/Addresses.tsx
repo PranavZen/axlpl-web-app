@@ -32,6 +32,7 @@ const Addresses: React.FC = () => {
   const [formData, setFormData] = useState<AddressFormData>(
     initialAddressFormData
   );
+  // console.log("formData", formData)
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -51,26 +52,39 @@ const Addresses: React.FC = () => {
   }, []);
 
   // Update form data when editing an address
-  useEffect(() => {
-    if (editingAddress) {
-      const formDataToSet = {
-        name: editingAddress.name || "",
-        company_name: editingAddress.company_name || "",
-        country_id: editingAddress.country_id || "",
-        state_id: editingAddress.state_name || editingAddress.state_id || "", // Use state_name instead of state_id
-        city_id: editingAddress.city_name || editingAddress.city_id || "", // Use city_name instead of city_id
-        area_id: editingAddress.area_name || editingAddress.area_id || "", // Use area_name instead of area_id
-        zip_code: editingAddress.zip_code || "",
-        address1: editingAddress.address1 || "",
-        address2: editingAddress.address2 || "",
-        mobile_no: editingAddress.mobile_no || "",
-        email: editingAddress.email || "",
-        sender_gst_no: editingAddress.sender_gst_no || "",
-      };
+ useEffect(() => {
+  if (editingAddress) {
+    const formDataToSet = {
+      name: editingAddress.name || "",
+      company_name: editingAddress.company_name || "",
+      country_id: editingAddress.country_id || "",
+      state_id: {
+        value: String(editingAddress.state_id),
+        label: editingAddress.state_name,
+      },
+      city_id: {
+        value: String(editingAddress.city_id),
+        label: editingAddress.city_name,
+      },
+      area_id: {
+        value: String(editingAddress.area_id),
+        label: editingAddress.area_name,
+      },
+      zip_code: editingAddress.zip_code || "",
+      address1: editingAddress.address1 || "",
+      address2: editingAddress.address2 || "",
+      mobile_no: editingAddress.mobile_no || "",
+      email: editingAddress.email || "",
+      sender_gst_no: editingAddress.sender_gst_no || "",
+    };
 
-      setFormData(formDataToSet);
-    }
-  }, [editingAddress]);
+    setFormData(formDataToSet);
+
+    // These ensure the input display is correct when editing
+    // setStateLabel(editingAddress.state_name || "");
+    // setCityLabel(editingAddress.city_name || "");
+  }
+}, [editingAddress]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -95,7 +109,7 @@ const Addresses: React.FC = () => {
   const handleSelectChange = (name: string) => (option: any) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: option ? option.value : "",
+      [name]: option || { value: "", label: "" },
     }));
   };
 
@@ -116,30 +130,34 @@ const Addresses: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validate form data
+    console.log("formData", formData);
     const errors = validateAddressForm(formData);
     setFormErrors(errors);
 
-    // Check if there are any validation errors
     if (Object.keys(errors).length > 0) {
       showError("Please fix the validation errors before submitting.");
       return;
     }
 
+    const payload = {
+      ...formData,
+      state_id: formData.state_id?.value || "",
+      city_id: formData.city_id?.value || "",
+      area_id: formData.area_id?.value || "",
+      country_id: formData.country_id || "1",
+    };
+    console.log("payload", payload);
     setFormSubmitting(true);
     try {
       if (isEditMode && editingAddress) {
-        // Handle update address
-        await dispatch(updateAddress({ id: editingAddress.id, ...formData }));
+        await dispatch(updateAddress({ id: editingAddress.id, ...payload }));
         showSuccess("Address updated successfully!");
       } else {
-        // Handle add new address
-        await dispatch(addAddress(formData));
+        await dispatch(addAddress(payload));
         showSuccess("Address added successfully!");
       }
       handleCloseForm();
-    } catch (error) {
+    } catch {
       showError("Failed to save address. Please try again.");
     } finally {
       setFormSubmitting(false);
@@ -231,7 +249,7 @@ const Addresses: React.FC = () => {
                       text="Add New Address"
                       type="button"
                       className="btn btn-primary btn-next"
-                     onClick={handleAddNewAddress}
+                      onClick={handleAddNewAddress}
                     />
                   </div>
                 </div>

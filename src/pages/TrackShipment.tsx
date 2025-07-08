@@ -86,7 +86,7 @@ const TrackShipment: React.FC = () => {
                       </h4>
                     </div>
                     <div className="error-content">
-                      <p className="errorMessage">{error}</p>
+                      {/* <p className="errorMessage">{error}</p> */}
                       <div className="errorSuggestions">
                         <p><strong>Please check:</strong></p>
                         <ul>

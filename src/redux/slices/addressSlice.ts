@@ -92,7 +92,7 @@ export const addAddress = createAsyncThunk(
       });
 
       const response = await axios.post(
-        `${API_BASE_URL}/addSenderAddress`,
+        `${API_BASE_URL}/add_customer_save_address`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -132,7 +132,7 @@ export const updateAddress = createAsyncThunk(
       });
 
       const response = await axios.post(
-        `${API_BASE_URL}/updateSenderAddress`,
+        `${API_BASE_URL}/add_customer_save_address`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

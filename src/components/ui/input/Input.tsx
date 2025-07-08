@@ -13,6 +13,8 @@ interface InputProps {
   placeHolder?: string;
   className?: string;
   disabled?: boolean;
+  maxLength?: number; // Added
+  readOnly?: boolean; // Added
 }
 
 const Input: React.FC<InputProps> = ({
@@ -26,7 +28,9 @@ const Input: React.FC<InputProps> = ({
   touched,
   placeHolder,
   className,
-  disabled
+  disabled,
+  maxLength, // Added
+  readOnly // Added
 }) => {
   return (
     <>
@@ -41,6 +45,8 @@ const Input: React.FC<InputProps> = ({
         placeholder={placeHolder}
         autoComplete="on"
         disabled={disabled}
+        maxLength={maxLength} // Added
+        readOnly={readOnly} // Added
       />
       {touched && error && <div className="errorText">{error}</div>}
     </>

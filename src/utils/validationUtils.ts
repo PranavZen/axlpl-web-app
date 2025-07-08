@@ -2,6 +2,8 @@
  * Validation utility functions for form fields
  */
 
+import { AddressFormData } from "../components/pagecomponents/addressespage/forms/AddressForm";
+
 export interface ValidationResult {
   isValid: boolean;
   error?: string;
@@ -73,50 +75,96 @@ export const validateZipCode = (value: string): ValidationResult => {
 /**
  * Validate state fields
  */
-export const validateState = (value: string): ValidationResult => {
-  const trimmedValue = value?.trim() || '';
+// export const validateState = (value: string): ValidationResult => {
+//   const trimmedValue = value?.trim() || '';
   
+//   if (!trimmedValue) {
+//     return { isValid: false, error: 'State is required' };
+//   }
+  
+//   if (trimmedValue.length < 2) {
+//     return { isValid: false, error: 'State must be at least 2 characters' };
+//   }
+  
+//   if (trimmedValue.length > 50) {
+//     return { isValid: false, error: 'State cannot exceed 50 characters' };
+//   }
+  
+//   if (!/^[a-zA-Z\s.-]+$/.test(trimmedValue)) {
+//     return { isValid: false, error: 'State can only contain letters, spaces, dots, and hyphens' };
+//   }
+  
+//   return { isValid: true };
+// };
+
+export const validateState = (value: { value: string; label: string } | string): ValidationResult => {
+  const rawValue = typeof value === "object" && value !== null ? value.value : value;
+  const trimmedValue = rawValue?.trim() || '';
+
   if (!trimmedValue) {
     return { isValid: false, error: 'State is required' };
   }
-  
-  if (trimmedValue.length < 2) {
-    return { isValid: false, error: 'State must be at least 2 characters' };
-  }
-  
-  if (trimmedValue.length > 50) {
-    return { isValid: false, error: 'State cannot exceed 50 characters' };
-  }
-  
-  if (!/^[a-zA-Z\s.-]+$/.test(trimmedValue)) {
-    return { isValid: false, error: 'State can only contain letters, spaces, dots, and hyphens' };
-  }
-  
+
+  // if (trimmedValue.length < 2) {
+  //   return { isValid: false, error: 'State must be at least 2 characters' };
+  // }
+
+  // if (trimmedValue.length > 50) {
+  //   return { isValid: false, error: 'State cannot exceed 50 characters' };
+  // }
+
+  // if (!/^[a-zA-Z\s.-]+$/.test(trimmedValue)) {
+  //   return { isValid: false, error: 'State can only contain letters, spaces, dots, and hyphens' };
+  // }
+
   return { isValid: true };
 };
 
 /**
  * Validate city fields
  */
-export const validateCity = (value: string): ValidationResult => {
-  const trimmedValue = value?.trim() || '';
+// export const validateCity = (value: string): ValidationResult => {
+//   const trimmedValue = value?.trim() || '';
   
+//   if (!trimmedValue) {
+//     return { isValid: false, error: 'City is required' };
+//   }
+  
+//   if (trimmedValue.length < 2) {
+//     return { isValid: false, error: 'City must be at least 2 characters' };
+//   }
+  
+//   if (trimmedValue.length > 100) {
+//     return { isValid: false, error: 'City cannot exceed 100 characters' };
+//   }
+  
+//   if (!/^[a-zA-Z\s.-]+$/.test(trimmedValue)) {
+//     return { isValid: false, error: 'City can only contain letters, spaces, dots, and hyphens' };
+//   }
+  
+//   return { isValid: true };
+// };
+
+export const validateCity = (value: { value: string; label: string } | string): ValidationResult => {
+  const rawValue = typeof value === "object" && value !== null ? value.value : value;
+  const trimmedValue = rawValue?.trim() || '';
+
   if (!trimmedValue) {
     return { isValid: false, error: 'City is required' };
   }
-  
-  if (trimmedValue.length < 2) {
-    return { isValid: false, error: 'City must be at least 2 characters' };
-  }
-  
-  if (trimmedValue.length > 100) {
-    return { isValid: false, error: 'City cannot exceed 100 characters' };
-  }
-  
-  if (!/^[a-zA-Z\s.-]+$/.test(trimmedValue)) {
-    return { isValid: false, error: 'City can only contain letters, spaces, dots, and hyphens' };
-  }
-  
+
+  // if (trimmedValue.length < 2) {
+  //   return { isValid: false, error: 'City must be at least 2 characters' };
+  // }
+
+  // if (trimmedValue.length > 100) {
+  //   return { isValid: false, error: 'City cannot exceed 100 characters' };
+  // }
+
+  // if (!/^[a-zA-Z\s.-]+$/.test(trimmedValue)) {
+  //   return { isValid: false, error: 'City can only contain letters, spaces, dots, and hyphens' };
+  // }
+
   return { isValid: true };
 };
 
@@ -220,62 +268,46 @@ export const validateEmail = (value: string): ValidationResult => {
 /**
  * Validate all address form fields
  */
-export const validateAddressForm = (formData: any): { [key: string]: string } => {
+export const validateAddressForm = (formData: AddressFormData) => {
   const errors: { [key: string]: string } = {};
-  
-  // Validate name
-  const nameValidation = validateName(formData.name);
-  if (!nameValidation.isValid) {
-    errors.name = nameValidation.error!;
+
+  if (!formData.name.trim()) {
+    errors.name = "Name is required";
   }
-  
-  // Validate company name
-  const companyValidation = validateCompanyName(formData.company_name);
-  if (!companyValidation.isValid) {
-    errors.company_name = companyValidation.error!;
+
+  if (!formData.company_name.trim()) {
+    errors.company_name = "Company Name is required";
   }
-  
-  // Validate zip code
-  const zipValidation = validateZipCode(formData.zip_code);
-  if (!zipValidation.isValid) {
-    errors.zip_code = zipValidation.error!;
+
+  if (!formData.zip_code || formData.zip_code.length !== 6) {
+    errors.zip_code = "Zip Code must be 6 digits";
   }
-  
-  // Validate state
-  const stateValidation = validateState(formData.state_id);
-  if (!stateValidation.isValid) {
-    errors.state_id = stateValidation.error!;
+
+  if (!formData.state_id?.value) {
+    errors.state_id = "State is required";
   }
-  
-  // Validate address line 1
-  const address1Validation = validateAddressLine1(formData.address1);
-  if (!address1Validation.isValid) {
-    errors.address1 = address1Validation.error!;
+
+  if (!formData.city_id?.value) {
+    errors.city_id = "City is required";
   }
-  
-  // Validate address line 2 (optional)
-  const address2Validation = validateAddressLine2(formData.address2);
-  if (!address2Validation.isValid) {
-    errors.address2 = address2Validation.error!;
+
+  if (!formData.area_id?.value) {
+    errors.area_id = "Area is required";
   }
-  
-  // Validate mobile
-  const mobileValidation = validateMobile(formData.mobile_no);
-  if (!mobileValidation.isValid) {
-    errors.mobile_no = mobileValidation.error!;
+
+  if (!formData.address1.trim()) {
+    errors.address1 = "Address Line 1 is required";
   }
-  
-  // Validate email
-  const emailValidation = validateEmail(formData.email);
-  if (!emailValidation.isValid) {
-    errors.email = emailValidation.error!;
+
+  if (!formData.mobile_no.trim()) {
+    errors.mobile_no = "Mobile number is required";
+  } else if (!/^[6-9]\d{9}$/.test(formData.mobile_no)) {
+    errors.mobile_no = "Invalid mobile number";
   }
-  
-  // Validate GST number (optional)
-  const gstValidation = validateGstNumber(formData.sender_gst_no);
-  if (!gstValidation.isValid) {
-    errors.sender_gst_no = gstValidation.error!;
+
+  if (formData.email && !/^\S+@\S+\.\S+$/.test(formData.email)) {
+    errors.email = "Invalid email address";
   }
-  
+
   return errors;
 };

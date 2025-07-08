@@ -1,25 +1,23 @@
-import React, { useState, useEffect, useContext } from "react";
-import { SidebarContext } from "../../../contexts/SidebarContext";
+import React, { useContext, useEffect, useState } from "react";
 import {
   FaHome as FaHomeIconRaw,
-  FaUser as FaUserIconRaw,
-  FaSignOutAlt as FaSignOutAltRaw,
   FaLock as FaLockIconRaw,
+  FaSignOutAlt as FaSignOutAltRaw,
 } from "react-icons/fa";
 import { FaTruckFast as FaTruckFastRaw } from "react-icons/fa6";
 import { IoReceiptSharp as IoReceiptSharpRaw } from "react-icons/io5";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { SidebarContext } from "../../../contexts/SidebarContext";
+import { logoutLocal, logoutUser } from "../../../redux/slices/authSlice";
+import { AppDispatch } from "../../../redux/store";
+import { showError, showSuccess } from "../../../utils/toastUtils";
 import "../sidebar/Sidebar.scss";
 import SidebarDropdown from "./SidebarDropdown";
 import SidebarLink from "./SidebarLink";
 import SidebarToggleButton from "./SidebarToggleButton";
-import { useDispatch } from "react-redux";
-import { logoutUser, logoutLocal } from "../../../redux/slices/authSlice";
-import { useNavigate } from "react-router-dom";
-import { AppDispatch } from "../../../redux/store";
-import { showSuccess, showError } from "../../../utils/toastUtils";
 // Cast icons to JSX-compatible components
 const FaHome = FaHomeIconRaw as React.FC<React.SVGProps<SVGSVGElement>>;
-const FaUser = FaUserIconRaw as React.FC<React.SVGProps<SVGSVGElement>>;
 const FaSignOutAlt = FaSignOutAltRaw as React.FC<React.SVGProps<SVGSVGElement>>;
 const FaLock = FaLockIconRaw as React.FC<React.SVGProps<SVGSVGElement>>;
 const FaTruckFast = FaTruckFastRaw as React.FC<React.SVGProps<SVGSVGElement>>;
@@ -175,14 +173,14 @@ const Sidebar = () => {
             ]}
           />
 
-          <SidebarDropdown
+          {/* <SidebarDropdown
             title="Customer Details"
             icon={<FaUser />}
             isOpen={!isSidebarCollapsed}
             isActive={dropdownOpen === "customerdetails"}
             onToggle={() => toggleDropdown("customerdetails")}
             items={[{ label: "Contact", to: "/customer-contact" }]}
-          />
+          /> */}
 
           <SidebarDropdown
             title="Billing"
@@ -192,8 +190,8 @@ const Sidebar = () => {
             onToggle={() => toggleDropdown("billing")}
             items={[
               { label: "My Invoice", to: "/invoice" },
-              { label: "My Quotes", to: "/quotes" },
-              { label: "My Payment History", to: "/payment-history" },
+              // { label: "My Quotes", to: "/quotes" },
+              // { label: "My Payment History", to: "/payment-history" },
             ]}
           />
           <SidebarLink

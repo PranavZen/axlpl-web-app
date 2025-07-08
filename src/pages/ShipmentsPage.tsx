@@ -19,13 +19,15 @@ const statusTitleMap: Record<string, string> = {
 
 const ShipmentsPage: React.FC = () => {
   const { shipment_status } = useParams();
+  console.log("shipment_status", shipment_status);
   const dispatch = useDispatch<AppDispatch>();
   const { shipments, loading, error } = useSelector(
     (state: RootState) => state.activeShipment
   );
   const [selectedShipments, setSelectedShipments] = useState<any[]>([]);
   const [printModalOpen, setPrintModalOpen] = useState(false);
-  const [selectedShipmentForPrint, setSelectedShipmentForPrint] = useState<any>(null);
+  const [selectedShipmentForPrint, setSelectedShipmentForPrint] =
+    useState<any>(null);
   const [isPrintingLabel, setIsPrintingLabel] = useState(false);
 
   useEffect(() => {
@@ -35,30 +37,33 @@ const ShipmentsPage: React.FC = () => {
   const filteredShipments = useMemo(() => {
     if (!shipment_status) return shipments;
     const status = shipment_status.toLowerCase();
-    if (status === 'approved' || status === 'active') {
+    if (status === "approved" || status === "active") {
       // Show all active statuses
       const activeStatuses = [
-        'approved',
-        'waiting for pickup',
-        'picked up',
-        'shipped',
-        'out for delivery'
+        "approved",
+        "waiting for pickup",
+        "picked up",
+        "shipped",
+        "out for delivery",
       ];
-      return shipments.filter(
-        (shipment) => activeStatuses.includes((shipment.shipment_status || '').toLowerCase())
+      return shipments.filter((shipment) =>
+        activeStatuses.includes((shipment.shipment_status || "").toLowerCase())
       );
-    } else if (status === 'pending') {
+    } else if (status === "pending") {
       return shipments.filter(
-        (shipment) => (shipment.shipment_status || '').toLowerCase() === 'pending'
+        (shipment) =>
+          (shipment.shipment_status || "").toLowerCase() === "pending"
       );
-    } else if (status === 'hold') {
+    } else if (status === "hold") {
       return shipments.filter(
-        (shipment) => (shipment.shipment_status || '').toLowerCase() === 'hold'
+        (shipment) => (shipment.shipment_status || "").toLowerCase() === "hold"
       );
-    } else if (status === 'archived') {
-      const archivedStatuses = ['delivered', 'cancelled', 'returned'];
-      return shipments.filter(
-        (shipment) => archivedStatuses.includes((shipment.shipment_status || '').toLowerCase())
+    } else if (status === "archived") {
+      const archivedStatuses = ["delivered", "cancelled", "returned"];
+      return shipments.filter((shipment) =>
+        archivedStatuses.includes(
+          (shipment.shipment_status || "").toLowerCase()
+        )
       );
     }
     // Default fallback
@@ -75,11 +80,13 @@ const ShipmentsPage: React.FC = () => {
     // The view modal will automatically open with shipment details
   };
 
-
-
   // Handle delete shipment
   const handleDeleteShipment = (shipment: any) => {
-    if (window.confirm(`Are you sure you want to delete shipment ${shipment.shipment_id}?`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to delete shipment ${shipment.shipment_id}?`
+      )
+    ) {
       alert(`Shipment ${shipment.shipment_id} deleted successfully!`);
       // Here you would typically call an API to delete the shipment
     }
@@ -87,29 +94,30 @@ const ShipmentsPage: React.FC = () => {
 
   // Handle edit shipment
   const handleEditShipment = (shipment: any) => {
-
     // Check if shipment is active/approved (only allow editing active shipments)
-    if (shipment.shipment_status?.toLowerCase() !== 'approved') {
-      alert('Only active/approved shipments can be edited');
+    if (shipment.shipment_status?.toLowerCase() !== "approved") {
+      alert("Only active/approved shipments can be edited");
       return;
     }
 
     // For now, show available shipment data that can be edited
     const editableFields = [
       `Shipment ID: ${shipment.shipment_id}`,
-      `Sender Company: ${shipment.sender_company_name || 'N/A'}`,
-      `Receiver Company: ${shipment.receiver_company_name || 'N/A'}`,
-      `Origin: ${shipment.origin || 'N/A'}`,
-      `Destination: ${shipment.destination || 'N/A'}`,
-      `Sender Area: ${shipment.sender_areaname || 'N/A'}`,
-      `Receiver Area: ${shipment.receiver_areaname || 'N/A'}`,
-      `Sender GST: ${shipment.sender_gst_no || 'N/A'}`,
-      `Receiver GST: ${shipment.receiver_gst_no || 'N/A'}`,
-      `Status: ${shipment.shipment_status || 'N/A'}`,
-      `Created: ${shipment.created_date || 'N/A'}`
-    ].join('\n');
+      `Sender Company: ${shipment.sender_company_name || "N/A"}`,
+      `Receiver Company: ${shipment.receiver_company_name || "N/A"}`,
+      `Origin: ${shipment.origin || "N/A"}`,
+      `Destination: ${shipment.destination || "N/A"}`,
+      `Sender Area: ${shipment.sender_areaname || "N/A"}`,
+      `Receiver Area: ${shipment.receiver_areaname || "N/A"}`,
+      `Sender GST: ${shipment.sender_gst_no || "N/A"}`,
+      `Receiver GST: ${shipment.receiver_gst_no || "N/A"}`,
+      `Status: ${shipment.shipment_status || "N/A"}`,
+      `Created: ${shipment.created_date || "N/A"}`,
+    ].join("\n");
 
-    alert(`Edit Shipment - Available Data:\n\n${editableFields}\n\nNote: Full edit functionality can be implemented as needed.`);
+    alert(
+      `Edit Shipment - Available Data:\n\n${editableFields}\n\nNote: Full edit functionality can be implemented as needed.`
+    );
 
     // TODO: Implement actual edit functionality
     // This could be:
@@ -135,16 +143,18 @@ const ShipmentsPage: React.FC = () => {
       const printUrl = `https://new.axlpl.com/admin/shipment/shipment_manifest_pdf/${shipmentId}/${numberOfLabels}`;
 
       // Open the PDF in a new window/tab for printing
-      window.open(printUrl, '_blank');
+      window.open(printUrl, "_blank");
 
-      showSuccess(`✅ Opened ${numberOfLabels} label(s) for shipment ${shipmentId}`);
+      showSuccess(
+        `✅ Opened ${numberOfLabels} label(s) for shipment ${shipmentId}`
+      );
 
       // Close the modal
       setPrintModalOpen(false);
       setSelectedShipmentForPrint(null);
     } catch (error) {
-      showError('❌ Failed to open print labels');
-      console.error('Print error:', error);
+      showError("❌ Failed to open print labels");
+      console.error("Print error:", error);
     } finally {
       setIsPrintingLabel(false);
     }
@@ -255,10 +265,17 @@ const ShipmentsPage: React.FC = () => {
                     selectedRows={selectedShipments}
                     onRowSelectionChange={handleShipmentSelectionChange}
                     rowActions={{
-                      onEdit: handleEditShipment,
-                      onDelete: handleDeleteShipment,
-                      onView: handleViewShipment,
-                      onPrint: handlePrintShipment
+                      ...(shipment_status === "pending"
+                        ? {
+                            onEdit: handleEditShipment,
+                            onDelete: handleDeleteShipment,
+                            onView: handleViewShipment,
+                            onPrint: handlePrintShipment,
+                          }
+                        : {
+                            onView: handleViewShipment,
+                            onPrint: handlePrintShipment,
+                          }),
                     }}
                     rowIdAccessor="shipment_id"
                   />
@@ -274,7 +291,7 @@ const ShipmentsPage: React.FC = () => {
         isOpen={printModalOpen}
         onClose={handleClosePrintModal}
         onPrint={handlePrintLabel}
-        shipmentId={selectedShipmentForPrint?.shipment_id || ''}
+        shipmentId={selectedShipmentForPrint?.shipment_id || ""}
         isLoading={isPrintingLabel}
       />
     </section>
