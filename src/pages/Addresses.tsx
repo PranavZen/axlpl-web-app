@@ -52,39 +52,39 @@ const Addresses: React.FC = () => {
   }, []);
 
   // Update form data when editing an address
- useEffect(() => {
-  if (editingAddress) {
-    const formDataToSet = {
-      name: editingAddress.name || "",
-      company_name: editingAddress.company_name || "",
-      country_id: editingAddress.country_id || "",
-      state_id: {
-        value: String(editingAddress.state_id),
-        label: editingAddress.state_name,
-      },
-      city_id: {
-        value: String(editingAddress.city_id),
-        label: editingAddress.city_name,
-      },
-      area_id: {
-        value: String(editingAddress.area_id),
-        label: editingAddress.area_name,
-      },
-      zip_code: editingAddress.zip_code || "",
-      address1: editingAddress.address1 || "",
-      address2: editingAddress.address2 || "",
-      mobile_no: editingAddress.mobile_no || "",
-      email: editingAddress.email || "",
-      sender_gst_no: editingAddress.sender_gst_no || "",
-    };
+  useEffect(() => {
+    if (editingAddress) {
+      const formDataToSet = {
+        name: editingAddress.name || "",
+        company_name: editingAddress.company_name || "",
+        country_id: editingAddress.country_id || "",
+        state_id: {
+          value: String(editingAddress.state_id),
+          label: editingAddress.state_name,
+        },
+        city_id: {
+          value: String(editingAddress.city_id),
+          label: editingAddress.city_name,
+        },
+        area_id: {
+          value: String(editingAddress.area_id),
+          label: editingAddress.area_name,
+        },
+        zip_code: editingAddress.zip_code || "",
+        address1: editingAddress.address1 || "",
+        address2: editingAddress.address2 || "",
+        mobile_no: editingAddress.mobile_no || "",
+        email: editingAddress.email || "",
+        sender_gst_no: editingAddress.sender_gst_no || "",
+      };
 
-    setFormData(formDataToSet);
+      setFormData(formDataToSet);
 
-    // These ensure the input display is correct when editing
-    // setStateLabel(editingAddress.state_name || "");
-    // setCityLabel(editingAddress.city_name || "");
-  }
-}, [editingAddress]);
+      // These ensure the input display is correct when editing
+      // setStateLabel(editingAddress.state_name || "");
+      // setCityLabel(editingAddress.city_name || "");
+    }
+  }, [editingAddress]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -130,7 +130,7 @@ const Addresses: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("formData", formData);
+    // console.log("formData", formData);
     const errors = validateAddressForm(formData);
     setFormErrors(errors);
 
@@ -146,7 +146,7 @@ const Addresses: React.FC = () => {
       area_id: formData.area_id?.value || "",
       country_id: formData.country_id || "1",
     };
-    console.log("payload", payload);
+    // console.log("payload", payload);
     setFormSubmitting(true);
     try {
       if (isEditMode && editingAddress) {
@@ -298,17 +298,19 @@ const Addresses: React.FC = () => {
       </FormModal>
 
       {/* Confirmation Modal for Delete */}
-      <ConfirmationModal
-        isOpen={showDeleteConfirm}
-        title="Confirm Delete"
-        message="Are you sure you want to delete this address? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
-        isLoading={!!deletingId}
-        confirmButtonVariant="danger"
-      />
+      <div className="modalShown">
+        <ConfirmationModal
+          isOpen={showDeleteConfirm}
+          title="Confirm Delete"
+          message="Are you sure you want to delete this address? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+          isLoading={!!deletingId}
+          confirmButtonVariant="danger"
+        />
+      </div>
 
       <ToastContainer />
     </section>

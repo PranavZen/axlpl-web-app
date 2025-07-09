@@ -19,11 +19,12 @@ const statusTitleMap: Record<string, string> = {
 
 const ShipmentsPage: React.FC = () => {
   const { shipment_status } = useParams();
-  console.log("shipment_status", shipment_status);
+  // console.log("shipment_status", shipment_status);
   const dispatch = useDispatch<AppDispatch>();
   const { shipments, loading, error } = useSelector(
     (state: RootState) => state.activeShipment
   );
+  // console.log("shipments", shipments);
   const [selectedShipments, setSelectedShipments] = useState<any[]>([]);
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [selectedShipmentForPrint, setSelectedShipmentForPrint] =
@@ -168,7 +169,17 @@ const ShipmentsPage: React.FC = () => {
   };
 
   const tableColumns: Column<any>[] = [
-    { header: "Date", accessor: "created_date" },
+    {
+      header: "Date",
+      accessor: "created_date",
+      cell: (value: string) => {
+        // Format date to YYYY-MM-DD or locale string without time
+        if (!value) return "";
+        const date = new Date(value);
+        if (isNaN(date.getTime())) return value;
+        return date.toISOString().split("T")[0];
+      },
+    },
     { header: "Shipment ID", accessor: "shipment_id" },
     { header: "Sender", accessor: "sender_company_name" },
     { header: "Receiver", accessor: "receiver_company_name" },

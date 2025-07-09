@@ -466,7 +466,7 @@ const AddShipment = () => {
     try {
       // Ensure state/city IDs are set for existing address types
       let patchedValues = { ...values };
-      console.log("patchedValues", patchedValues);
+      // console.log("patchedValues", patchedValues);
       // Sender
       if (patchedValues.senderAddressType === "existing") {
         if (
@@ -502,13 +502,13 @@ const AddShipment = () => {
         }
       }
       // Debug log for state/city IDs
-      console.log("Submitting shipment with IDs:", {
-        senderStateId: patchedValues.senderStateId,
-        senderCityId: patchedValues.senderCityId,
-        receiverStateId: patchedValues.receiverStateId,
-        receiverCityId: patchedValues.receiverCityId,
-        allValues: patchedValues,
-      });
+      // console.log("Submitting shipment with IDs:", {
+      //   senderStateId: patchedValues.senderStateId,
+      //   senderCityId: patchedValues.senderCityId,
+      //   receiverStateId: patchedValues.receiverStateId,
+      //   receiverCityId: patchedValues.receiverCityId,
+      //   allValues: patchedValues,
+      // });
       // Show loading toast
       const loadingToast = toast.loading("Submitting shipment...");
 

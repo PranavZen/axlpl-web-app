@@ -182,7 +182,7 @@ export const logSecurityEvent = (event: string, details: any = {}) => {
   };
 
   // In a production environment, this would be sent to a logging service
-  console.log('[SECURITY EVENT]', logEntry);
+  // console.log('[SECURITY EVENT]', logEntry);
   
   // Store in session storage for debugging (remove in production)
   const existingLogs = JSON.parse(sessionStorage.getItem('securityLogs') || '[]');
@@ -221,6 +221,7 @@ export const createSecureErrorMessage = (originalError: string, isOwnershipError
   return 'Unable to retrieve shipment information. Please try again or contact support.';
 };
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   validateShipmentOwnership,
   validateShipmentIdFormat,

@@ -65,7 +65,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
   const { pincodeDetail, areas, loading } = useSelector(
     (state: RootState) => state.pincode
   );
-  console.log("pincodeDetail", pincodeDetail);
+  // console.log("pincodeDetail", pincodeDetail);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [localZip, setLocalZip] = useState(formData.zip_code);
   const [stateLabel, setStateLabel] = useState("");
@@ -73,7 +73,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
 
   const handleZipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const zip = e.target.value.replace(/\D/g, ""); // Allow only digits
-    console.log(zip);
+    // console.log(zip);
     if (zip.length <= 6) {
       setLocalZip(zip);
       onInputChange({ target: { name: "zip_code", value: zip } } as any);
@@ -106,7 +106,14 @@ const AddressForm: React.FC<AddressFormProps> = ({
         setCityLabel(cityName); // ✅ Set display label
       }
     }
-  }, [pincodeDetail]);
+  }, [onSelectChange, pincodeDetail]);
+
+  // Sync localZip, stateLabel, and cityLabel with formData when formData changes (for edit mode)
+  useEffect(() => {
+    setLocalZip(formData.zip_code || "");
+    setStateLabel(formData.state_id?.label || "");
+    setCityLabel(formData.city_id?.label || "");
+  }, [formData]);
 
   const areaOptions = areasToOptions(areas);
   // const onCustomChange = (name: keyof AddressFormData, value: any) => {
@@ -120,6 +127,20 @@ const AddressForm: React.FC<AddressFormProps> = ({
   //   } as React.ChangeEvent<HTMLInputElement>;
   //   onInputChange(event);
   // };
+
+  // Auto-select area in edit mode if area_id is present and area options are available, but only if not already set
+  useEffect(() => {
+    if (formData.area_id?.value && areaOptions.length > 0) {
+      const found = areaOptions.find((a) => a.value === formData.area_id.value);
+      // Only update if the current selected value is different
+      if (
+        found &&
+        (!formData.area_id.label || formData.area_id.label !== found.label)
+      ) {
+        onSelectChange("area_id")(found);
+      }
+    }
+  }, [formData.area_id?.value, formData.area_id?.label, areaOptions, onSelectChange]);
 
   return (
     <>
@@ -218,7 +239,9 @@ const AddressForm: React.FC<AddressFormProps> = ({
             options={areaOptions}
             value={
               areaOptions.find((a) => a.value === formData.area_id?.value) ||
-              null
+              (formData.area_id?.value && formData.area_id?.label
+                ? { value: formData.area_id.value, label: formData.area_id.label }
+                : null)
             }
             onChange={onSelectChange("area_id")}
             placeholder="Select area"

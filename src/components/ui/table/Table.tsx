@@ -346,6 +346,16 @@ function Table<T extends Record<string, any>>({
                         }
                       }
 
+                      // Add ellipsis-cell class for sender_areaname, receiver_areaname, address1, and address2 columns
+                      if (
+                        col.accessor === "sender_areaname" ||
+                        col.accessor === "receiver_areaname" ||
+                        col.accessor === "address1" ||
+                        col.accessor === "address2"
+                      ) {
+                        cellClass += (cellClass ? " " : "") + "ellipsis-cell";
+                      }
+
                       return (
                         <td key={colIdx} className={cellClass}>
                           {col.cell ? col.cell(value) : String(value)}

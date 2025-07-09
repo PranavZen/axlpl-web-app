@@ -116,8 +116,8 @@ export const submitShipment = createAsyncThunk(
       // Sender details - use fallback only for existing address type
       let senderStateId = formValues.senderStateId;
       let senderCityId = formValues.senderCityId;
-      console.log("senderStateId", senderStateId);
-      console.log("senderCityId", senderCityId);
+      // console.log("senderStateId", senderStateId);
+      // console.log("senderCityId", senderCityId);
       // Fix: Use .id if senderStateId or senderCityId is an object
       const senderStateIdValue = (senderStateId && typeof senderStateId === 'object' && senderStateId.id !== undefined) ? senderStateId.id : senderStateId;
       const senderCityIdValue = (senderCityId && typeof senderCityId === 'object' && senderCityId.id !== undefined) ? senderCityId.id : senderCityId;
@@ -156,8 +156,8 @@ export const submitShipment = createAsyncThunk(
       // Receiver details - use fallback only for existing address type
       let receiverStateId = formValues.receiverStateId;
       let receiverCityId = formValues.receiverCityId;
-      console.log("receiverStateId", receiverStateId);
-      console.log("receiverCityId", receiverCityId);
+      // console.log("receiverStateId", receiverStateId);
+      // console.log("receiverCityId", receiverCityId);
       // if (formValues.receiverAddressType === "existing") {
       //   if (!receiverStateId && formValues.receiverState && formValues.receiverState.id) {
       //     receiverStateId = formValues.receiverState.id;

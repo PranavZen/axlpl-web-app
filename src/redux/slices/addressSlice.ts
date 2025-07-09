@@ -52,7 +52,7 @@ export const fetchAddresses = createAsyncThunk(
       const formData = new FormData();
       formData.append("cust_id", cust_id);
       formData.append("search_query", searchQuery);
-      formData.append("next_id", "0");
+      // formData.append("next_id", "0");
 
       const response = await axios.post(
         `${API_BASE_URL}/getSenderAddresses`,
@@ -132,7 +132,7 @@ export const updateAddress = createAsyncThunk(
       });
 
       const response = await axios.post(
-        `${API_BASE_URL}/add_customer_save_address`,
+        `${API_BASE_URL}/update_customer_save_address`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -167,7 +167,7 @@ export const deleteAddress = createAsyncThunk(
       formData.append("cust_id", cust_id);
 
       const response = await axios.post(
-        `${API_BASE_URL}/deleteSenderAddress`,
+        `${API_BASE_URL}/customer_address_delete`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

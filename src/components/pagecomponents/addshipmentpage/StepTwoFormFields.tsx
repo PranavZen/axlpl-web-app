@@ -235,7 +235,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           // Also set state and city IDs
           setFieldValue("receiverStateId", state_id);
           setFieldValue("receiverCityId", city_id);
-          console.log("city id", city_id)
+          // console.log("city id", city_id)
         }
 
         // Fetch areas for the pincode (local only)
@@ -1031,11 +1031,11 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     if (modalContext === "sender") {
       setFieldValue("senderArea", areaOption);
       setSenderAreas((prev) => [...prev, { id: newAreaId, name: newArea.value }]);
-      console.log("✅ New area added and selected for sender:", areaOption);
+      // console.log("✅ New area added and selected for sender:", areaOption);
     } else if (modalContext === "receiver") {
       setFieldValue("receiverArea", areaOption);
       setReceiverAreas((prev) => [...prev, { id: newAreaId, name: newArea.value }]);
-      console.log("✅ New area added and selected for receiver:", areaOption);
+      // console.log("✅ New area added and selected for receiver:", areaOption);
     }
 
     // Close the modal

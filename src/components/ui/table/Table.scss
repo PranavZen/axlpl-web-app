@@ -2,6 +2,8 @@
   display: block;
   width: 100%;
   white-space: nowrap;
+   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   .table {
     width: 100%;
     .thead-dark {
@@ -151,4 +153,13 @@
     min-width: 150px;
     text-align: center;
   }
+}
+
+// Ellipsis cell class for text-overflow ellipsis in Sender Area and Receiver Area columns
+.ellipsis-cell {
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }

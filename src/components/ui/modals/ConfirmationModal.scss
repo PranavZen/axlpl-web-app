@@ -1,0 +1,117 @@
+:root {
+  --confirmation-modal-primary: #123458;
+  --confirmation-modal-accent: #ed6723;
+  --confirmation-modal-accent-hover: #d55b1d;
+  --confirmation-modal-bg: #fff;
+  --confirmation-modal-border: #e2e8f0;
+  --confirmation-modal-text: #1e293b;
+  --confirmation-modal-text-secondary: #64748b;
+  --confirmation-modal-radius: 1rem;
+}
+.modalShown{
+    .modal{
+        .modal-dialog{
+            max-width: 30%;
+            @media screen and (max-width: 767px) {
+                max-width: 100%;
+            }
+        }
+    }
+}
+.confirmation-modal-content {
+  font-family: "Work Sans", sans-serif;
+  color: var(--confirmation-modal-text);
+  padding: 2rem 1.5rem 1rem 1.5rem;
+}
+
+.confirmation-modal-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.confirmation-icon-wrapper {
+  background: linear-gradient(
+    135deg,
+    var(--confirmation-modal-accent) 0%,
+    var(--confirmation-modal-accent-hover) 100%
+  );
+  border-radius: var(--confirmation-modal-radius);
+  padding: 1.2rem;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(237, 103, 35, 0.12);
+  svg {
+    color: #fff;
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+}
+
+.confirmation-modal-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--confirmation-modal-primary);
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+}
+
+.confirmation-modal-subtitle {
+  font-size: 1.4rem;
+  color: var(--confirmation-modal-text-secondary);
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.confirmation-message-section {
+  text-align: center;
+}
+
+.confirmation-message {
+  font-size: 1.4rem;
+  color: var(--confirmation-modal-text);
+  margin-bottom: 0;
+}
+
+.confirmation-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  .btn {
+    align-items: center;
+    border: none;
+    border-radius: 0.75rem;
+    border-radius: var(--print-modal-radius-sm);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 1.6rem;
+    font-weight: 600;
+    gap: 0.8rem;
+    justify-content: center;
+    min-width: 12rem;
+    padding: 1.2rem 2.4rem;
+    transition: all 0.3s ease;
+    &.btn-cancel {
+      background: var(--print-modal-bg-secondary);
+      border: 1px solid var(--print-modal-border);
+    }
+  }
+}
+
+.btn-confirm {
+  background: var(--confirmation-modal-accent);
+  color: #fff;
+  border: none;
+  font-size: 1.1rem;
+  border-radius: 0.75rem;
+  min-width: 110px;
+  font-family: "Work Sans", sans-serif;
+  transition: background 0.2s;
+}
+
+.btn-confirm:disabled {
+  background: var(--confirmation-modal-accent-hover);
+  opacity: 0.7;
+}
