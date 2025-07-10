@@ -351,7 +351,9 @@ function Table<T extends Record<string, any>>({
                         col.accessor === "sender_areaname" ||
                         col.accessor === "receiver_areaname" ||
                         col.accessor === "address1" ||
-                        col.accessor === "address2"
+                        col.accessor === "address2" ||
+                        col.accessor === "sender_areaname" ||
+                        col.accessor === "receiver_company_name"
                       ) {
                         cellClass += (cellClass ? " " : "") + "ellipsis-cell";
                       }
