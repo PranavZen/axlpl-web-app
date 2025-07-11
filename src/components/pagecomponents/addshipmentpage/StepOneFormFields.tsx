@@ -17,11 +17,21 @@ interface StepOneFormFieldsProps {
   setFieldValue: (field: string, value: any) => void;
   errors?: any;
   touched?: any;
+  categoryOptions?: any[];
+  paymentModeOptions?: any[];
+  serviceTypeOptions?: any[];
+  commodityOptions?: any[];
 }
 
 const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
   values,
-  setFieldValue
+  setFieldValue,
+  errors,
+  touched,
+  categoryOptions,
+  paymentModeOptions,
+  serviceTypeOptions,
+  commodityOptions,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { categories, loading: categoriesLoading } = useSelector((state: RootState) => state.category);
@@ -73,29 +83,11 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
     prevCategoryRef.current = currentCategoryId || null;
   }, [values.category, dispatch, setFieldValue]);
 
-  // Transform categories for react-select format
-  const categoryOptions = categories.map(category => ({
-    value: category.id,
-    label: category.name
-  }));
-
-  // Transform commodities for react-select format
-  const commodityOptions = commodities.map(commodity => ({
-    value: commodity.id,
-    label: commodity.name
-  }));
-
-  // Transform payment modes for react-select format
-  const paymentModeOptions = paymentModes.map(paymentMode => ({
-    value: paymentMode.id,
-    label: paymentMode.name
-  }));
-
-  // Transform service types for react-select format
-  const serviceTypeOptions = serviceTypes.map(serviceType => ({
-    value: serviceType.id,
-    label: serviceType.name
-  }));
+  // Use passed-in options if available (Edit mode), else fallback to Redux
+  const categoryOpts = categoryOptions || categories.map(category => ({ value: category.id, label: category.name }));
+  const paymentModeOpts = paymentModeOptions || paymentModes.map(paymentMode => ({ value: paymentMode.id, label: paymentMode.name }));
+  const serviceTypeOpts = serviceTypeOptions || serviceTypes.map(serviceType => ({ value: serviceType.id, label: serviceType.name }));
+  const commodityOpts = commodityOptions || commodities.map(commodity => ({ value: commodity.id, label: commodity.name }));
 
   // Handle insurance switch change
   const handleInsuranceChange = (checked: boolean) => {
@@ -117,7 +109,7 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
       <div className="col-md-4">
         <StepFieldWrapper name="category" label="Category">
           <SingleSelect
-            options={categoryOptions}
+            options={categoryOpts}
             value={values.category}
             onChange={(option) => setFieldValue("category", option)}
             placeholder={categoriesLoading ? "Loading categories..." : "Select category"}
@@ -128,7 +120,7 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
       <div className="col-md-4">
         <StepFieldWrapper name="commodity" label="Commodity">
           <MultiSelect
-            options={commodityOptions}
+            options={commodityOpts}
             value={values.commodity}
             onChange={(option: MultiValue<any>) => setFieldValue("commodity", option)}
             placeholder={
@@ -136,7 +128,7 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
                 ? "Select category first"
                 : commoditiesLoading
                   ? "Loading commodities..."
-                  : commodityOptions.length === 0
+                  : commodityOpts.length === 0
                     ? "No commodities found for this category"
                     : "Select commodities"
             }
@@ -153,7 +145,7 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
       <div className="col-md-2">
         <StepFieldWrapper name="paymentMode" label="Payment Mode">
           <SingleSelect
-            options={paymentModeOptions}
+            options={paymentModeOpts}
             value={values.paymentMode}
             onChange={(option) => setFieldValue("paymentMode", option)}
             placeholder={paymentModesLoading ? "Loading payment modes..." : "Select payment mode"}
@@ -167,7 +159,7 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
       <div className="col-md-4">
         <StepFieldWrapper name="serviceType" label="Service Type">
           <SingleSelect
-            options={serviceTypeOptions}
+            options={serviceTypeOpts}
             value={values.serviceType}
             onChange={(option) => setFieldValue("serviceType", option)}
             placeholder={serviceTypesLoading ? "Loading service types..." : "Select service type"}

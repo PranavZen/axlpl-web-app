@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import MainBody from "../components/ui/mainbody/MainBody";
 import Sidebar from "../components/ui/sidebar/Sidebar";
 import { LogisticsLoader } from "../components/ui/spinner";
@@ -30,6 +30,7 @@ const ShipmentsPage: React.FC = () => {
   const [selectedShipmentForPrint, setSelectedShipmentForPrint] =
     useState<any>(null);
   const [isPrintingLabel, setIsPrintingLabel] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchAllShipments(shipment_status));
@@ -96,35 +97,11 @@ const ShipmentsPage: React.FC = () => {
   // Handle edit shipment
   const handleEditShipment = (shipment: any) => {
     // Check if shipment is active/approved (only allow editing active shipments)
-    if (shipment.shipment_status?.toLowerCase() !== "approved") {
-      alert("Only active/approved shipments can be edited");
+    if (shipment.shipment_status?.toLowerCase() !== "pending") {
+      alert("Only shipments with status 'Pending' can be edited");
       return;
     }
-
-    // For now, show available shipment data that can be edited
-    const editableFields = [
-      `Shipment ID: ${shipment.shipment_id}`,
-      `Sender Company: ${shipment.sender_company_name || "N/A"}`,
-      `Receiver Company: ${shipment.receiver_company_name || "N/A"}`,
-      `Origin: ${shipment.origin || "N/A"}`,
-      `Destination: ${shipment.destination || "N/A"}`,
-      `Sender Area: ${shipment.sender_areaname || "N/A"}`,
-      `Receiver Area: ${shipment.receiver_areaname || "N/A"}`,
-      `Sender GST: ${shipment.sender_gst_no || "N/A"}`,
-      `Receiver GST: ${shipment.receiver_gst_no || "N/A"}`,
-      `Status: ${shipment.shipment_status || "N/A"}`,
-      `Created: ${shipment.created_date || "N/A"}`,
-    ].join("\n");
-
-    alert(
-      `Edit Shipment - Available Data:\n\n${editableFields}\n\nNote: Full edit functionality can be implemented as needed.`
-    );
-
-    // TODO: Implement actual edit functionality
-    // This could be:
-    // 1. A modal with editable fields
-    // 2. Navigation to a dedicated edit page
-    // 3. Inline editing in the table
+    navigate(`/shipments/edit/${shipment.shipment_id}`);
   };
 
   // Handle print shipment label

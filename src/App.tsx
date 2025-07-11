@@ -19,6 +19,7 @@ const EditProfile = lazy(() => import("./pages/EditProfile"));
 const ChangePassword = lazy(() => import("./pages/ChangePassword"));
 const TrackShipment = lazy(() => import("./pages/TrackShipment"));
 const PageNotFound = lazy(() => import("./pages/PageNotFound"));
+const EditShipment = lazy(() => import("./pages/EditShipment"));
 
 const App = () => {
   return (
@@ -81,6 +82,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <TrackShipment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/shipments/edit/:shipment_id"
+              element={
+                <ProtectedRoute>
+                  <EditShipment />
                 </ProtectedRoute>
               }
             />
