@@ -16,6 +16,7 @@ interface ConfirmationModalProps {
   confirmButtonVariant?: string;
   icon?: React.ReactNode; // Optional custom icon
   subtitle?: string; // Optional subtitle
+  size?: "sm" | "md" | "lg" | "xl"; // Modal size
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -30,6 +31,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   confirmButtonVariant = "danger",
   icon,
   subtitle,
+  size = "sm",
 }) => {
   const footer = (
     <div className="confirmation-modal-footer">
@@ -56,7 +58,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       isOpen={isOpen}
       title=""
       onClose={onCancel}
-      size="sm"
+      size={size}
       footer={footer}
     >
       <div className="confirmation-modal-content">

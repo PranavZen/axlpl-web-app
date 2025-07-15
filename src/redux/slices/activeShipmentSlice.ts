@@ -13,12 +13,16 @@ interface ShipmentState {
   shipments: Shipment[];
   loading: boolean;
   error: string | null;
+  deleteLoading: boolean;
+  deleteError: string | null;
 }
 
 const initialState: ShipmentState = {
   shipments: [],
   loading: false,
   error: null,
+  deleteLoading: false,
+  deleteError: null,
 };
 
 export const fetchAllShipments = createAsyncThunk(
@@ -59,6 +63,29 @@ export const fetchAllShipments = createAsyncThunk(
     }
   );
 
+export const deleteShipment = createAsyncThunk(
+  "shipments/delete",
+  async (shipment_id: string, { rejectWithValue }) => {
+    try {
+      const userData = getUserData();
+      const token = userData?.Customerdetail?.token;
+
+      const formData = new FormData();
+      formData.append("shipment_id", shipment_id);
+
+      const response = await axios.post(
+        "https://new.axlpl.com/messenger/services_v6/delete_shipment",
+        formData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      return { shipment_id, response: response.data };
+    } catch (error: any) {
+      return rejectWithValue(error?.response?.data?.message || error.message);
+    }
+  }
+);
+
 const activeShipmentSlice = createSlice({
   name: "activeShipment",
   initialState,
@@ -77,6 +104,21 @@ const activeShipmentSlice = createSlice({
       .addCase(fetchAllShipments.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(deleteShipment.pending, (state) => {
+        state.deleteLoading = true;
+        state.deleteError = null;
+      })
+      .addCase(deleteShipment.fulfilled, (state, action) => {
+        state.deleteLoading = false;
+        // Remove the deleted shipment from the state
+        state.shipments = state.shipments.filter(
+          shipment => shipment.shipment_id !== action.payload.shipment_id
+        );
+      })
+      .addCase(deleteShipment.rejected, (state, action) => {
+        state.deleteLoading = false;
+        state.deleteError = action.payload as string;
       });
   },
 });

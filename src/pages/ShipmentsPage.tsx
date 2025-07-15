@@ -6,7 +6,8 @@ import Sidebar from "../components/ui/sidebar/Sidebar";
 import { LogisticsLoader } from "../components/ui/spinner";
 import Table, { Column } from "../components/ui/table/Table";
 import PrintLabelModal from "../components/ui/modals/PrintLabelModal";
-import { fetchAllShipments } from "../redux/slices/activeShipmentSlice";
+import ConfirmationModal from "../components/ui/modals/ConfirmationModal";
+import { fetchAllShipments, deleteShipment } from "../redux/slices/activeShipmentSlice";
 import { AppDispatch, RootState } from "../redux/store";
 import { showSuccess, showError } from "../utils/toastUtils";
 
@@ -21,7 +22,7 @@ const ShipmentsPage: React.FC = () => {
   const { shipment_status } = useParams();
   // console.log("shipment_status", shipment_status);
   const dispatch = useDispatch<AppDispatch>();
-  const { shipments, loading, error } = useSelector(
+  const { shipments, loading, error, deleteLoading } = useSelector(
     (state: RootState) => state.activeShipment
   );
   // console.log("shipments", shipments);
@@ -30,6 +31,8 @@ const ShipmentsPage: React.FC = () => {
   const [selectedShipmentForPrint, setSelectedShipmentForPrint] =
     useState<any>(null);
   const [isPrintingLabel, setIsPrintingLabel] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [shipmentToDelete, setShipmentToDelete] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -82,16 +85,37 @@ const ShipmentsPage: React.FC = () => {
     // The view modal will automatically open with shipment details
   };
 
-  // Handle delete shipment
+  // Handle delete shipment - Open confirmation modal
   const handleDeleteShipment = (shipment: any) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete shipment ${shipment.shipment_id}?`
-      )
-    ) {
-      alert(`Shipment ${shipment.shipment_id} deleted successfully!`);
-      // Here you would typically call an API to delete the shipment
+    setShipmentToDelete(shipment);
+    setDeleteModalOpen(true);
+  };
+
+  // Handle confirmation modal actions
+  const handleConfirmDelete = async () => {
+    if (!shipmentToDelete) return;
+
+    try {
+      const result = await dispatch(deleteShipment(shipmentToDelete.shipment_id));
+      
+      if (deleteShipment.fulfilled.match(result)) {
+        showSuccess(`✅ Shipment ${shipmentToDelete.shipment_id} deleted successfully!`);
+        setDeleteModalOpen(false);
+        setShipmentToDelete(null);
+        // Refresh the shipments list
+        dispatch(fetchAllShipments(shipment_status));
+      } else {
+        showError(`❌ Failed to delete shipment ${shipmentToDelete.shipment_id}`);
+      }
+    } catch (error) {
+      showError(`❌ Failed to delete shipment ${shipmentToDelete.shipment_id}`);
+      console.error("Delete error:", error);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false);
+    setShipmentToDelete(null);
   };
 
   // Handle edit shipment
@@ -281,6 +305,25 @@ const ShipmentsPage: React.FC = () => {
         onPrint={handlePrintLabel}
         shipmentId={selectedShipmentForPrint?.shipment_id || ""}
         isLoading={isPrintingLabel}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={deleteModalOpen}
+        title="Delete Shipment"
+        message={`Are you sure you want to delete shipment ${shipmentToDelete?.shipment_id}? This action cannot be undone.`}
+        confirmText="Yes, Delete"
+        cancelText="No, Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isLoading={deleteLoading}
+        confirmButtonVariant="danger"
+        size="md"
+        icon={
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="#fff" className="text-danger">
+            <path d="M9 3V4H4V6H5V19C5 20.1 5.9 21 7 21H17C18.1 21 19 20.1 19 19V6H20V4H15V3H9ZM7 6H17V19H7V6ZM9 8V17H11V8H9ZM13 8V17H15V8H13Z" />
+          </svg>
+        }
       />
     </section>
   );
