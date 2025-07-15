@@ -18,7 +18,7 @@ export const fetchShipmentById = createAsyncThunk(
           },
         }
       );
-      console.log("API response for getShipmentById:", response.data);
+      // console.log("API response for getShipmentById:", response.data);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || error.message);

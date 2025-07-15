@@ -9,6 +9,7 @@ import {
   resetUpdateSuccess,
 } from "../redux/slices/editShipmentSlice";
 import { fetchCommodities } from "../redux/slices/commoditySlice";
+import { fetchPincodeDetail } from "../redux/slices/pincodeSlice";
 import { RootState, AppDispatch } from "../redux/store";
 import { toast } from "react-toastify";
 import MainBody from "../components/ui/mainbody/MainBody";
@@ -373,7 +374,8 @@ const EditShipment: React.FC = () => {
   const { serviceTypes } = useSelector((state: RootState) => state.serviceType);
   const { commodities } = useSelector(
     (state: RootState) => state.commodity || { commodities: [] }
-  ); // Add this if not present
+  );
+  const { pincodeDetail } = useSelector((state: RootState) => state.pincode);
 
   // Build options arrays for selects
   const categoryOptions = categories.map((category: any) => ({
@@ -394,6 +396,10 @@ const EditShipment: React.FC = () => {
   }));
   // console.log("commodityOptions", commodityOptions);
   const [step, setStep] = useState(0);
+  const [deliveryAddressNames, setDeliveryAddressNames] = useState({
+    state: "",
+    city: ""
+  });
   const { isSidebarCollapsed } = useContext(SidebarContext);
 
   useEffect(() => {
@@ -408,6 +414,23 @@ const EditShipment: React.FC = () => {
       dispatch(fetchCommodities(""));
     }
   }, [dispatch, commodities]);
+
+  // Fetch delivery address details from pincode when delivery pincode exists
+  useEffect(() => {
+    if (shipment?.diffadd_pincode && shipment.diffadd_pincode.trim() !== '') {
+      dispatch(fetchPincodeDetail(shipment.diffadd_pincode));
+    }
+  }, [dispatch, shipment?.diffadd_pincode]);
+
+  // Update delivery address names when pincode detail is fetched
+  useEffect(() => {
+    if (pincodeDetail && shipment?.diffadd_pincode) {
+      setDeliveryAddressNames({
+        state: pincodeDetail.state_name || "",
+        city: pincodeDetail.city_name || ""
+      });
+    }
+  }, [pincodeDetail, shipment?.diffadd_pincode]);
 
   useEffect(() => {
     if (updateSuccess) {
@@ -605,14 +628,17 @@ const EditShipment: React.FC = () => {
         shipment?.diffadd_address2
     ),
     deliveryCountry: shipment?.diffadd_country || "",
-    deliveryState: shipment?.diffadd_state || "",
-    deliveryCity: shipment?.diffadd_city || "",
+    deliveryState: deliveryAddressNames.state || "",
+    deliveryCity: deliveryAddressNames.city || "",
     deliveryArea: shipment?.diffadd_area
       ? { value: shipment.diffadd_area, label: shipment.diffadd_area }
       : null,
     deliveryZipCode: shipment?.diffadd_pincode || "",
     deliveryAddressLine1: shipment?.diffadd_address1 || "",
     deliveryAddressLine2: shipment?.diffadd_address2 || "",
+    // Store original IDs for submission
+    deliveryStateId: shipment?.diffadd_state || "",
+    deliveryCityId: shipment?.diffadd_city || "",
     // Charges
     cashCollectedBy: shipment?.cash_collected_by || "",
     shipmentCharges: shipment?.shipment_charges || "",
@@ -629,7 +655,7 @@ const EditShipment: React.FC = () => {
     receiverStateId: shipment?.receiver_state || "",
     receiverCityId: shipment?.receiver_city || "",
   };
-  console.log("initialValues log", initialValues);
+  // console.log("initialValues log", initialValues);
   return (
     <div className="container-fluid p-0">
       <section
@@ -775,9 +801,9 @@ const EditShipment: React.FC = () => {
                       receiver_customer_id: values.receiverCustomerId || "",
                       is_diff_add: values.isDifferentDeliveryAddress ? "1" : "0",
                       diff_receiver_country: values.deliveryCountry || "",
-                      diff_receiver_state: values.deliveryState || "",
-                      diff_receiver_city: values.deliveryCity || "",
-                      diff_receiver_area: values.deliveryArea && typeof values.deliveryArea === "object" ? values.deliveryArea.value : values.deliveryArea || "",
+                      diff_receiver_state: values.deliveryStateId || values.deliveryState || "",
+                      diff_receiver_city: values.deliveryCityId || values.deliveryCity || "",
+                      diff_receiver_area: values.deliveryArea && typeof values.deliveryArea === "object" && values.deliveryArea.value ? values.deliveryArea.value : (typeof values.deliveryArea === "string" ? values.deliveryArea : ""),
                       diff_receiver_address1: values.deliveryAddressLine1 || "",
                       diff_receiver_address2: values.deliveryAddressLine2 || "",
                       diff_receiver_pincode: values.deliveryZipCode || "",

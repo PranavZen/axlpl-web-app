@@ -623,8 +623,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           const mappedFields = mapCustomerToReceiverFields(customer);
           
           // Debug: Log the mapped fields to verify they include all customer data
-          console.log('🔍 Receiver Customer Selected:', customer.full_name);
-          console.log('📋 Mapped Fields:', mappedFields);
+          // console.log('🔍 Receiver Customer Selected:', customer.full_name);
+          // console.log('📋 Mapped Fields:', mappedFields);
           
           // Try to match area_name to area option from available areas
           let matchedArea = mappedFields.receiverArea; // Use the area from mapped fields as default
@@ -640,7 +640,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                 value: foundArea.id,
                 label: foundArea.name || (foundArea as any).label
               };
-              console.log('🎯 Found matching area in dropdown:', matchedArea);
+              // console.log('🎯 Found matching area in dropdown:', matchedArea);
             }
           }
 
@@ -654,7 +654,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             receiverAreaId: customer.area_id || '',
           };
           
-          console.log('✅ Final fields being populated:', fieldsWithCustomerId);
+          // console.log('✅ Final fields being populated:', fieldsWithCustomerId);
           
           // Populate all fields at once
           populateReceiverFieldsAndClearErrors(fieldsWithCustomerId);

@@ -161,3 +161,43 @@ export const extractLocationId = (
   // Fallback to default value
   return defaultValue;
 };
+
+/**
+ * Convert state ID to state name using reverse lookup
+ * @param stateId The state ID string
+ * @returns State name string or the original ID if not found
+ */
+export const getStateNameFromId = (stateId: string): string => {
+  if (!stateId || typeof stateId !== 'string') {
+    return '';
+  }
+  
+  const trimmedId = stateId.trim();
+  // Reverse lookup in COMMON_STATES
+  for (const [stateName, id] of Object.entries(COMMON_STATES)) {
+    if (id === trimmedId) {
+      return stateName;
+    }
+  }
+  return trimmedId; // Return original ID if name not found
+};
+
+/**
+ * Convert city ID to city name using reverse lookup
+ * @param cityId The city ID string
+ * @returns City name string or the original ID if not found
+ */
+export const getCityNameFromId = (cityId: string): string => {
+  if (!cityId || typeof cityId !== 'string') {
+    return '';
+  }
+  
+  const trimmedId = cityId.trim();
+  // Reverse lookup in COMMON_CITIES
+  for (const [cityName, id] of Object.entries(COMMON_CITIES)) {
+    if (id === trimmedId) {
+      return cityName;
+    }
+  }
+  return trimmedId; // Return original ID if name not found
+};
