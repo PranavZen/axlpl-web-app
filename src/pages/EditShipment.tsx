@@ -20,7 +20,9 @@ import StepThreeFormFields from "../components/pagecomponents/addshipmentpage/St
 import StepFourFormFields from "../components/pagecomponents/addshipmentpage/StepFourFormFields";
 import FormNavigation from "../components/pagecomponents/addshipmentpage/FormNavigation";
 import { SidebarContext } from "../contexts/SidebarContext";
+import { getUserData } from "../utils/authUtils";
 import "../styles/global/AddShipment.scss";
+import { LogisticsLoader } from "../components/ui/spinner";
 
 // Shipment type
 interface Shipment {
@@ -440,7 +442,7 @@ const EditShipment: React.FC = () => {
     }
   }, [updateSuccess, dispatch, navigate]);
 
-  if (loading && !shipment) return <div>Loading...</div>;
+  if (loading && !shipment) return <LogisticsLoader/>;
   if (error) return <div>Error: {error}</div>;
   if (!shipment) return <div>No shipment found.</div>;
   if (shipment.shipment_status?.toLowerCase() !== "pending") {
@@ -500,10 +502,23 @@ const EditShipment: React.FC = () => {
     ];
   };
 
+  // Helper function to get logged-in user's company name
+  const getLoggedInUserName = () => {
+    try {
+      const userData = getUserData();
+      return userData?.Customerdetail?.company_name || 
+             userData?.Customerdetail?.full_name || 
+             userData?.Customerdetail?.name || "";
+    } catch {
+      return "";
+    }
+  };
+
   // Initial values for Formik (fully dynamic from API response)
   const initialValues = {
     shipment_id: shipment?.shipment_id || "",
     cust_id: shipment?.cust_id || "",
+    name: getLoggedInUserName(),
     commodity: getMultiOptions(commodityOptions, shipment?.product_id),
     include_invoice_tax: shipment?.include_invoice_tax || "",
     category: getOption(categoryOptions, shipment?.category_id),

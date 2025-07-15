@@ -45,6 +45,8 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
 
   // Track previous category to detect changes
   const prevCategoryRef = useRef<string | null>(null);
+  // Track if we've already set the default name to prevent overwriting during edits
+  const hasSetDefaultNameRef = useRef<boolean>(false);
 
   // Fetch categories, payment modes, and service types on component mount
   useEffect(() => {
@@ -55,11 +57,16 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
 
   // Set the logged-in user's company name when component mounts (only for new shipments, not edit)
   useEffect(() => {
-    // Only set default name if it's empty and we're not editing (no existing name value)
-    if (loggedInUserCompanyName && !values.name) {
+    // Only set default name if:
+    // 1. We have the logged-in user's company name
+    // 2. The name field is empty
+    // 3. We're not in edit mode (no shipment_id)
+    // 4. We haven't already set the default name
+    if (loggedInUserCompanyName && !values.name && !values.shipment_id && !hasSetDefaultNameRef.current) {
       setFieldValue("name", loggedInUserCompanyName);
+      hasSetDefaultNameRef.current = true;
     }
-  }, [loggedInUserCompanyName, values.name, setFieldValue]);
+  }, [loggedInUserCompanyName, values.name, values.shipment_id, setFieldValue]);
 
   // Fetch commodities when category changes and clear selected commodities
   useEffect(() => {
