@@ -72,6 +72,7 @@ export const mapLoginUserToSenderFields = () => {
         customerDetail.name ||
         customerDetail.full_name ||
         customerDetail.customer_name ||
+        customerDetail.sender_name ||
         "",
       senderCompanyName:
         customerDetail.company_name || customerDetail.name || "",
@@ -125,7 +126,7 @@ export const mapCustomerToSenderFields = (customer: Customer | null) => {
 
   try {
     return {
-      senderName: customer.full_name || "",
+      senderName: customer.full_name || customer.sender_name || "",
       senderCompanyName: customer.company_name || "",
       senderZipCode: customer.pincode || "",
       // Use proper IDs for state, city, and area

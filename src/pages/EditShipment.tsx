@@ -392,7 +392,7 @@ const EditShipment: React.FC = () => {
     value: commodity.id,
     label: commodity.name,
   }));
-  console.log("commodityOptions", commodityOptions);
+  // console.log("commodityOptions", commodityOptions);
   const [step, setStep] = useState(0);
   const { isSidebarCollapsed } = useContext(SidebarContext);
 
@@ -478,7 +478,6 @@ const EditShipment: React.FC = () => {
   };
 
   // Initial values for Formik (fully dynamic from API response)
-  const isExistingReceiverAddress = shipment?.is_new_receiver_address === "0";
   const initialValues = {
     shipment_id: shipment?.shipment_id || "",
     cust_id: shipment?.cust_id || "",
@@ -569,15 +568,18 @@ const EditShipment: React.FC = () => {
     receiver_company_name: shipment?.receiver_company_name || "",
     receiverCountry: shipment?.receiver_country || "",
     receiver_country: shipment?.receiver_country || "",
-    receiverState: isExistingReceiverAddress
-      ? getOption(/* receiverStateOptions */ [], shipment?.receiver_state)
-      : shipment?.receiver_state || "",
-    receiverCity: isExistingReceiverAddress
-      ? getOption(/* receiverCityOptions */ [], shipment?.receiver_city)
-      : shipment?.receiver_city || "",
-    receiverArea: isExistingReceiverAddress
-      ? getOption(/* receiverAreaOptions */ [], shipment?.receiver_area)
-      : shipment?.receiver_area || "",
+    // receiverState: shipment?.receiver_state || "",
+    // receiver_state: shipment?.receiver_state || "",
+    // receiverCity: shipment?.receiver_city || "",
+    // receiver_city: shipment?.receiver_city || "",
+    // receiverArea: shipment?.receiver_area || "",
+    // receiver_area: shipment?.receiver_area || "",
+    receiverState: shipment?.receiver_state || "",
+    receiver_state: shipment?.receiver_state || "",
+    receiverCity: shipment?.receiver_city || "",
+    receiver_city: shipment?.receiver_city || "",
+    receiverArea: getOption(/* senderAreaOptions */ [], shipment?.receiver_area), // TODO: pass senderAreaOptions if available
+    receiver_area: shipment?.receiver_area || "",
     receiverZipCode: shipment?.receiver_pincode || "",
     receiver_pincode: shipment?.receiver_pincode || "",
     receiverAddressLine1: shipment?.receiver_address1 || "",
@@ -627,8 +629,7 @@ const EditShipment: React.FC = () => {
     receiverStateId: shipment?.receiver_state || "",
     receiverCityId: shipment?.receiver_city || "",
   };
-  console.log("initialValues commodity", initialValues.shipment_invoice_no);
-  console.log("senderGstNo:", initialValues.senderGstNo);
+  console.log("initialValues log", initialValues);
   return (
     <div className="container-fluid p-0">
       <section

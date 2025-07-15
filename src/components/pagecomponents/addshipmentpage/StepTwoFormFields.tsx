@@ -54,7 +54,6 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     customers,
     loading: customersLoading,
   } = useSelector((state: RootState) => state.customer);
-
   const {
     pincodeDetail,
     areas,
@@ -73,7 +72,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   const [isSenderAutoPopulating, setIsSenderAutoPopulating] = useState(false);
   const [isReceiverAutoPopulating, setIsReceiverAutoPopulating] =
     useState(false);
-
+  
   // State to track when address type is being changed to suppress validation errors
   const [isSenderAddressTypeChanging, setIsSenderAddressTypeChanging] =
     useState(false);
@@ -227,22 +226,40 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         const pincodeResult = await dispatch(fetchPincodeDetail(pincode));
 
         if (fetchPincodeDetail.fulfilled.match(pincodeResult)) {
-          const { state_name, city_name, state_id, city_id } =
-            pincodeResult.payload;
-
-          setFieldValue("receiverState", typeof state_name === 'object' && state_name !== null ? state_name.name || '' : state_name || '');
-          setFieldValue("receiverCity", typeof city_name === 'object' && city_name !== null ? city_name.name || '' : city_name || '');
-          // Also set state and city IDs
+          const { state_name, city_name, state_id, city_id } = pincodeResult.payload;
+          // Always set as { value, label } objects for display
+          setFieldValue("receiverState", { value: state_id, label: state_name || String(state_id) });
+          setFieldValue("receiverCity", { value: city_id, label: city_name || String(city_id) });
           setFieldValue("receiverStateId", state_id);
           setFieldValue("receiverCityId", city_id);
-          // console.log("city id", city_id)
         }
 
         // Fetch areas for the pincode (local only)
         const areasResult = await dispatch(fetchAreasByPincode(pincode));
         if (fetchAreasByPincode.fulfilled.match(areasResult)) {
-          setReceiverAreas(areasResult.payload || []);
-          setFieldValue("receiverArea", { value: '', label: '' });
+          const areaList = areasResult.payload || [];
+          setReceiverAreas(areaList);
+          // If area exists in values, try to map it to { value, label }
+          let areaObj = { value: '', label: '' };
+          // If areaList exists, try to match by ID or name, else fallback to first area or blank
+          if (areaList.length > 0) {
+            if (values.receiverArea && typeof values.receiverArea === 'object') {
+              const foundArea = areaList.find((a: { id: any; name: any; }) =>
+                a.id === values.receiverArea.value ||
+                a.name === values.receiverArea.label
+              );
+              if (foundArea) {
+                areaObj = { value: foundArea.id, label: foundArea.name };
+              } else {
+                // Fallback: use first area in list
+                areaObj = { value: areaList[0].id, label: areaList[0].name };
+              }
+            } else {
+              // Fallback: use first area in list
+              areaObj = { value: areaList[0].id, label: areaList[0].name };
+            }
+          }
+          setFieldValue("receiverArea", areaObj);
         } else {
           setReceiverAreas([]);
         }
@@ -250,7 +267,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         setReceiverAreas([]);
       }
     },
-    [dispatch, setFieldValue]
+    [dispatch, setFieldValue, values.receiverArea]
   );
 
   // Debounced pincode handler for receiver
@@ -304,13 +321,15 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     [dispatch]
   );
 
+  // Ensure all customers are fetched when receiverAddressType is 'existing' and search box is empty
+  useEffect(() => {
+    if (values.receiverAddressType === 'existing' && receiverSearchQuery.trim() === '') {
+      handleCustomerSearch('');
+    }
+  }, [values.receiverAddressType, receiverSearchQuery, handleCustomerSearch]);
+
   // Fetch customers on component mount with default search
   useEffect(() => {
-    // Start with a search for "version" as requested
-    const defaultSearchQuery = "version";
-    setReceiverSearchQuery(defaultSearchQuery);
-    handleCustomerSearch(defaultSearchQuery);
-
     // Expose debug function to window for easy access in browser console
     (window as any).debugLoginUserData = debugLoginUserData;
   }, [dispatch, handleCustomerSearch]);
@@ -332,6 +351,20 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     setFieldError("senderAddressType", undefined);
     setFieldError("receiverAddressType", undefined);
   }, [setFieldError]);
+
+  // Auto-populate receiver fields with proper {value, label} format when editing shipment
+  useEffect(() => {
+    // Only run when we have receiver data that looks like edit mode (has receiverZipCode and IDs)
+    if (values.receiverZipCode && (values.receiverStateId || values.receiverCityId)) {
+      // If receiver state is not already an object, convert it
+      if (values.receiverState && typeof values.receiverState !== 'object') {
+        // Fetch pincode details to get state/city names from IDs
+        if (values.receiverZipCode.length === 6) {
+          fetchReceiverPincodeData(values.receiverZipCode);
+        }
+      }
+    }
+  }, [values.receiverZipCode, values.receiverStateId, values.receiverCityId, values.receiverState, fetchReceiverPincodeData]);
 
   // Clear receiver validation errors when address type changes
   useEffect(() => {
@@ -586,38 +619,48 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
       const customer = findCustomerByName(customers, selectedOption.value);
       if (customer) {
         try {
+          // Get all mapped fields from the utility function (includes proper object format)
           const mappedFields = mapCustomerToReceiverFields(customer);
-          // Try to match area_name to area option using proper area_id
-          let matchedArea = null;
+          
+          // Debug: Log the mapped fields to verify they include all customer data
+          console.log('🔍 Receiver Customer Selected:', customer.full_name);
+          console.log('📋 Mapped Fields:', mappedFields);
+          
+          // Try to match area_name to area option from available areas
+          let matchedArea = mappedFields.receiverArea; // Use the area from mapped fields as default
           if (areas && Array.isArray(areas) && customer.area_name) {
-            matchedArea = areas.find(
+            const foundArea = areas.find(
               (a: any) =>
-                a.label === customer.area_name ||
-                a.value === customer.area_name ||
-                a.value === customer.area_id
+                (a.name && a.name.trim().toLowerCase() === customer.area_name.trim().toLowerCase()) ||
+                (a.label && a.label.trim().toLowerCase() === customer.area_name.trim().toLowerCase()) ||
+                a.id === customer.area_id
             );
+            if (foundArea) {
+              matchedArea = {
+                value: foundArea.id,
+                label: foundArea.name || (foundArea as any).label
+              };
+              console.log('🎯 Found matching area in dropdown:', matchedArea);
+            }
           }
-          // If no match found but area_name exists, create area option with proper ID
-          if (!matchedArea && customer.area_name) {
-            matchedArea = {
-              value: customer.area_id || customer.id,
-              label: customer.area_name
-            };
-          }
-          // Ensure state/city/area IDs are set if available
-          const receiverStateId = customer.state_id || '';
-          const receiverCityId = customer.city_id || '';
-          const receiverAreaId = customer.area_id || '';
+
+          // Use all the properly mapped fields and add customer ID and IDs for backend compatibility
           const fieldsWithCustomerId = {
-            ...mappedFields,
+            ...mappedFields, // This already includes properly formatted state, city, area objects
             receiverCustomerId: customer.id,
-            receiverArea: matchedArea || null,
-            receiverStateId,
-            receiverCityId,
-            receiverAreaId,
+            receiverArea: matchedArea, // Use the matched or default area object
+            receiverStateId: customer.state_id || '',
+            receiverCityId: customer.city_id || '',
+            receiverAreaId: customer.area_id || '',
           };
+          
+          console.log('✅ Final fields being populated:', fieldsWithCustomerId);
+          
+          // Populate all fields at once
           populateReceiverFieldsAndClearErrors(fieldsWithCustomerId);
+          
         } catch (error) {
+          console.error('❌ Error populating receiver fields:', error);
           // Show user-friendly error message
           // You could add a toast notification here if needed
         }
@@ -915,48 +958,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     setFieldValue,
   ]);
 
-  // Auto-select receiver area when areas are loaded and receiverArea is not set
-  useEffect(() => {
-    if (
-      values.receiverAddressType === "existing" &&
-      selectedReceiverCustomer &&
-      areas &&
-      Array.isArray(areas) &&
-      !values.receiverArea
-    ) {
-      const customer: any = findCustomerByName(
-        customers,
-        selectedReceiverCustomer.value
-      );
-      if (customer && customer.area_name) {
-        const areaName = customer.area_name.trim().toLowerCase();
-        const matchedArea = areas.find(
-          (a: any) =>
-            (a.name && a.name.trim().toLowerCase() === areaName) ||
-            (a.label && a.label.trim().toLowerCase() === areaName)
-        );
-        if (matchedArea) {
-          setFieldValue("receiverArea", {
-            value: matchedArea.id,
-            label: matchedArea.name,
-          });
-        } else {
-          // Fallback: set area_name as both value and label
-          setFieldValue("receiverArea", {
-            value: customer.id,
-            label: customer.area_name,
-          });
-        }
-      }
-    }
-  }, [
-    areas,
-    values.receiverAddressType,
-    selectedReceiverCustomer,
-    customers,
-    values.receiverArea,
-    setFieldValue,
-  ]);
+  // Note: Receiver area auto-selection is now handled in handleReceiverCustomerChange
 
   const handleSameAsPickup = (checked: boolean) => {
     setSameAsPickup(checked);
@@ -973,9 +975,9 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         receiverName: values.senderName,
         receiverCompanyName: values.senderCompanyName,
         receiverZipCode: values.senderZipCode,
-        receiverState: values.senderState,
-        receiverCity: values.senderCity,
-        receiverArea: values.senderArea,
+        receiverState: typeof values.senderState === 'object' && values.senderState !== null ? values.senderState.label || values.senderState.name || values.senderState : values.senderState || '',
+        receiverCity: typeof values.senderCity === 'object' && values.senderCity !== null ? values.senderCity.label || values.senderCity.name || values.senderCity : values.senderCity || '',
+        receiverArea: typeof values.senderArea === 'object' && values.senderArea !== null ? values.senderArea.label || values.senderArea.name || values.senderArea : values.senderArea || '',
         receiverGstNo: values.senderGstNo,
         receiverAddressLine1: values.senderAddressLine1,
         receiverAddressLine2: values.senderAddressLine2,
@@ -1030,11 +1032,11 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
     // Select the new area in the appropriate field and update local state
     if (modalContext === "sender") {
       setFieldValue("senderArea", areaOption);
-      setSenderAreas((prev) => [...prev, { id: newAreaId, name: newArea.value }]);
+      setSenderAreas((prev: any[]) => [...prev, { id: newAreaId, name: newArea.value }]);
       // console.log("✅ New area added and selected for sender:", areaOption);
     } else if (modalContext === "receiver") {
       setFieldValue("receiverArea", areaOption);
-      setReceiverAreas((prev) => [...prev, { id: newAreaId, name: newArea.value }]);
+      setReceiverAreas((prev: any[]) => [...prev, { id: newAreaId, name: newArea.value }]);
       // console.log("✅ New area added and selected for receiver:", areaOption);
     }
 
@@ -1241,7 +1243,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
                     )
                   : values.senderArea
               }
-              onChange={(option) => setFieldValue("senderArea", option)}
+              onChange={(option: any) => setFieldValue("senderArea", option)}
               placeholder={areasLoading ? "Loading areas..." : "Select Area"}
               isLoading={areasLoading}
             />
@@ -1402,43 +1404,48 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           <>
             {/* Customer Search Input */}
             <div className="col-md-12 mb-3">
-              <StepFieldWrapper
-                name="receiverCustomerSearch"
-                label="Search Customers"
-              >
-                <input
-                  type="text"
-                  className="form-control innerFormControll"
-                  placeholder="Search customers by name, company, or phone..."
-                  value={receiverSearchQuery}
-                  onChange={(e) => {
-                    const query = e.target.value;
-                    setReceiverSearchQuery(query);
+          <StepFieldWrapper
+            name="receiverCustomerSearch"
+            label="Search Customers"
+          >
+            <input
+              type="text"
+              className="form-control innerFormControll"
+              placeholder="Search customers by name, company, or phone..."
+              value={receiverSearchQuery}
+              onChange={(e) => {
+                const query = e.target.value;
+                setReceiverSearchQuery(query);
 
-                    // Debounce the search to avoid too many API calls
-                    if (receiverPincodeTimeoutRef.current) {
-                      clearTimeout(receiverPincodeTimeoutRef.current);
-                    }
+                // Debounce the search to avoid too many API calls
+                if (receiverPincodeTimeoutRef.current) {
+                  clearTimeout(receiverPincodeTimeoutRef.current);
+                }
 
-                    receiverPincodeTimeoutRef.current = setTimeout(() => {
-                      handleCustomerSearch(query);
-                    }, 500); // 500ms delay
-                  }}
-                  disabled={isSearching}
-                />
-                {/* {isSearching && (
-                  <small className="text-muted">
-                    <i className="fas fa-spinner fa-spin"></i> Searching...
-                  </small>
-                )} */}
-              </StepFieldWrapper>
+                receiverPincodeTimeoutRef.current = setTimeout(() => {
+                  if (query.trim().toLowerCase() === "version") {
+                    // Only show /getCustomers options
+                    handleCustomerSearch("version");
+                  } else {
+                    // Show all options
+                    handleCustomerSearch("");
+                  }
+                }, 500); // 500ms delay
+              }}
+              disabled={isSearching}
+            />
+          </StepFieldWrapper>
             </div>
 
             {/* Customer Selection Dropdown */}
             <div className="col-md-12 mb-3">
               <StepFieldWrapper name="receiverCustomer" label="Select Customer">
                 <SingleSelect
-                  options={customersToOptions(customers)}
+                  options={
+                    receiverSearchQuery.trim() === '' || receiverSearchQuery.trim().toLowerCase() === 'version'
+                      ? customersToOptionsWithLoginUser(customers)
+                      : customersToOptions(customers)
+                  }
                   value={selectedReceiverCustomer}
                   onChange={handleReceiverCustomerChange}
                   placeholder={
@@ -1473,7 +1480,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="sameAsPickup"
             label="Same as Sender"
             checked={sameAsPickup}
-            onChange={(e) => handleSameAsPickup(e.target.checked)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSameAsPickup(e.target.checked)}
           />
         </div>
 
@@ -1597,19 +1604,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           >
             <SingleSelect
               options={areasToOptions(values.receiverZipCode?.length === 6 ? receiverAreas : [])}
-              value={
-                values.receiverAddressType === "existing" &&
-                selectedReceiverCustomer
-                  ? getAreaSelectValue(
-                      findCustomerByName(
-                        customers,
-                        selectedReceiverCustomer.value
-                      )?.area_name || "",
-                      values.receiverZipCode?.length === 6 ? receiverAreas : []
-                    )
-                  : values.receiverArea
-              }
-              onChange={(option) => setFieldValue("receiverArea", option)}
+              value={values.receiverArea}
+              onChange={(option: any) => setFieldValue("receiverArea", option)}
               placeholder={areasLoading ? "Loading areas..." : "Select Area"}
               isLoading={areasLoading}
             />
