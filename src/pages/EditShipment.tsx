@@ -411,9 +411,9 @@ const EditShipment: React.FC = () => {
 
   useEffect(() => {
     if (updateSuccess) {
-      alert("Shipment updated successfully!");
+      toast.success("Shipment updated successfully!");
       dispatch(resetUpdateSuccess());
-      navigate("/shipments");
+      navigate("/shipments/pending");
     }
   }, [updateSuccess, dispatch, navigate]);
 
@@ -730,47 +730,79 @@ const EditShipment: React.FC = () => {
                     }
                   }
                   if (step === steps.length - 1) {
-                    // Transform select/multi-select fields to IDs for payload
-                    const payload: Record<string, any> = { ...values };
-                    if (
-                      payload.category &&
-                      typeof payload.category === "object"
-                    ) {
-                      payload.category = payload.category.value;
-                    }
-                    if (
-                      payload.paymentMode &&
-                      typeof payload.paymentMode === "object"
-                    ) {
-                      payload.paymentMode = payload.paymentMode.value;
-                    }
-                    if (
-                      payload.serviceType &&
-                      typeof payload.serviceType === "object"
-                    ) {
-                      payload.serviceType = payload.serviceType.value;
-                    }
-                    if (Array.isArray(payload.commodity)) {
-                      payload.commodity = payload.commodity.map((item: any) =>
-                        typeof item === "object" ? item.value : item
-                      );
-                    }
-                    if (
-                      payload.senderArea &&
-                      typeof payload.senderArea === "object"
-                    ) {
-                      payload.senderArea = payload.senderArea.value;
-                    }
-                    if (
-                      payload.receiverArea &&
-                      typeof payload.receiverArea === "object"
-                    ) {
-                      payload.receiverArea = payload.receiverArea.value;
-                    }
-                    // Submit update
+                    // Prepare only required fields for payload
+                    const payload: Record<string, any> = {
+                      customer_id: values.cust_id || "",
+                      category_id: values.category && typeof values.category === "object" ? values.category.value : values.category_id,
+                      shipment_id: values.shipment_id,
+                      net_weight: values.netWeight || values.net_weight,
+                      gross_weight: values.grossWeight || values.gross_weight,
+                      payment_mode: values.paymentMode && typeof values.paymentMode === "object" ? values.paymentMode.value : values.payment_mode,
+                      service_id: values.serviceType && typeof values.serviceType === "object" ? values.serviceType.value : values.service_id,
+                      invoice_value: values.invoiceValue || values.invoice_value,
+                      axlpl_insurance: values.insurance ? "1" : "0",
+                      bill_to: values.billTo === "receiver" ? "2" : "1",
+                      number_of_parcel: values.numberOfParcel || values.number_of_parcel,
+                      additional_axlpl_insurance: values.additionalAxlplInsurance || values.additional_axlpl_insurance || "",
+                      shipment_invoice_no: values.invoiceNumber || values.shipment_invoice_no,
+                      sender_is_new_sender_address: values.senderAddressType === "new" ? "1" : "0",
+                      sender_name: values.senderName,
+                      sender_company_name: values.senderCompanyName,
+                      sender_country: values.senderCountry || "India",
+                      sender_state: values.senderStateId || (values.senderState && typeof values.senderState === "object" ? (values.senderState as any).value : values.senderState),
+                      sender_city: values.senderCityId || (values.senderCity && typeof values.senderCity === "object" ? (values.senderCity as any).value : values.senderCity),
+                      sender_area: values.senderArea && typeof values.senderArea === "object" ? values.senderArea.value : values.senderArea || "",
+                      sender_pincode: values.senderZipCode,
+                      sender_address1: values.senderAddressLine1,
+                      sender_address2: values.senderAddressLine2,
+                      sender_mobile: values.senderMobile,
+                      sender_email: values.senderEmail,
+                      sender_gst_no: values.senderGstNo,
+                      sender_customer_id: values.senderCustomerId || "",
+                      receiver_is_new_receiver_address: values.receiverAddressType === "new" ? "1" : "0",
+                      receiver_name: values.receiverName,
+                      receiver_company_name: values.receiverCompanyName,
+                      receiver_country: values.receiverCountry || "India",
+                      receiver_state: values.receiverStateId || (values.receiverState && typeof values.receiverState === "object" ? (values.receiverState as any).value : values.receiverState),
+                      receiver_city: values.receiverCityId || (values.receiverCity && typeof values.receiverCity === "object" ? (values.receiverCity as any).value : values.receiverCity),
+                      receiver_area: values.receiverArea && typeof values.receiverArea === "object" ? values.receiverArea.value : values.receiverArea || "",
+                      receiver_pincode: values.receiverZipCode,
+                      receiver_address1: values.receiverAddressLine1,
+                      receiver_address2: values.receiverAddressLine2,
+                      receiver_mobile: values.receiverMobile,
+                      receiver_email: values.receiverEmail,
+                      receiver_gst_no: values.receiverGstNo,
+                      receiver_customer_id: values.receiverCustomerId || "",
+                      is_diff_add: values.isDifferentDeliveryAddress ? "1" : "0",
+                      diff_receiver_country: values.deliveryCountry || "",
+                      diff_receiver_state: values.deliveryState || "",
+                      diff_receiver_city: values.deliveryCity || "",
+                      diff_receiver_area: values.deliveryArea && typeof values.deliveryArea === "object" ? values.deliveryArea.value : values.deliveryArea || "",
+                      diff_receiver_address1: values.deliveryAddressLine1 || "",
+                      diff_receiver_address2: values.deliveryAddressLine2 || "",
+                      diff_receiver_pincode: values.deliveryZipCode || "",
+                      shipment_charges: values.shipmentCharges || "",
+                      insurance_charges: values.insuranceCharges || "",
+                      invoice_charges: values.invoiceCharges || "",
+                      handling_charges: values.handlingCharges || "",
+                      tax: values.tax || "",
+                      total_charges: values.totalCharges || "",
+                      gst_amount: "", // Not present in current form values
+                      grand_total: values.grandTotal || "",
+                      remark: values.remark || "",
+                      invoice_number: values.invoiceNumber || values.invoice_number || "",
+                      added_by: "", // Not present in current form values
+                      added_by_type: "", // Not present in current form values
+                      calculation_status: values.calculationStatus || values.calculation_status || "",
+                      is_amt_edited_by_user: values.isAmtEditedByUser ? "1" : "0",
+                      shipment_status: values.shipment_status || "pending",
+                      pre_alert_shipment: "" // Not present in current form values
+                    };
+
+                    // Submit update with only required fields
                     const formData = new FormData();
                     Object.entries(payload).forEach(([key, value]) => {
-                      formData.append(key, value as string);
+                      formData.append(key, String(value));
                     });
                     dispatch(updateShipment(formData));
                   } else {
