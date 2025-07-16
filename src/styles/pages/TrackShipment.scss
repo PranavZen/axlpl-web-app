@@ -14,6 +14,7 @@
   --track-warning: #f59e0b;
   --track-danger: #ef4444;
   --track-info: #3b82f6;
+  --track-pickup: #8b5cf6;
 
   --track-bg: #ffffff;
   --track-bg-secondary: #f8fafc;
@@ -638,6 +639,33 @@
                 }
               }
 
+              &.waiting-for-pickup {
+                background: linear-gradient(
+                  135deg,
+                  var(--track-pickup) 0%,
+                  #00d7ff 100%
+                );
+                color: white;
+
+                &::before {
+                  content: "📋";
+                  font-size: 1.6rem;
+                }
+              }
+              &.cancelled {
+                background: linear-gradient(
+                  135deg,
+                  #f71427 0%,
+                  #fd7883 100%
+                );
+                color: white;
+
+                &::before {
+                  content: "📋";
+                  font-size: 1.6rem;
+                }
+              }
+
               @include media-down(md) {
                 padding: 0.8rem 1.5rem;
                 font-size: 1.2rem;
@@ -942,6 +970,25 @@
 
         &::before {
           content: "🚚";
+          filter: brightness(0) invert(1);
+        }
+      }
+
+      &.waiting-for-pickup .timelineMarker .timelineIcon {
+        border-color: var(--track-pickup);
+        background: var(--track-pickup);
+
+        &::before {
+          content: "📋";
+          filter: brightness(0) invert(1);
+        }
+      }
+      &.cancelled .timelineMarker .timelineIcon {
+        border-color: var(--track-pickup);
+        background: var(--track-pickup);
+
+        &::before {
+          content: "📋";
           filter: brightness(0) invert(1);
         }
       }

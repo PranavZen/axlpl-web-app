@@ -62,6 +62,16 @@ const TrackingTimeline: React.FC<TrackingTimelineProps> = ({
           statusLower.includes("processing")
         ) {
           statusClass = "pending";
+        } else if (
+          statusLower.includes("waiting for pickup") ||
+          statusLower === "waiting for pickup"
+        ) {
+          statusClass = "waiting-for-pickup";
+        }else if (
+          statusLower.includes("Cancelled") ||
+          statusLower === "Cancelled"
+        ) {
+          statusClass = "cancelled";
         }
 
         return (

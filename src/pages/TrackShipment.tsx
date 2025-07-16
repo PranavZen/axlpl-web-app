@@ -150,7 +150,7 @@ const TrackShipment: React.FC = () => {
                               <span
                                 className={`status ${trackingData.TrackingStatus[
                                   trackingData.TrackingStatus.length - 1
-                                ].status.toLowerCase()}`}
+                                ].status.toLowerCase().replace(/\s+/g, '-')}`}
                               >
                                 {
                                   trackingData.TrackingStatus[
@@ -200,10 +200,12 @@ const TrackShipment: React.FC = () => {
                     )}
 
                     {/* Shipment Details */}
-                    {trackingData.ShipmentDetails && (
+                    {trackingData.ShipmentDetails && trackingData.ReceiverData && trackingData.SenderData && (
                       <div className="shipmentBox">
                         <ShipmentDetailsCard
                           data={trackingData.ShipmentDetails}
+                          senderData={trackingData.SenderData}
+                          receiverData={trackingData.ReceiverData}
                         />
                       </div>
                     )}
