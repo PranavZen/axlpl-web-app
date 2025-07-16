@@ -84,7 +84,7 @@ const TrackShipment: React.FC = () => {
                         title="Access Restricted"
                         message="You can only track shipments that belong to your account. Please verify the shipment ID and ensure you're logged in with the correct account."
                         showUserInfo={true}
-                      />
+                      /> 
                     )}
 
                     <div className="errorBox">
@@ -167,7 +167,7 @@ const TrackShipment: React.FC = () => {
                     <div className="timelineBox">
                       <div className="timelineContainer">
                         <div className="timeline-header">
-                          <h3>Shipment Journey</h3>
+                          <h3>Shipment Tracking History</h3>
                         </div>
                         <div className="timeline-content">
                           <TrackingTimeline

@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchShipmentPaymentInformation } from '../../../redux/slices/shipmentPaymentSlice';
-import { RootState, AppDispatch } from '../../../redux/store';
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchShipmentPaymentInformation } from "../../../redux/slices/shipmentPaymentSlice";
+import { RootState, AppDispatch } from "../../../redux/store";
 import StepFieldWrapper from "./StepFieldWrapper";
-import { getUserData } from '../../../utils/authUtils';
+import { getUserData } from "../../../utils/authUtils";
 
 interface StepFourFormFieldsProps {
   values: any;
@@ -20,22 +20,27 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
   setFieldTouched,
   setFieldError,
   errors,
-  touched
+  touched,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { paymentInfo, loading, error } = useSelector((state: RootState) => state.shipmentPayment);
-//  const userId = getUserData()?.Customerdetail?.id || '';
-//       console.log("userIduserId", userId)
+  const { paymentInfo, loading, error } = useSelector(
+    (state: RootState) => state.shipmentPayment
+  );
+  //  const userId = getUserData()?.Customerdetail?.id || '';
+  //       console.log("userIduserId", userId)
   // Build API payload from form values
   const buildApiPayload = () => {
     // Ensure commodity_id is always a string (comma separated if multiple)
-    let commodity_id = '';
+    let commodity_id = "";
     if (Array.isArray(values.commodity)) {
       if (values.commodity.length > 0) {
-        if (typeof values.commodity[0] === 'object' && values.commodity[0]?.value) {
-          commodity_id = values.commodity.map((c: any) => c.value).join(',');
+        if (
+          typeof values.commodity[0] === "object" &&
+          values.commodity[0]?.value
+        ) {
+          commodity_id = values.commodity.map((c: any) => c.value).join(",");
         } else {
-          commodity_id = values.commodity.join(',');
+          commodity_id = values.commodity.join(",");
         }
       }
     } else if (values.commodity) {
@@ -43,12 +48,12 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
     }
 
     // Always use senderName/receiverName for new address, fallback to customerId for existing
-    let customer_id = '';
-    if (values.senderAddressType === 'existing') {
-      customer_id = values.customerId || values.senderCustomerId || '';
+    let customer_id = "";
+    if (values.senderAddressType === "existing") {
+      customer_id = values.customerId || values.senderCustomerId || "";
     } else {
       // For new address, use logged-in userId as customer_id
-      const userId = getUserData()?.Customerdetail?.id || '';
+      const userId = getUserData()?.Customerdetail?.id || "";
       // console.log("userIduserId 2", userId);
       customer_id = userId;
       // console.log("customer_id 2", customer_id);
@@ -57,18 +62,19 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
     return {
       customer_id,
       commodity_id,
-      category_id: values.category?.value || values.category || '',
-      net_weight: values.netWeight || '',
-      gross_weight: values.grossWeight || '',
-      payment_mode: values.paymentMode?.value || values.paymentMode || '',
-      invoice_value: values.invoiceValue || '',
-      insurance_by_AXLPL: values.insurance ? '1' : '0',
-      number_of_parcel: values.numberOfParcel || '1',
-      sender_zipcode: values.senderZipCode || '',
-      receiver_zipcode: values.receiverZipCode || '',
-      policy_no: values.insurance ? (values.policyNumber || '') : '0',
-      policy_expirydate: values.insurance ? (values.expiryDate || '') : '0',
-      policy_value: values.insurance ? (values.insuranceValue || '') : '0',
+      category_id: values.category?.value || values.category || "",
+      net_weight: values.netWeight || "",
+      gross_weight: values.grossWeight || "",
+      tax: values.tax || "",
+      payment_mode: values.paymentMode?.value || values.paymentMode || "",
+      invoice_value: values.invoiceValue || "",
+      insurance_by_AXLPL: values.insurance ? "1" : "0",
+      number_of_parcel: values.numberOfParcel || "1",
+      sender_zipcode: values.senderZipCode || "",
+      receiver_zipcode: values.receiverZipCode || "",
+      policy_no: values.insurance ? values.policyNumber || "" : "0",
+      policy_expirydate: values.insurance ? values.expiryDate || "" : "0",
+      policy_value: values.insurance ? values.insuranceValue || "" : "0",
     };
   };
 
@@ -82,6 +88,7 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
       payload.category_id &&
       payload.net_weight &&
       payload.gross_weight &&
+      payload.tax &&
       payload.payment_mode &&
       payload.invoice_value &&
       payload.sender_zipcode &&
@@ -89,7 +96,7 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
     ) {
       dispatch(fetchShipmentPaymentInformation(payload));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     values.senderCustomerId,
     values.customerId,
@@ -105,18 +112,20 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
     values.receiverZipCode,
     values.policyNumber,
     values.expiryDate,
-    values.insuranceValue
+    values.insuranceValue,
+    values.tax,
   ]);
 
   // Update form fields with API response
   useEffect(() => {
     if (paymentInfo) {
-      setFieldValue('shipmentCharges', paymentInfo.shipment_charges || '');
-      setFieldValue('insuranceCharges', paymentInfo.insurance_charges || '');
-      setFieldValue('handlingCharges', paymentInfo.handling_charges || '');
-      setFieldValue('totalCharges', paymentInfo.total_charges || '');
-      setFieldValue('gstAmount', paymentInfo.tax || '');
-      setFieldValue('grandTotal', paymentInfo.grand_total || '');
+      setFieldValue("shipmentCharges", paymentInfo.shipment_charges || "");
+      setFieldValue("insuranceCharges", paymentInfo.insurance_charges || "");
+      setFieldValue("handlingCharges", paymentInfo.handling_charges || "");
+      setFieldValue("totalCharges", paymentInfo.total_charges || "");
+      setFieldValue("gstAmount", paymentInfo.tax || "");
+      setFieldValue("tax", paymentInfo.tax || "");
+      setFieldValue("grandTotal", paymentInfo.grand_total || "");
     }
   }, [paymentInfo, setFieldValue]);
 
@@ -124,11 +133,11 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
     <div className="step-four-fields">
       <div className="payment-section">
         {loading && (
-          <div className="alert alert-info mb-3">Calculating payment information...</div>
+          <div className="alert alert-info mb-3">
+            Calculating payment information...
+          </div>
         )}
-        {error && (
-          <div className="alert alert-danger mb-3">{error}</div>
-        )}
+        {error && <div className="alert alert-danger mb-3">{error}</div>}
         <div className="payment-details">
           <div className="row">
             {/* Left Column */}
@@ -143,10 +152,13 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
                     name="shipmentCharges"
                     type="text"
                     className="form-control innerFormControll"
-                    value={values.shipmentCharges || ''}
+                    value={values.shipmentCharges || ""}
                     disabled
                     readOnly
-                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      cursor: "not-allowed",
+                    }}
                   />
                 </StepFieldWrapper>
               </div>
@@ -161,28 +173,31 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
                     name="handlingCharges"
                     type="text"
                     className="form-control innerFormControll"
-                    value={values.handlingCharges || ''}
+                    value={values.handlingCharges || ""}
                     disabled
                     readOnly
-                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      cursor: "not-allowed",
+                    }}
                   />
                 </StepFieldWrapper>
               </div>
 
               {/* GST (18%) */}
               <div className="mb-3">
-                <StepFieldWrapper
-                  name="gstAmount"
-                  label="GST (18%)"
-                >
+                <StepFieldWrapper name="gstAmount" label="GST (18%)">
                   <input
                     name="gstAmount"
                     type="text"
                     className="form-control innerFormControll"
-                    value={values.gstAmount || ''}
+                    value={values.gstAmount || ""}
                     disabled
                     readOnly
-                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      cursor: "not-allowed",
+                    }}
                   />
                 </StepFieldWrapper>
               </div>
@@ -200,51 +215,51 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
                     name="insuranceCharges"
                     type="text"
                     className="form-control innerFormControll"
-                    value={values.insuranceCharges || ''}
+                    value={values.insuranceCharges || ""}
                     disabled
                     readOnly
-                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      cursor: "not-allowed",
+                    }}
                   />
                 </StepFieldWrapper>
               </div>
 
               {/* Total Charges */}
               <div className="mb-3">
-                <StepFieldWrapper
-                  name="totalCharges"
-                  label="Total Charges"
-                >
+                <StepFieldWrapper name="totalCharges" label="Total Charges">
                   <input
                     name="totalCharges"
                     type="text"
                     className="form-control innerFormControll"
-                    value={values.totalCharges || ''}
+                    value={values.totalCharges || ""}
                     disabled
                     readOnly
-                    style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      cursor: "not-allowed",
+                    }}
                   />
                 </StepFieldWrapper>
               </div>
 
               {/* Grand Total */}
               <div className="mb-3">
-                <StepFieldWrapper
-                  name="grandTotal"
-                  label="Grand Total"
-                >
+                <StepFieldWrapper name="grandTotal" label="Grand Total">
                   <input
                     name="grandTotal"
                     type="text"
                     className="form-control innerFormControll"
-                    value={values.grandTotal || ''}
+                    value={values.grandTotal || ""}
                     disabled
                     readOnly
                     style={{
-                      backgroundColor: '#e3f2fd',
-                      cursor: 'not-allowed',
-                      fontWeight: 'bold',
-                      fontSize: '1.1em',
-                      border: '2px solid #2196f3'
+                      backgroundColor: "#e3f2fd",
+                      cursor: "not-allowed",
+                      fontWeight: "bold",
+                      fontSize: "1.1em",
+                      border: "2px solid #2196f3",
                     }}
                   />
                 </StepFieldWrapper>
@@ -261,10 +276,15 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
               Payment Information
             </h6>
             <ul className="mb-0">
-              <li>All charges are calculated automatically based on your shipment details</li>
+              <li>
+                All charges are calculated automatically based on your shipment
+                details
+              </li>
               <li>GST is applied at 18% on the total charges</li>
               <li>Insurance charges apply only if insurance is selected</li>
-              <li>Final payment will be processed after shipment confirmation</li>
+              <li>
+                Final payment will be processed after shipment confirmation
+              </li>
             </ul>
           </div>
         </div>

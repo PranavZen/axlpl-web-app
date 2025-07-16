@@ -23,6 +23,7 @@ export const fetchShipmentPaymentInformation = createAsyncThunk(
       formData.append("number_of_parcel", payload.number_of_parcel);
       formData.append("sender_zipcode", payload.sender_zipcode);
       formData.append("receiver_zipcode", payload.receiver_zipcode);
+      formData.append("tax", payload.tax);
       if (payload.insurance_by_AXLPL === "1") {
         formData.append("policy_no", payload.policy_no);
         formData.append("policy_expirydate", payload.policy_expirydate);

@@ -1,5 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { ReceiverData, SenderData, ShipmentDetails } from "../../../types";
+import { RootState, AppDispatch } from "../../../redux/store";
+import { fetchServiceTypes } from "../../../redux/slices/serviceTypeSlice";
 
 interface ShipmentDetailsCardProps {
   data: ShipmentDetails;
@@ -8,6 +11,22 @@ interface ShipmentDetailsCardProps {
 }
 
 const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data , senderData , receiverData }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { serviceTypes, loading: serviceTypesLoading } = useSelector((state: RootState) => state.serviceType);
+
+  useEffect(() => {
+    if (serviceTypes.length === 0 && !serviceTypesLoading) {
+      dispatch(fetchServiceTypes());
+    }
+  }, [dispatch, serviceTypes.length, serviceTypesLoading]);
+
+  const getServiceName = (serviceId: string): string => {
+    if (serviceTypesLoading) {
+      return "Loading...";
+    }
+    const service = serviceTypes.find(service => service.id === serviceId);
+    return service ? service.name : serviceId || "N/A";
+  };
 
   console.log("data", data);
   const formatCurrency = (amount: string) => {
@@ -129,16 +148,16 @@ const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data , sender
               </div>
 
               <div className="detail-item">
-                <label>Service ID</label>
-                <span>{data.service_id || "N/A"}</span>
+                <label>Service Type</label>
+                <span>{getServiceName(data.service_id)}</span>
               </div>
 
               <div className="detail-item">
                 <label>Bill To</label>
                 <span>
-                  {data.bill_to === "0"
+                  {data.bill_to === "0" || data.bill_to === "1"
                     ? senderData.sender_name
-                    : data.bill_to === "1"
+                    : data.bill_to === "2"
                     ? receiverData.receiver_name
                     : "N/A"}
                 </span>
@@ -240,12 +259,12 @@ const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data , sender
                 </div>
               )}
 
-              <div className="charge-item d-none">
+              <div className="charge-item">
                 <label>Tax</label>
                 <span>{formatCurrency(data.tax || "0")}</span>
               </div>
 
-              <div className="charge-item">
+              <div className="charge-item d-none">
                 <label>GST</label>
                 <span>{formatCurrency(data.gst || "0")}</span>
               </div>

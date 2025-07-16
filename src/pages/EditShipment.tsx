@@ -828,7 +828,7 @@ const EditShipment: React.FC = () => {
                       handling_charges: values.handlingCharges || "",
                       tax: values.tax || "",
                       total_charges: values.totalCharges || "",
-                      gst_amount: "", // Not present in current form values
+                      gst_amount: values.tax, // Not present in current form values
                       grand_total: values.grandTotal || "",
                       remark: values.remark || "",
                       invoice_number: values.invoiceNumber || values.invoice_number || "",
@@ -842,10 +842,12 @@ const EditShipment: React.FC = () => {
 
                     // Submit update with only required fields
                     const formData = new FormData();
+                    
                     Object.entries(payload).forEach(([key, value]) => {
                       formData.append(key, String(value));
                     });
                     dispatch(updateShipment(formData));
+                    console.log("formData 1", formData)
                   } else {
                     setStep(step + 1);
                   }
