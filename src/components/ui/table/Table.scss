@@ -53,6 +53,16 @@
             color: #0c5460;
             font-weight: 600;
           }
+          &.status-shipped {
+            background-color: #33ff00; // light blue
+            color: #156900;
+            font-weight: 600;
+          }
+          &.status-picked-up {
+            background-color: #ffa600; // light blue
+            color: #613f00;
+            font-weight: 600;
+          }
           &.status-delivered {
             background-color: #c3e6cb; // lighter green
             color: #155724;

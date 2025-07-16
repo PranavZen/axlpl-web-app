@@ -282,7 +282,7 @@ const ShipmentsPage: React.FC = () => {
                             onEdit: handleEditShipment,
                             onDelete: handleDeleteShipment,
                             onView: handleViewShipment,
-                            onPrint: handlePrintShipment,
+                            // onPrint: handlePrintShipment,
                           }
                         : {
                             onView: handleViewShipment,

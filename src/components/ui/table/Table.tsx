@@ -13,7 +13,7 @@ import {
   exportToPDF,
   printData,
   getExportStats,
-  ExportColumn
+  ExportColumn,
 } from "../../../utils/exportUtils";
 import { showSuccess, showError } from "../../../utils/toastUtils";
 
@@ -49,12 +49,13 @@ function Table<T extends Record<string, any>>({
   selectedRows = [],
   onRowSelectionChange,
   rowActions,
-  rowIdAccessor = 'id' as keyof T,
+  rowIdAccessor = "id" as keyof T,
 }: TableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState<T[]>(data);
-  const [internalSelectedRows, setInternalSelectedRows] = useState<T[]>(selectedRows);
+  const [internalSelectedRows, setInternalSelectedRows] =
+    useState<T[]>(selectedRows);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewModalData, setViewModalData] = useState<T | null>(null);
   const itemsPerPage = 10;
@@ -93,16 +94,18 @@ function Table<T extends Record<string, any>>({
   };
 
   const getExportColumns = (): ExportColumn<T>[] => {
-    return columns.map(col => ({
+    return columns.map((col) => ({
       header: col.header,
       accessor: col.accessor as string,
-      width: 15
+      width: 15,
     }));
   };
 
   const getExportFilename = () => {
-    const timestamp = new Date().toISOString().split('T')[0];
-    const prefix = sectionTitle ? sectionTitle.toLowerCase().replace(/\s+/g, '_') : 'export';
+    const timestamp = new Date().toISOString().split("T")[0];
+    const prefix = sectionTitle
+      ? sectionTitle.toLowerCase().replace(/\s+/g, "_")
+      : "export";
     return `${prefix}_${timestamp}`;
   };
 
@@ -115,12 +118,12 @@ function Table<T extends Record<string, any>>({
       await copyToClipboard({
         data: dataToExport,
         columns: exportColumns,
-        title: sectionTitle
+        title: sectionTitle,
       });
 
       showSuccess(`✅ Copied ${stats} to clipboard`);
     } catch (error) {
-      showError('❌ Failed to copy data to clipboard');
+      showError("❌ Failed to copy data to clipboard");
     }
   };
 
@@ -135,12 +138,12 @@ function Table<T extends Record<string, any>>({
         data: dataToExport,
         columns: exportColumns,
         filename,
-        title: sectionTitle
+        title: sectionTitle,
       });
 
       showSuccess(`✅ Downloaded CSV file with ${stats}`);
     } catch (error) {
-      showError('❌ Failed to export CSV file');
+      showError("❌ Failed to export CSV file");
     }
   };
 
@@ -155,12 +158,12 @@ function Table<T extends Record<string, any>>({
         data: dataToExport,
         columns: exportColumns,
         filename,
-        title: sectionTitle
+        title: sectionTitle,
       });
 
       showSuccess(`✅ Downloaded Excel file with ${stats}`);
     } catch (error) {
-      showError('❌ Failed to export Excel file');
+      showError("❌ Failed to export Excel file");
     }
   };
 
@@ -175,12 +178,12 @@ function Table<T extends Record<string, any>>({
         data: dataToExport,
         columns: exportColumns,
         filename,
-        title: sectionTitle
+        title: sectionTitle,
       });
 
       showSuccess(`✅ Downloaded PDF file with ${stats}`);
     } catch (error) {
-      showError('❌ Failed to export PDF file');
+      showError("❌ Failed to export PDF file");
     }
   };
 
@@ -193,17 +196,19 @@ function Table<T extends Record<string, any>>({
       printData({
         data: dataToExport,
         columns: exportColumns,
-        title: sectionTitle
+        title: sectionTitle,
       });
 
       showSuccess(`✅ Print dialog opened for ${stats}`);
     } catch (error) {
-      showError('❌ Failed to print data');
+      showError("❌ Failed to print data");
     }
   };
 
   // Row selection handlers
-  const currentSelectedRows = onRowSelectionChange ? selectedRows : internalSelectedRows;
+  const currentSelectedRows = onRowSelectionChange
+    ? selectedRows
+    : internalSelectedRows;
 
   const handleRowSelect = (row: T, checked: boolean) => {
     let newSelectedRows: T[];
@@ -237,7 +242,8 @@ function Table<T extends Record<string, any>>({
     );
   };
 
-  const isAllSelected = paginatedData.length > 0 &&
+  const isAllSelected =
+    paginatedData.length > 0 &&
     paginatedData.every((row) => isRowSelected(row));
 
   // Action handlers
@@ -266,7 +272,7 @@ function Table<T extends Record<string, any>>({
   return (
     <>
       <div className="topSecWrap">
-        <h1>{sectionTitle}</h1> 
+        <h1>{sectionTitle}</h1>
         <SearchBox
           searchTerm={searchTerm}
           onSearchChange={handleSearchChange}
@@ -313,7 +319,9 @@ function Table<T extends Record<string, any>>({
                           id={`row-${rowIdx}`}
                           label=""
                           checked={isRowSelected(item)}
-                          onChange={(e) => handleRowSelect(item, e.target.checked)}
+                          onChange={(e) =>
+                            handleRowSelect(item, e.target.checked)
+                          }
                           variant="inline"
                         />
                       </td>
@@ -323,7 +331,10 @@ function Table<T extends Record<string, any>>({
                       let cellClass = "";
 
                       // Apply status class if this is the status or shipment_status column
-                      if (col.accessor === "status" || col.accessor === "shipment_status") {
+                      if (
+                        col.accessor === "status" ||
+                        col.accessor === "shipment_status"
+                      ) {
                         const strValue = String(value).toLowerCase();
                         if (strValue === "approved") {
                           cellClass = "status-approved";
@@ -331,15 +342,25 @@ function Table<T extends Record<string, any>>({
                           cellClass = "status-pending";
                         } else if (strValue === "waiting for pickup") {
                           cellClass = "status-waitaing";
-                        }else if (strValue === "out for delivery") {
+                        } else if (strValue === "shipped") {
+                          cellClass = "status-shipped";
+                        }else if (strValue === "picked up") {
+                          cellClass = "status-picked-up";
+                        } else if (strValue === "out for delivery") {
                           cellClass = "status-out-delivered";
                         } else if (strValue === "hold") {
                           cellClass = "status-hold";
                         } else if (strValue === "delivered") {
                           cellClass = "status-delivered";
-                        } else if (strValue === "cancelled" || strValue === "canceled") {
+                        } else if (
+                          strValue === "cancelled" ||
+                          strValue === "canceled"
+                        ) {
                           cellClass = "status-cancelled";
-                        } else if (strValue === "in transit" || strValue === "intransit") {
+                        } else if (
+                          strValue === "in transit" ||
+                          strValue === "intransit"
+                        ) {
                           cellClass = "status-intransit";
                         } else if (strValue === "rejected") {
                           cellClass = "status-rejected";
@@ -370,8 +391,13 @@ function Table<T extends Record<string, any>>({
                           {rowActions.onView && (
                             <Button
                               icon={
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                  <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                >
+                                  <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
                                 </svg>
                               }
                               type="button"
@@ -383,8 +409,13 @@ function Table<T extends Record<string, any>>({
                           {rowActions.onEdit && (
                             <Button
                               icon={
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                >
+                                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                                 </svg>
                               }
                               type="button"
@@ -396,8 +427,13 @@ function Table<T extends Record<string, any>>({
                           {rowActions.onDelete && (
                             <Button
                               icon={
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                >
+                                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                                 </svg>
                               }
                               type="button"
@@ -409,8 +445,13 @@ function Table<T extends Record<string, any>>({
                           {rowActions.onPrint && (
                             <Button
                               icon={
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                  <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                >
+                                  <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z" />
                                 </svg>
                               }
                               type="button"
@@ -467,7 +508,9 @@ function Table<T extends Record<string, any>>({
                 <div className="row">
                   <div className="col-4">
                     <strong className="detail-label">
-                      {key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')}:
+                      {key.charAt(0).toUpperCase() +
+                        key.slice(1).replace(/_/g, " ")}
+                      :
                     </strong>
                   </div>
                   <div className="col-8">
