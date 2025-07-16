@@ -14,6 +14,7 @@ export type SingleSelectProps = {
   isLoading?: boolean; // Optional loading state
   id?: string; // Optional id for accessibility
   isDisabled?: boolean; // Optional disabled state
+  hasError?: boolean; // Optional error state for styling
 };
 
 const SingleSelect: React.FC<SingleSelectProps> = ({
@@ -24,6 +25,7 @@ const SingleSelect: React.FC<SingleSelectProps> = ({
   isLoading = false,
   id,
   isDisabled = false,
+  hasError = false,
 }) => {
   return (
     <Select
@@ -34,7 +36,7 @@ const SingleSelect: React.FC<SingleSelectProps> = ({
       isLoading={isLoading}
       inputId={id}
       isDisabled={isDisabled}
-      className="basic-single-select"
+      className={`basic-single-select ${hasError ? 'has-error' : ''}`}
       classNamePrefix="select"
       isMulti={false} // <-- Important: Disable multi-select
     />

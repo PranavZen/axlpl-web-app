@@ -13,6 +13,7 @@ type MultiSelectProps = {
   placeholder?: string; // Optional placeholder
   isLoading?: boolean; // Optional loading state
   id?: string; // Optional id for accessibility
+  hasError?: boolean; // Optional error state for styling
 };
 
 const MultiSelect: React.FC<MultiSelectProps> = ({
@@ -22,6 +23,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   placeholder = "",
   isLoading = false,
   id,
+  hasError = false,
 }) => {
   return (
     <Select
@@ -32,7 +34,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
       placeholder={placeholder}
       isLoading={isLoading}
       inputId={id}
-      className="basic-multi-select"
+      className={`basic-multi-select ${hasError ? 'has-error' : ''}`}
       classNamePrefix="select"
     />
   );

@@ -197,7 +197,7 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
           <div className="delivery-address-fields">
             <div className="row">
               <div className="col-md-6 mb-3">
-                <StepFieldWrapper name="deliveryZipCode" label="Zip Code">
+                <StepFieldWrapper name="deliveryZipCode" label="Zip Code" errors={errors} touched={touched}>
                   <div className="position-relative">
                     <input
                       name="deliveryZipCode"
@@ -247,7 +247,7 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
               </div>
 
               <div className="col-md-6 mb-3">
-                <StepFieldWrapper name="deliveryState" label="State">
+                <StepFieldWrapper name="deliveryState" label="State" errors={errors} touched={touched}>
                   <input
                     name="deliveryState"
                     type="text"
@@ -264,7 +264,7 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
 
             <div className="row">
               <div className="col-md-6 mb-3">
-                <StepFieldWrapper name="deliveryCity" label="City">
+                <StepFieldWrapper name="deliveryCity" label="City" errors={errors} touched={touched}>
                   <input
                     name="deliveryCity"
                     type="text"
@@ -283,6 +283,8 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
                 <StepFieldWrapper
                   name="deliveryArea"
                   label="Area"
+                  errors={errors}
+                  touched={touched}
                   labelButton={
                     <AddAreaButton
                       text="Add Area"
@@ -314,6 +316,8 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
                 <StepFieldWrapper
                   name="deliveryAddressLine1"
                   label="Address Line 1"
+                  errors={errors}
+                  touched={touched}
                 >
                   <input
                     name="deliveryAddressLine1"
@@ -332,6 +336,8 @@ const StepThreeFormFields: React.FC<StepThreeFormFieldsProps> = ({
                 <StepFieldWrapper
                   name="deliveryAddressLine2"
                   label="Address Line 2"
+                  errors={errors}
+                  touched={touched}
                 >
                   <input
                     name="deliveryAddressLine2"

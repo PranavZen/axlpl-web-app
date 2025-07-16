@@ -38,7 +38,7 @@ const Input: React.FC<InputProps> = ({
         type={type}
         id={id}
         name={name}
-        className={`${className} ${touched && error ? "is-invalid" : ""}`}
+        className={`${className} ${touched && error ? "is-invalid input-error" : ""}`}
         value={value}
         onChange={onChange}
         onBlur={onBlur}
@@ -48,7 +48,7 @@ const Input: React.FC<InputProps> = ({
         maxLength={maxLength} // Added
         readOnly={readOnly} // Added
       />
-      {touched && error && <div className="errorText">{error}</div>}
+      {/* {touched && error && <div className="errorText">{error}</div>} */}
     </>
   );
 };

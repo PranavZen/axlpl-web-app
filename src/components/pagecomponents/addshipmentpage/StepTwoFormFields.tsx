@@ -100,11 +100,9 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
   // Helper functions to determine if errors should be suppressed (section-specific)
   const shouldSuppressSenderErrors =
     isSenderAutoPopulating ||
-    values.senderAddressType === "existing" ||
     isSenderAddressTypeChanging;
   const shouldSuppressReceiverErrors =
     isReceiverAutoPopulating ||
-    values.receiverAddressType === "existing" ||
     isReceiverAddressTypeChanging;
 
   // Section-specific helper functions to populate fields and clear validation errors
@@ -1090,7 +1088,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
         {/* Customer Selection for Sender - Only show when existing address is selected */}
         {values.senderAddressType === "existing" && (
           <div className="col-md-12 mb-3">
-            <StepFieldWrapper name="senderCustomer" label="Select Customer">
+            <StepFieldWrapper name="senderCustomer" label="Select Customer" errors={errors} touched={touched}>
               <SingleSelect
                 options={customersToOptionsWithLoginUser(customers)}
                 value={selectedSenderCustomer}
@@ -1114,7 +1112,18 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderName"
             label="Name"
             suppressErrors={shouldSuppressSenderErrors}
-          />
+            errors={errors}
+            touched={touched}
+          >
+            <input
+              name="senderName"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.senderName || ""}
+              onChange={(e) => setFieldValue("senderName", e.target.value)}
+              placeholder="Enter name"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1122,7 +1131,18 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderCompanyName"
             label="Company Name"
             suppressErrors={shouldSuppressSenderErrors}
-          />
+            errors={errors}
+            touched={touched}
+          >
+            <input
+              name="senderCompanyName"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.senderCompanyName || ""}
+              onChange={(e) => setFieldValue("senderCompanyName", e.target.value)}
+              placeholder="Enter company name"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1130,6 +1150,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderZipCode"
             label="Zip Code"
             suppressErrors={shouldSuppressSenderErrors}
+            errors={errors}
+            touched={touched}
           >
             <div className="position-relative">
               <input
@@ -1177,7 +1199,18 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderCountry"
             label="Country"
             suppressErrors={shouldSuppressSenderErrors}
-          />
+            errors={errors}
+            touched={touched}
+          >
+            <input
+              name="senderCountry"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.senderCountry || ""}
+              onChange={(e) => setFieldValue("senderCountry", e.target.value)}
+              placeholder="Enter country"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1185,6 +1218,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderState"
             label="State"
             suppressErrors={shouldSuppressSenderErrors}
+            errors={errors}
+            touched={touched}
           >
             <input
               name="senderState"
@@ -1202,6 +1237,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderCity"
             label="City"
             suppressErrors={shouldSuppressSenderErrors}
+            errors={errors}
+            touched={touched}
           >
             <input
               name="senderCity"
@@ -1219,6 +1256,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderArea"
             label="Area"
             suppressErrors={shouldSuppressSenderErrors}
+            errors={errors}
+            touched={touched}
             labelButton={
               <AddAreaButton
                 text="Add Area"
@@ -1259,7 +1298,9 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           <StepFieldWrapper
             name="senderGstNo"
             label="GST No."
-            suppressErrors={shouldSuppressSenderErrors}
+            suppressErrorMessage={true}
+            errors={errors}
+            touched={touched}
           >
             <input
               name="senderGstNo"
@@ -1296,7 +1337,18 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderAddressLine1"
             label="Address Line 1"
             suppressErrors={shouldSuppressSenderErrors}
-          />
+            errors={errors}
+            touched={touched}
+          >
+            <input
+              name="senderAddressLine1"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.senderAddressLine1 || ""}
+              onChange={(e) => setFieldValue("senderAddressLine1", e.target.value)}
+              placeholder="Enter address line 1"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1304,7 +1356,18 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderAddressLine2"
             label="Address Line 2"
             suppressErrors={shouldSuppressSenderErrors}
-          />
+            errors={errors}
+            touched={touched}
+          >
+            <input
+              name="senderAddressLine2"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.senderAddressLine2 || ""}
+              onChange={(e) => setFieldValue("senderAddressLine2", e.target.value)}
+              placeholder="Enter address line 2 (optional)"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1312,6 +1375,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderMobile"
             label="Mobile"
             suppressErrors={shouldSuppressSenderErrors}
+            errors={errors}
+            touched={touched}
           >
             <input
               name="senderMobile"
@@ -1345,6 +1410,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="senderEmail"
             label="Email"
             suppressErrors={shouldSuppressSenderErrors}
+            errors={errors}
+            touched={touched}
           >
             <input
               name="senderEmail"
@@ -1407,6 +1474,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           <StepFieldWrapper
             name="receiverCustomerSearch"
             label="Search Customers"
+            errors={errors}
+            touched={touched}
           >
             <input
               type="text"
@@ -1439,7 +1508,7 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
 
             {/* Customer Selection Dropdown */}
             <div className="col-md-12 mb-3">
-              <StepFieldWrapper name="receiverCustomer" label="Select Customer">
+              <StepFieldWrapper name="receiverCustomer" label="Select Customer" errors={errors} touched={touched}>
                 <SingleSelect
                   options={
                     receiverSearchQuery.trim() === '' || receiverSearchQuery.trim().toLowerCase() === 'version'
@@ -1489,7 +1558,18 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverName"
             label="Name"
             suppressErrors={shouldSuppressReceiverErrors}
-          />
+            errors={errors}
+            touched={touched}
+          >
+            <input
+              name="receiverName"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.receiverName || ""}
+              onChange={(e) => setFieldValue("receiverName", e.target.value)}
+              placeholder="Enter name"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1497,7 +1577,18 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverCompanyName"
             label="Company Name"
             suppressErrors={shouldSuppressReceiverErrors}
-          />
+            errors={errors}
+            touched={touched}
+          >
+            <input
+              name="receiverCompanyName"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.receiverCompanyName || ""}
+              onChange={(e) => setFieldValue("receiverCompanyName", e.target.value)}
+              placeholder="Enter company name"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1505,6 +1596,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverZipCode"
             label="Zip Code"
             suppressErrors={shouldSuppressReceiverErrors}
+            errors={errors}
+            touched={touched}
           >
             <div className="position-relative">
               <input
@@ -1551,8 +1644,19 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           <StepFieldWrapper
             name="receiverCountry"
             label="Country"
-            suppressErrors={shouldSuppressSenderErrors}
-          />
+            suppressErrors={shouldSuppressReceiverErrors}
+            errors={errors}
+            touched={touched}
+          >
+            <input
+              name="receiverCountry"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.receiverCountry || ""}
+              onChange={(e) => setFieldValue("receiverCountry", e.target.value)}
+              placeholder="Enter country"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1560,6 +1664,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverState"
             label="State"
             suppressErrors={shouldSuppressReceiverErrors}
+            errors={errors}
+            touched={touched}
           >
             <input
               name="receiverState"
@@ -1577,6 +1683,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverCity"
             label="City"
             suppressErrors={shouldSuppressReceiverErrors}
+            errors={errors}
+            touched={touched}
           >
             <input
               name="receiverCity"
@@ -1594,6 +1702,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverArea"
             label="Area"
             suppressErrors={shouldSuppressReceiverErrors}
+            errors={errors}
+            touched={touched}
             labelButton={
               <AddAreaButton
                 text="Add Area"
@@ -1621,7 +1731,9 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
           <StepFieldWrapper
             name="receiverGstNo"
             label="GST No."
-            suppressErrors={shouldSuppressReceiverErrors}
+            suppressErrorMessage={true}
+            errors={errors}
+            touched={touched}
           >
             <input
               name="receiverGstNo"
@@ -1658,7 +1770,18 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverAddressLine1"
             label="Address Line 1"
             suppressErrors={shouldSuppressReceiverErrors}
-          />
+            errors={errors}
+            touched={touched}
+          >
+            <input
+              name="receiverAddressLine1"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.receiverAddressLine1 || ""}
+              onChange={(e) => setFieldValue("receiverAddressLine1", e.target.value)}
+              placeholder="Enter address line 1"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1666,7 +1789,18 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverAddressLine2"
             label="Address Line 2"
             suppressErrors={shouldSuppressReceiverErrors}
-          />
+            errors={errors}
+            touched={touched}
+          >
+            <input
+              name="receiverAddressLine2"
+              type="text"
+              className="form-control innerFormControll"
+              value={values.receiverAddressLine2 || ""}
+              onChange={(e) => setFieldValue("receiverAddressLine2", e.target.value)}
+              placeholder="Enter address line 2 (optional)"
+            />
+          </StepFieldWrapper>
         </div>
 
         <div className="col-md-12 mb-3">
@@ -1674,6 +1808,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverMobile"
             label="Mobile"
             suppressErrors={shouldSuppressReceiverErrors}
+            errors={errors}
+            touched={touched}
           >
             <input
               name="receiverMobile"
@@ -1707,6 +1843,8 @@ const StepTwoFormFields: React.FC<StepTwoFormFieldsProps> = ({
             name="receiverEmail"
             label="Email"
             suppressErrors={shouldSuppressReceiverErrors}
+            errors={errors}
+            touched={touched}
           >
             <input
               name="receiverEmail"

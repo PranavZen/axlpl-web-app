@@ -111,10 +111,10 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
   return (
     <>
       <div className="col-md-4">
-        <StepFieldWrapper name="name" label="Name" disabled={true} />
+        <StepFieldWrapper name="name" label="Name" disabled={true} errors={errors} touched={touched} />
       </div>
       <div className="col-md-4">
-        <StepFieldWrapper name="category" label="Category">
+        <StepFieldWrapper name="category" label="Category" errors={errors} touched={touched}>
           <SingleSelect
             options={categoryOpts}
             value={values.category}
@@ -125,7 +125,7 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
         </StepFieldWrapper>
       </div>
       <div className="col-md-4">
-        <StepFieldWrapper name="commodity" label="Commodity">
+        <StepFieldWrapper name="commodity" label="Commodity" errors={errors} touched={touched}>
           <MultiSelect
             options={commodityOpts}
             value={values.commodity}
@@ -144,13 +144,13 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
         </StepFieldWrapper>
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="netWeight" label="Net Weight (gm.)" />
+        <StepFieldWrapper name="netWeight" label="Net Weight (gm.)" errors={errors} touched={touched} />
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="grossWeight" label="Gross Weight (gm.)" />
+        <StepFieldWrapper name="grossWeight" label="Gross Weight (gm.)" errors={errors} touched={touched} />
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="paymentMode" label="Payment Mode">
+        <StepFieldWrapper name="paymentMode" label="Payment Mode" errors={errors} touched={touched}>
           <SingleSelect
             options={paymentModeOpts}
             value={values.paymentMode}
@@ -161,10 +161,10 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
         </StepFieldWrapper>
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="numberOfParcel" label="Number Of Parcel" />
+        <StepFieldWrapper name="numberOfParcel" label="Number Of Parcel" errors={errors} touched={touched} />
       </div>
       <div className="col-md-4">
-        <StepFieldWrapper name="serviceType" label="Service Type">
+        <StepFieldWrapper name="serviceType" label="Service Type" errors={errors} touched={touched}>
           <SingleSelect
             options={serviceTypeOpts}
             value={values.serviceType}
@@ -178,7 +178,7 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
         </StepFieldWrapper>
       </div>
       <div className="col-md-2 radioBtnWrap">
-        <StepFieldWrapper name="insurance" label="Insurance by AXLPL">
+        <StepFieldWrapper name="insurance" label="Insurance by AXLPL" errors={errors} touched={touched}>
           <SwitchButton
             name="insurance"
             label=""
@@ -188,22 +188,22 @@ const StepOneFormFields: React.FC<StepOneFormFieldsProps> = ({
         </StepFieldWrapper>
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="expiryDate" label="Expiry Date" type="date" disabled={!values.insurance} />
+        <StepFieldWrapper name="expiryDate" label="Expiry Date" type="date" disabled={!values.insurance} errors={errors} touched={touched} />
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="policyNumber" label="Policy Number" disabled={!values.insurance} />
+        <StepFieldWrapper name="policyNumber" label="Policy Number" disabled={!values.insurance} errors={errors} touched={touched} />
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="insuranceValue" label="Insurance Value (₹)" disabled={!values.insurance} />
+        <StepFieldWrapper name="insuranceValue" label="Insurance Value (₹)" disabled={!values.insurance} errors={errors} touched={touched} />
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="invoiceValue" label="Invoice Value (₹)" />
+        <StepFieldWrapper name="invoiceValue" label="Invoice Value (₹)" errors={errors} touched={touched} />
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="invoiceNumber" label="Invoice Number" />
+        <StepFieldWrapper name="invoiceNumber" label="Invoice Number" errors={errors} touched={touched} />
       </div>
       <div className="col-md-2">
-        <StepFieldWrapper name="remark" label="Remark" />
+        <StepFieldWrapper name="remark" label="Remark" errors={errors} touched={touched} />
       </div>
     </>
   );

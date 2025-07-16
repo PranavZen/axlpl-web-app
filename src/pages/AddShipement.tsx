@@ -535,7 +535,7 @@ const AddShipment = () => {
 
         // 3. Reset step to 0
         setStep(0);
-       setTimeout(() => navigate("/shipments/approved"), 500);
+        setTimeout(() => navigate("/shipments/approved"), 500);
       } else {
         // Error
         const errorMessage =

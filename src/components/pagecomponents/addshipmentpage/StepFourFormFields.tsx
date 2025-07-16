@@ -147,6 +147,8 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
                 <StepFieldWrapper
                   name="shipmentCharges"
                   label="Shipment Charges"
+                  errors={errors}
+                  touched={touched}
                 >
                   <input
                     name="shipmentCharges"
@@ -168,6 +170,8 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
                 <StepFieldWrapper
                   name="handlingCharges"
                   label="Handling Charges"
+                  errors={errors}
+                  touched={touched}
                 >
                   <input
                     name="handlingCharges"
@@ -186,7 +190,7 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
 
               {/* GST (18%) */}
               <div className="mb-3">
-                <StepFieldWrapper name="gstAmount" label="GST (18%)">
+                <StepFieldWrapper name="gstAmount" label="GST (18%)" errors={errors} touched={touched}>
                   <input
                     name="gstAmount"
                     type="text"
@@ -210,6 +214,8 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
                 <StepFieldWrapper
                   name="insuranceCharges"
                   label="Insurance Charges"
+                  errors={errors}
+                  touched={touched}
                 >
                   <input
                     name="insuranceCharges"
@@ -228,7 +234,7 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
 
               {/* Total Charges */}
               <div className="mb-3">
-                <StepFieldWrapper name="totalCharges" label="Total Charges">
+                <StepFieldWrapper name="totalCharges" label="Total Charges" errors={errors} touched={touched}>
                   <input
                     name="totalCharges"
                     type="text"
@@ -246,7 +252,7 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
 
               {/* Grand Total */}
               <div className="mb-3">
-                <StepFieldWrapper name="grandTotal" label="Grand Total">
+                <StepFieldWrapper name="grandTotal" label="Grand Total" errors={errors} touched={touched}>
                   <input
                     name="grandTotal"
                     type="text"
