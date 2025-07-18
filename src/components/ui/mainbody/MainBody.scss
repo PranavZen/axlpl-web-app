@@ -161,6 +161,7 @@
         // row-gap: 1.5rem;
         @include media-down(sm) {
           flex-direction: column;
+          gap: 2rem;
         }
       }
       h4 {
@@ -184,7 +185,6 @@
           background-color: #123458;
           transition: all 0.3s ease;
           a {
-            
             &:hover {
               &::after {
                 content: "";
@@ -238,7 +238,7 @@
       }
     }
     @media (max-width: 1199px) {
-      grid-template-columns: 1fr;
+      // grid-template-columns: 1fr;
 
       .leftTopBox,
       .rightTopBox,

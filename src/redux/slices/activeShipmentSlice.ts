@@ -63,6 +63,82 @@ export const fetchAllShipments = createAsyncThunk(
     }
   );
 
+// New action specifically for fetching all shipments for charts (tries multiple statuses)
+export const fetchAllShipmentsForCharts = createAsyncThunk(
+    "shipments/fetchAllForCharts",
+    async (_, { rejectWithValue }) => {
+      try {
+        const userData = getUserData();
+        const token = userData?.Customerdetail?.token;
+        const user_id = userData?.Customerdetail?.id;
+        const next_id = sessionStorage.getItem("next_id") || "0";
+
+        // Try different approaches to get all shipments
+        const statusesToTry = [
+          "", // Empty string
+          "all", // Try "all" keyword
+          "pending", // Try specific statuses
+          "approved",
+          "hold",
+          "delivered",
+          "cancelled"
+        ];
+
+        let allShipments: any[] = [];
+        let bestResult: any[] = [];
+
+        // Try each status to see which gives us the most comprehensive data
+        for (const status of statusesToTry) {
+          try {
+            const formData = new FormData();
+            formData.append("shipment_id", "");
+            formData.append("sender_company_name", "");
+            formData.append("receiver_company_name", "");
+            formData.append("origin", "");
+            formData.append("destination", "");
+            formData.append("sender_areaname", "");
+            formData.append("receiver_areaname", "");
+            formData.append("sender_gst_no", "");
+            formData.append("shipment_status", status);
+            formData.append("receiver_gst_no", "");
+            formData.append("user_id", user_id);
+            formData.append("next_id", next_id);
+
+            const response = await axios.post(
+              `${API_BASE_URL}/shipmentactivelist`,
+              formData,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            const shipmentData = response?.data?.shipment?.[0]?.shipmentData;
+            if (Array.isArray(shipmentData) && shipmentData.length > 0) {
+              // If this result has more shipments than our current best, use it
+              if (shipmentData.length > bestResult.length) {
+                bestResult = shipmentData;
+              }
+              
+              // If this is empty string or "all", and we got data, use it immediately
+              if ((status === "" || status === "all") && shipmentData.length > 0) {
+                allShipments = shipmentData;
+                break;
+              }
+            }
+          } catch (error) {
+            console.warn(`Failed to fetch with status "${status}":`, error);
+          }
+        }
+
+        // Use the best result we found
+        const finalResult = allShipments.length > 0 ? allShipments : bestResult;
+        
+        console.log(`📊 Fetched ${finalResult.length} shipments for charts`);
+        return finalResult;
+      } catch (error: any) {
+        return rejectWithValue(error?.response?.data?.message || error.message);
+      }
+    }
+  );
+
 export const deleteShipment = createAsyncThunk(
   "shipments/delete",
   async (shipment_id: string, { rejectWithValue }) => {
@@ -102,6 +178,19 @@ const activeShipmentSlice = createSlice({
         state.shipments = action.payload;
       })
       .addCase(fetchAllShipments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // New action for fetching all shipments for charts
+      .addCase(fetchAllShipmentsForCharts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllShipmentsForCharts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.shipments = action.payload;
+      })
+      .addCase(fetchAllShipmentsForCharts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

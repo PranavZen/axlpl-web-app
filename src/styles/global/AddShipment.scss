@@ -1293,3 +1293,63 @@
     opacity: 0.75;
   }
 }
+.shipment-charts {
+  .chart-header {
+    .chart-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #7d7d7d;
+      margin-bottom: 1.5rem;
+    }
+  }
+  .charts-grid {
+    .chart-item {
+      .chart-type-title {
+        font-size: 18px;
+        color: #1a1a1a;
+        margin-bottom: 0;
+        font-weight: 600;
+      }
+      .chart-summary {
+        .summary-header {
+          .summary-title {
+            font-size: 16px;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-weight: 600;
+          }
+          .summary-stats {
+            .status-types {
+              font-size: 14px;
+              color: #1a1a1a;
+              margin-bottom: 6px;
+              font-weight: 600;
+              display: block;
+            }
+          }
+        }
+        .summary-grid {
+          .summary-item {
+            font-size: 14px;
+            margin-bottom: 0;
+            font-weight: 600;
+            .status-header {
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              .status-indicator {
+                width: 10px;
+                height: 10px;
+                border-radius: 50px;
+                .status-info {
+                  display: flex;
+                  gap: 5px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

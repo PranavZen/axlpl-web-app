@@ -182,7 +182,7 @@ const Sidebar = () => {
             items={[{ label: "Contact", to: "/customer-contact" }]}
           /> */}
 
-          <SidebarDropdown
+          {/* <SidebarDropdown
             title="Billing"
             icon={<IoReceiptSharp />}
             isOpen={!isSidebarCollapsed}
@@ -193,7 +193,7 @@ const Sidebar = () => {
               // { label: "My Quotes", to: "/quotes" },
               // { label: "My Payment History", to: "/payment-history" },
             ]}
-          />
+          /> */}
           <SidebarLink
             to="/change-password"
             icon={<FaLock />}
