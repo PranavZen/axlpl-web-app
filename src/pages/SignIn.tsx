@@ -136,7 +136,8 @@ const SignIn = () => {
                 </div>
                 <div className="p_frgtPswdWrap">
                   <Link
-                    to="/forgot-password"
+                    // to="/forgot-password"
+                    to="/"
                     id="to-recover"
                     className="text-dark pull-right"
                   >

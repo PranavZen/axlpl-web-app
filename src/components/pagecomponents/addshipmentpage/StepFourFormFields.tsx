@@ -26,6 +26,11 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
   const { paymentInfo, loading, error } = useSelector(
     (state: RootState) => state.shipmentPayment
   );
+  
+  // Debug logging
+  useEffect(() => {
+    console.log("StepFourFormFields: State updated:", { paymentInfo, loading, error });
+  }, [paymentInfo, loading, error]);
   //  const userId = getUserData()?.Customerdetail?.id || '';
   //       console.log("userIduserId", userId)
   // Build API payload from form values
@@ -65,7 +70,7 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
       category_id: values.category?.value || values.category || "",
       net_weight: values.netWeight || "",
       gross_weight: values.grossWeight || "",
-      tax: values.tax || "",
+      tax: values.tax || values.gstAmount || "0",
       payment_mode: values.paymentMode?.value || values.paymentMode || "",
       invoice_value: values.invoiceValue || "",
       insurance_by_AXLPL: values.insurance ? "1" : "0",
@@ -82,19 +87,30 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
   useEffect(() => {
     // Only call if all required fields are present
     const payload = buildApiPayload();
-    if (
-      payload.customer_id &&
-      payload.commodity_id &&
-      payload.category_id &&
-      payload.net_weight &&
-      payload.gross_weight &&
-      payload.tax &&
-      payload.payment_mode &&
-      payload.invoice_value &&
-      payload.sender_zipcode &&
-      payload.receiver_zipcode
-    ) {
+    console.log("StepFourFormFields: Built payload:", payload);
+    
+    // Check each required field individually
+    const requiredFields = [
+      'customer_id',
+      'commodity_id', 
+      'category_id',
+      'net_weight',
+      'gross_weight',
+      'tax',
+      'payment_mode',
+      'invoice_value',
+      'sender_zipcode',
+      'receiver_zipcode'
+    ] as const;
+    
+    const missingFields = requiredFields.filter(field => !payload[field as keyof typeof payload]);
+    
+    if (missingFields.length === 0) {
+      console.log("StepFourFormFields: All required fields present. Dispatching fetchShipmentPaymentInformation with payload:", payload);
       dispatch(fetchShipmentPaymentInformation(payload));
+    } else {
+      console.log("StepFourFormFields: Missing required fields:", missingFields);
+      console.log("StepFourFormFields: Current payload:", payload);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -114,6 +130,7 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
     values.expiryDate,
     values.insuranceValue,
     values.tax,
+    values.gstAmount,
   ]);
 
   // Update form fields with API response

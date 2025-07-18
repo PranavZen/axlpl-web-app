@@ -12,7 +12,7 @@ import pincodeReducer from "./slices/pincodeSlice";
 import changePasswordReducer from "./slices/changePasswordSlice";
 import profileReducer from "./slices/profileSlice";
 import trackingReducer from "./slices/trackingSlice";
-import shipmentPaymentReducer from "./slices/shipmentPaymentStore";
+import shipmentPaymentReducer from "./slices/shipmentPaymentSlice";
 import editShipmentReducer from "./slices/editShipmentSlice";
 import { authMiddleware, securityMiddleware, rateLimitMiddleware } from "../middleware/authMiddleware";
 
