@@ -76,18 +76,18 @@ const shipmentPaymentSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchShipmentPaymentInformation.pending, (state) => {
-        console.log("fetchShipmentPaymentInformation: PENDING");
+        // console.log("fetchShipmentPaymentInformation: PENDING");
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchShipmentPaymentInformation.fulfilled, (state, action) => {
-        console.log("fetchShipmentPaymentInformation: FULFILLED", action.payload);
+        // console.log("fetchShipmentPaymentInformation: FULFILLED", action.payload);
         state.loading = false;
         state.paymentInfo = action.payload;
         state.error = null;
       })
       .addCase(fetchShipmentPaymentInformation.rejected, (state, action) => {
-        console.log("fetchShipmentPaymentInformation: REJECTED", action.payload);
+        // console.log("fetchShipmentPaymentInformation: REJECTED", action.payload);
         state.loading = false;
         state.error = (action.payload as string) || "Failed to fetch payment information";
       });

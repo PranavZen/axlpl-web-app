@@ -28,7 +28,7 @@ const ShipmentDetailsCard: React.FC<ShipmentDetailsCardProps> = ({ data , sender
     return service ? service.name : serviceId || "N/A";
   };
 
-  console.log("data", data);
+  // console.log("data", data);
   const formatCurrency = (amount: string) => {
     const num = parseFloat(amount);
     return isNaN(num) ? amount : `₹${num.toFixed(2)}`;

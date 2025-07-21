@@ -38,12 +38,12 @@ const STATUS_MAPPING: { [key: string]: string } = {
 
 // Process shipment data to get status-wise count and percentage
 export const processShipmentData = (shipments: any[]): ShipmentStatusData[] => {
-  console.log('📊 Processing shipment data:', shipments?.length || 0, 'shipments');
+  // console.log('📊 Processing shipment data:', shipments?.length || 0, 'shipments');
   
-  if (!shipments || shipments.length === 0) {
-    console.log('📊 No shipments data to process');
-    return [];
-  }
+  // if (!shipments || shipments.length === 0) {
+  //   console.log('📊 No shipments data to process');
+  //   return [];
+  // }
 
   // Count shipments by status
   const statusCounts: { [key: string]: number } = {};
@@ -62,12 +62,12 @@ export const processShipmentData = (shipments: any[]): ShipmentStatusData[] => {
     statusCounts[status] = (statusCounts[status] || 0) + 1;
     
     // Log first few shipments for debugging
-    if (index < 5) {
-      console.log(`📊 Shipment ${index + 1}: original = "${shipment.shipment_status}", normalized = "${status}"`);
-    }
+    // if (index < 5) {
+    //   console.log(`📊 Shipment ${index + 1}: original = "${shipment.shipment_status}", normalized = "${status}"`);
+    // }
   });
 
-  console.log('📊 Status counts:', statusCounts);
+  // console.log('📊 Status counts:', statusCounts);
 
   const totalShipments = shipments.length;
   
@@ -80,7 +80,7 @@ export const processShipmentData = (shipments: any[]): ShipmentStatusData[] => {
 
   // Sort by count (descending)
   const sortedData = statusData.sort((a, b) => b.count - a.count);
-  console.log('📊 Processed status data:', sortedData);
+  // console.log('📊 Processed status data:', sortedData);
   
   return sortedData;
 };

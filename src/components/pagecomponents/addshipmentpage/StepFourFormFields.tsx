@@ -29,7 +29,7 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
   
   // Debug logging
   useEffect(() => {
-    console.log("StepFourFormFields: State updated:", { paymentInfo, loading, error });
+    // console.log("StepFourFormFields: State updated:", { paymentInfo, loading, error });
   }, [paymentInfo, loading, error]);
   //  const userId = getUserData()?.Customerdetail?.id || '';
   //       console.log("userIduserId", userId)
@@ -87,7 +87,7 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
   useEffect(() => {
     // Only call if all required fields are present
     const payload = buildApiPayload();
-    console.log("StepFourFormFields: Built payload:", payload);
+    // console.log("StepFourFormFields: Built payload:", payload);
     
     // Check each required field individually
     const requiredFields = [
@@ -106,12 +106,9 @@ const StepFourFormFields: React.FC<StepFourFormFieldsProps> = ({
     const missingFields = requiredFields.filter(field => !payload[field as keyof typeof payload]);
     
     if (missingFields.length === 0) {
-      console.log("StepFourFormFields: All required fields present. Dispatching fetchShipmentPaymentInformation with payload:", payload);
+      // console.log("StepFourFormFields: All required fields present. Dispatching fetchShipmentPaymentInformation with payload:", payload);
       dispatch(fetchShipmentPaymentInformation(payload));
-    } else {
-      console.log("StepFourFormFields: Missing required fields:", missingFields);
-      console.log("StepFourFormFields: Current payload:", payload);
-    }
+    } 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     values.senderCustomerId,

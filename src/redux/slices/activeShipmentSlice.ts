@@ -131,7 +131,7 @@ export const fetchAllShipmentsForCharts = createAsyncThunk(
         // Use the best result we found
         const finalResult = allShipments.length > 0 ? allShipments : bestResult;
         
-        console.log(`📊 Fetched ${finalResult.length} shipments for charts`);
+        // console.log(`📊 Fetched ${finalResult.length} shipments for charts`);
         return finalResult;
       } catch (error: any) {
         return rejectWithValue(error?.response?.data?.message || error.message);
