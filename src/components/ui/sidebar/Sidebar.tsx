@@ -3,11 +3,14 @@ import {
   FaHome as FaHomeIconRaw,
   FaLock as FaLockIconRaw,
   FaSignOutAlt as FaSignOutAltRaw,
+  FaUser as FaUserIconRaw,
 } from "react-icons/fa";
 import { FaTruckFast as FaTruckFastRaw } from "react-icons/fa6";
-import { IoReceiptSharp as IoReceiptSharpRaw } from "react-icons/io5";
+// import { IoReceiptSharp as IoReceiptSharpRaw } from "react-icons/io5";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import SmallLogo from "../../../assets/images/axlpl_box.png";
+import BigLogo from "../../../assets/images/axlplLogoImg.png";
 import { SidebarContext } from "../../../contexts/SidebarContext";
 import { logoutLocal, logoutUser } from "../../../redux/slices/authSlice";
 import { AppDispatch } from "../../../redux/store";
@@ -16,16 +19,15 @@ import "../sidebar/Sidebar.scss";
 import SidebarDropdown from "./SidebarDropdown";
 import SidebarLink from "./SidebarLink";
 import SidebarToggleButton from "./SidebarToggleButton";
-import SmallLogo from "../../../assets/images/axlpl_box.png";
-import BigLogo from "../../../assets/images/axlplLogoImg.png";
 // Cast icons to JSX-compatible components
 const FaHome = FaHomeIconRaw as React.FC<React.SVGProps<SVGSVGElement>>;
 const FaSignOutAlt = FaSignOutAltRaw as React.FC<React.SVGProps<SVGSVGElement>>;
 const FaLock = FaLockIconRaw as React.FC<React.SVGProps<SVGSVGElement>>;
 const FaTruckFast = FaTruckFastRaw as React.FC<React.SVGProps<SVGSVGElement>>;
-const IoReceiptSharp = IoReceiptSharpRaw as React.FC<
-  React.SVGProps<SVGSVGElement>
->;
+const FaUser = FaUserIconRaw as React.FC<React.SVGProps<SVGSVGElement>>;
+// const IoReceiptSharp = IoReceiptSharpRaw as React.FC<
+//   React.SVGProps<SVGSVGElement>
+// >;
 
 const Sidebar = () => {
   const { isSidebarCollapsed } = useContext(SidebarContext);
@@ -116,21 +118,31 @@ const Sidebar = () => {
           >
             <div className="d-flex">
               <div className="user-avatar">
-                <img
-                  src={`${(userData?.Customerdetail?.path || "").replace(
-                    /\/$/,
-                    ""
-                  )}/${(
-                    userData?.Customerdetail?.cust_profile_img || ""
-                  ).replace(/^\//, "")}`}
-                  alt={userData?.Customerdetail?.name || "User"}
-                  className="rounded-circle"
-                  title="Click to edit profile"
-                  // onError={(e) =>
-                  //   (e.currentTarget.src =
-                  //     "https://beta.axlpl.com/admin/template/assets/images/dashboard/profImg.png")
-                  // } // fallback path
-                />
+                {userData?.Customerdetail?.cust_profile_img === "0" || 
+                 userData?.Customerdetail?.cust_profile_img === 0 ||
+                 !userData?.Customerdetail?.cust_profile_img ? (
+                  <div className="default-avatar-icon">
+                    <FaUser />
+                  </div>
+                ) : (
+                  <img
+                    src={`${(userData?.Customerdetail?.path || "").replace(
+                      /\/$/,
+                      ""
+                    )}/${(
+                      userData?.Customerdetail?.cust_profile_img || ""
+                    ).replace(/^\//, "")}`}
+                    alt={userData?.Customerdetail?.name || "User"}
+                    className="rounded-circle"
+                    title="Click to edit profile"
+                    onError={(e) => {
+                      // Replace with SVG icon on error
+                      <div className="default-avatar-icon">
+                    <FaUser />
+                  </div>
+                    }}
+                  />
+                )}
               </div>
               <div className="user-info">
                 <h6 className="mb-0">

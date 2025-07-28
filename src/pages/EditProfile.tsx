@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { FaUser as FaUserIconRaw } from 'react-icons/fa';
 import Button from '../components/ui/button/Button';
 import Input from '../components/ui/input/Input';
 import Label from '../components/ui/label/Label';
@@ -29,6 +30,9 @@ import { AppDispatch, RootState } from '../redux/store';
 import '../styles/global/AddShipment.scss';
 import '../styles/pages/EditProfile.scss';
 import { showError, showSuccess } from '../utils/toastUtils';
+
+// Cast icon to JSX-compatible component
+const FaUser = FaUserIconRaw as React.FC<React.SVGProps<SVGSVGElement>>;
 
 
 const EditProfile: React.FC = () => {
@@ -95,13 +99,6 @@ const EditProfile: React.FC = () => {
     'Consulting',
     'Other'
   ];
-
-  // Function to generate avatar color class based on name
-  const getAvatarColorClass = (name: string): string => {
-    const colors = ['avatar-blue', 'avatar-green', 'avatar-purple', 'avatar-orange', 'avatar-red', 'avatar-teal'];
-    const charCode = name.charCodeAt(0) || 0;
-    return colors[charCode % colors.length];
-  };
 
   // Fetch profile data using Redux
   const fetchProfileDataFromRedux = useCallback(async () => {
@@ -249,24 +246,17 @@ const EditProfile: React.FC = () => {
               </div>
               <div className="card-body text-center">
                 <div className="profile-image-container mb-3">
-                  {profileData.cust_profile_img ? (
+                  {profileData.cust_profile_img && 
+                   profileData.cust_profile_img !== "0" && 
+                   profileData.cust_profile_img !== 0 ? (
                     <img
                       src={`${profileData.path}${profileData.cust_profile_img}`}
                       alt="Profile"
                       className="profile-image"
                     />
                   ) : (
-                    <div
-                      className={`profile-avatar-placeholder initials-only ${getAvatarColorClass(profileData?.full_name || profileData?.company_name || 'User')}`}
-                    >
-                      <div className="avatar-text">
-                        {profileData?.full_name
-                          ? profileData.full_name.split(' ').map((name: string) => name.charAt(0)).join('').substring(0, 2).toUpperCase()
-                          : profileData?.company_name
-                          ? profileData.company_name.charAt(0).toUpperCase()
-                          : 'U'
-                        }
-                      </div>
+                    <div className="default-avatar-icon-large">
+                      <FaUser />
                     </div>
                   )}
                 </div>

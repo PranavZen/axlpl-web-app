@@ -53,6 +53,35 @@
       border: 4px solid #123458;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+
+    .default-avatar-icon-large {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid #123458;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+
+      svg {
+        width: 60px;
+        height: 60px;
+        color: #6c757d;
+      }
+
+      &:hover {
+        border-color: #ed6723;
+        box-shadow: 0 6px 12px rgba(237, 103, 35, 0.2);
+        transform: translateY(-2px);
+        
+        svg {
+          color: #ed6723;
+        }
+      }
+    }
     
     .profile-avatar-placeholder {
       width: 120px;
