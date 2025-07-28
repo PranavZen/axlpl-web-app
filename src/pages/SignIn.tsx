@@ -179,14 +179,14 @@ const SignIn = () => {
                   )}
                 </div>
                 <div className="p_frgtPswdWrap">
-                  <Link
+                  {/* <Link
                     // to="/forgot-password"
                     to="/"
                     id="to-recover"
                     className="text-dark pull-right"
                   >
                     Forgot Password?
-                  </Link>
+                  </Link> */}
                 </div>
                 <div className="form-check myCheckbox d-none">
                   <input
