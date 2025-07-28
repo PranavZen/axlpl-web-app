@@ -10,6 +10,67 @@ export interface ValidationResult {
 }
 
 /**
+ * Detect if input is mobile number or email
+ */
+export const detectInputType = (value: string): 'mobile' | 'email' | 'unknown' => {
+  const trimmedValue = value?.trim() || '';
+  
+  // Check if it's a mobile number (10 digits, starting with 6-9)
+  if (/^[6-9]\d{9}$/.test(trimmedValue)) {
+    return 'mobile';
+  }
+  
+  // Check if it contains @ symbol and has basic email structure
+  if (trimmedValue.includes('@') && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedValue)) {
+    return 'email';
+  }
+  
+  return 'unknown';
+};
+
+/**
+ * Validate mobile number or email for login
+ */
+export const validateMobileOrEmail = (value: string): ValidationResult => {
+  const trimmedValue = value?.trim() || '';
+  
+  if (!trimmedValue) {
+    return { isValid: false, error: 'Please enter your mobile number or email address' };
+  }
+  
+  const inputType = detectInputType(trimmedValue);
+  
+  if (inputType === 'mobile') {
+    // Validate mobile number - must be 10 digits starting with 6-9
+    if (!/^[6-9]\d{9}$/.test(trimmedValue)) {
+      return { isValid: false, error: 'Mobile number must be 10 digits starting with 6, 7, 8, or 9' };
+    }
+    return { isValid: true };
+  } else if (inputType === 'email') {
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedValue)) {
+      return { isValid: false, error: 'Please enter a valid email address' };
+    }
+    return { isValid: true };
+  } else {
+    // If input doesn't match either format, provide specific guidance
+    if (/^\d+$/.test(trimmedValue)) {
+      if (trimmedValue.length < 10) {
+        return { isValid: false, error: `Mobile number must be 10 digits (you entered ${trimmedValue.length})` };
+      } else if (trimmedValue.length > 10) {
+        return { isValid: false, error: 'Mobile number must be exactly 10 digits' };
+      } else if (!/^[6-9]/.test(trimmedValue)) {
+        return { isValid: false, error: 'Mobile number must start with 6, 7, 8, or 9' };
+      }
+    } else if (trimmedValue.includes('@')) {
+      return { isValid: false, error: 'Please enter a valid email address (e.g., user@example.com)' };
+    }
+    
+    return { isValid: false, error: 'Please enter a valid mobile number (10 digits) or email address' };
+  }
+};
+
+/**
  * Validate name fields (sender/receiver names)
  */
 export const validateName = (value: string): ValidationResult => {
