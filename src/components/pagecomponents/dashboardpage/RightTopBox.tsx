@@ -29,10 +29,10 @@ const RightTopBox = () => {
                 alt={userData?.Customerdetail?.name || "User"}
                 className="rounded-circle"
                 title="profile img"
-                onError={(e) =>
-                  (e.currentTarget.src =
-                    "https://beta.axlpl.com/admin/template/assets/images/dashboard/profImg.png")
-                } // fallback path
+                // onError={(e) =>
+                //   (e.currentTarget.src =
+                //     "https://beta.axlpl.com/admin/template/assets/images/dashboard/profImg.png")
+                // } // fallback path
               />
             </span>
             <p>{userData?.Customerdetail?.name || "User"}</p>

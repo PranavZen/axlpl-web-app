@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getUserData } from "../../../utils/authUtils";
-
+import shipmentTracking from "../../../assets/images/shipment-tracking.png";
+import pickup from "../../../assets/images/pickupppp.png";
+import consignment from "../../../assets/images/consignment.png";
+import rightArrow from "../../../assets/images/rightArrow.png";
 const LeftTopBox = () => {
   const [userData, setUserData] = useState<any>(null);
 
@@ -23,7 +26,7 @@ const LeftTopBox = () => {
                   <div className="btmWrap">
                     <span className="iconWrap">
                       <img
-                        src="https://beta.axlpl.com/admin/template/assets/images/dashboard/pickupppp.png"
+                        src={pickup}
                         alt="Pickup"
                         className="img-fluid"
                         width="60"
@@ -32,7 +35,7 @@ const LeftTopBox = () => {
                     </span>
                     <span className="rightArrowWrap">
                       <img
-                        src="https://beta.axlpl.com/admin/template/assets/images/dashboard/rightArrow.png"
+                        src={rightArrow}
                         alt="right arrow"
                         className="img-fluid"
                         width="12"
@@ -51,7 +54,7 @@ const LeftTopBox = () => {
                   <div className="btmWrap">
                     <span className="iconWrap">
                       <img
-                        src="https://beta.axlpl.com/admin/template/assets/images/dashboard/consignment.png"
+                        src={consignment}
                         alt="consignment"
                         className="img-fluid"
                         width="60"
@@ -60,7 +63,7 @@ const LeftTopBox = () => {
                     </span>
                     <span className="rightArrowWrap">
                       <img
-                        src="https://beta.axlpl.com/admin/template/assets/images/dashboard/rightArrow.png"
+                        src={rightArrow}
                         alt="right arrow"
                         className="img-fluid"
                         width="12"
@@ -78,7 +81,7 @@ const LeftTopBox = () => {
                   <div className="btmWrap">
                     <span className="iconWrap">
                       <img
-                        src="https://new.axlpl.com/admin/template/assets/images/shipment-tracking.png"
+                        src={shipmentTracking}
                         alt="shipment-tracking"
                         className="img-fluid"
                         width="60"
@@ -87,7 +90,7 @@ const LeftTopBox = () => {
                     </span>
                     <span className="rightArrowWrap">
                       <img
-                        src="https://beta.axlpl.com/admin/template/assets/images/dashboard/rightArrow.png"
+                        src={rightArrow}
                         alt="right arrow"
                         className="img-fluid"
                         width="12"

@@ -15,7 +15,7 @@ import SecurityNotice from "../components/ui/security/SecurityNotice";
 import AuthGuard from "../components/guards/AuthGuard";
 import "../styles/pages/TrackShipment.scss";
 import "../components/guards/AuthGuard.scss";
-
+import pickup from "../assets/images/pickupppp.png";
 const TrackShipment: React.FC = () => {
   const { isSidebarCollapsed } = useContext(SidebarContext);
   const trackingState = useSelector(
@@ -218,7 +218,7 @@ const TrackShipment: React.FC = () => {
                     <div className="emptyState">
                       <div className="emptyIcon">
                         <img
-                          src="https://beta.axlpl.com/admin/template/assets/images/dashboard/pickupppp.png"
+                          src={pickup}
                           alt="Track Shipment"
                           width="80"
                           height="80"

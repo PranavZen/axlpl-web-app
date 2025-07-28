@@ -16,6 +16,8 @@ import "../sidebar/Sidebar.scss";
 import SidebarDropdown from "./SidebarDropdown";
 import SidebarLink from "./SidebarLink";
 import SidebarToggleButton from "./SidebarToggleButton";
+import SmallLogo from "../../../assets/images/axlpl_box.png";
+import BigLogo from "../../../assets/images/axlplLogoImg.png";
 // Cast icons to JSX-compatible components
 const FaHome = FaHomeIconRaw as React.FC<React.SVGProps<SVGSVGElement>>;
 const FaSignOutAlt = FaSignOutAltRaw as React.FC<React.SVGProps<SVGSVGElement>>;
@@ -91,14 +93,14 @@ const Sidebar = () => {
         <div className="logoWap">
           {isSidebarCollapsed ? (
             <img
-              src="https://new.axlpl.com/admin/template/assets/images/axlpl_box.png"
+              src={SmallLogo}
               alt="AXLPL Logo"
               className="img-fluid"
               loading="lazy"
             />
           ) : (
             <img
-              src="https://beta.axlpl.com/admin/template/assets/images/dashboard/axlplLogoImg.png"
+              src={BigLogo}
               alt="AXLPL Logo"
               className="img-fluid"
               loading="lazy"
@@ -124,10 +126,10 @@ const Sidebar = () => {
                   alt={userData?.Customerdetail?.name || "User"}
                   className="rounded-circle"
                   title="Click to edit profile"
-                  onError={(e) =>
-                    (e.currentTarget.src =
-                      "https://beta.axlpl.com/admin/template/assets/images/dashboard/profImg.png")
-                  } // fallback path
+                  // onError={(e) =>
+                  //   (e.currentTarget.src =
+                  //     "https://beta.axlpl.com/admin/template/assets/images/dashboard/profImg.png")
+                  // } // fallback path
                 />
               </div>
               <div className="user-info">

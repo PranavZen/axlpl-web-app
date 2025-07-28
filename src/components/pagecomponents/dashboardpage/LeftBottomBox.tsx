@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-
+import rightArrow from "../../../assets/images/rightArrow.png";
 const LeftBottomBox = () => {
   return (
     <div className="leftBottomBox box">
@@ -14,7 +14,7 @@ const LeftBottomBox = () => {
                       <span>10</span>
                       <span className="btmArrowWrap">
                         <img
-                          src="https://beta.axlpl.com/admin/template/assets/images/dashboard/rightArrow.png"
+                          src={rightArrow}
                           alt="right arrow"
                           className="img-fluid"
                           width="12"
@@ -33,7 +33,7 @@ const LeftBottomBox = () => {
                       <span>10</span>
                       <span className="btmArrowWrap">
                         <img
-                          src="https://beta.axlpl.com/admin/template/assets/images/dashboard/rightArrow.png"
+                          src={rightArrow}
                           alt="right arrow"
                           className="img-fluid"
                           width="12"

@@ -12,6 +12,7 @@ import { loginUser } from "../redux/slices/authSlice";
 import { AppDispatch, RootState } from "../redux/store";
 import { isAuthenticated } from "../utils/authUtils";
 import { showError, showSuccess } from "../utils/toastUtils";
+import BigLogo from "../assets/images/axlplLogoImg.png";
 const SignIn = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.auth);
@@ -85,7 +86,7 @@ const SignIn = () => {
             <div className="p_loginInnerFormWrap">
               <div className="logoWrap d-flex justify-content-center mb-5">
                 <img
-                  src="https://beta.axlpl.com/admin/template/assets/images/dashboard/axlplLogoImg.png"
+                  src={BigLogo}
                   alt="axlpl"
                   width={300}
                   height={100}
