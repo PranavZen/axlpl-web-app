@@ -4,11 +4,14 @@ import shipmentReducer from "./slices/shipmentSlice";
 import activeShipmentReducer from "./slices/activeShipmentSlice";
 import addressReducer from "./slices/addressSlice";
 import categoryReducer from "./slices/categorySlice";
+import registerCategoryReducer from "./slices/registerCategorySlice";
+import natureOfBusinessReducer from "./slices/natureOfBusinessSlice";
 import commodityReducer from "./slices/commoditySlice";
 import paymentModeReducer from "./slices/paymentModeSlice";
 import serviceTypeReducer from "./slices/serviceTypeSlice";
 import customerReducer from "./slices/customerSlice";
 import pincodeReducer from "./slices/pincodeSlice";
+import registerPincodeReducer from "./slices/registerPincodeSlice";
 import changePasswordReducer from "./slices/changePasswordSlice";
 import profileReducer from "./slices/profileSlice";
 import trackingReducer from "./slices/trackingSlice";
@@ -33,6 +36,9 @@ export const store = configureStore({
     tracking: trackingReducer,
     shipmentPayment: shipmentPaymentReducer,
     editShipment: editShipmentReducer,
+    registerCategory: registerCategoryReducer,
+    natureOfBusiness: natureOfBusinessReducer,
+    registerPincode: registerPincodeReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

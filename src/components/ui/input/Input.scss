@@ -101,3 +101,41 @@
     background-color: #fff5f5 !important;
   }
 }
+
+#registerCategorySelectOpt{
+  .css-13cymwt-control{
+    font-weight: 400;
+    background-color: #fff !important;
+    font-size: 18px;
+    color: #47464a !important;
+    height: 54px;
+    border-radius: 12px !important;
+    border-color: #113459 !important;
+    box-shadow: none;
+    .css-1dimb5e-singleValue{
+      font-weight: 400 !important;
+    }
+  }
+  .css-t3ipsp-control{
+    font-weight: 400;
+    background-color: #fff !important;
+    font-size: 18px;
+    color: #47464a !important;
+    height: 54px;
+    border-radius: 12px !important;
+    border-color: #113459 !important;
+    box-shadow: none;
+  }
+  
+}
+.newLabel{
+  label{
+    opacity: 1;
+    transform: scale(0.85) translateY(-1.8rem) translateX(1rem);
+    background-color: #fff;
+    padding: 0 5px;
+    height: auto;
+    font-size: 16px;
+    color: #84818a;
+  }
+}

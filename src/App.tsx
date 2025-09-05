@@ -11,6 +11,7 @@ import { SidebarProvider } from "./contexts/SidebarContext";
 import Addresses from "./pages/Addresses";
 import "./styles/global/Global.scss";
 import SessionTimeoutChecker from "./components/auth/SessionTimeoutChecker";
+import Registration from "./pages/Registration";
 // Lazy load pages
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SignIn = lazy(() => import("./pages/SignIn"));
@@ -29,6 +30,7 @@ const App = () => {
         <Suspense fallback={<LogisticsLoader />}>
           <Routes>
             <Route path="/" element={<SignIn />} />
+            <Route path="/registration" element={<Registration />} />
             <Route
               path="/dashboard"
               element={

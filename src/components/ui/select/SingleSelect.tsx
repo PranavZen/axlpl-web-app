@@ -39,6 +39,7 @@ const SingleSelect: React.FC<SingleSelectProps> = ({
       className={`basic-single-select ${hasError ? 'has-error' : ''}`}
       classNamePrefix="select"
       isMulti={false} // <-- Important: Disable multi-select
+      id={id}
     />
   );
 };
