@@ -212,10 +212,10 @@ const SignIn = () => {
                       <InlineLogisticsLoader size="sm" />
                     </div>
                   )}
-                  {/* <span className="dividerLine">or</span>
-                  <Link to="" className="btn authSignUpBtn">
+                  <span className="dividerLine">or</span>
+                  <Link to="/registration" className="btn authSignUpBtn">
                     Register Now
-                  </Link> */}
+                  </Link>
                 </div>
                 {/* {error && (
                   <div className="text-danger mt-2">
