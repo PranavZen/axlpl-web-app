@@ -249,7 +249,7 @@ const Registration: React.FC = () => {
                           )}
                         </div>
 
-                        {/* Full Name */}
+                        {/* Full Name */} 
                         <div className="form-floating col-6 mb-5">
                           <Input
                             type="text"
